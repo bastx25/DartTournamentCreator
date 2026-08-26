@@ -2,10 +2,7 @@
 {
     public enum TournamentMode
     {
-        SingleElimination,
-        DoubleElimination,
-        RoundRobin,
-        Swiss,
-        GroupStage
+        GroupStage,
+        GrouStageandKnockout,
     }
 }
