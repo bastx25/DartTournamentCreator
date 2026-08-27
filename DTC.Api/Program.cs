@@ -17,6 +17,7 @@ builder.Services.AddDbContext<DartDbContext>(options =>
             );
 
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<IMatchParticipantRepository, MatchParticipantRepository>();
 
 var app = builder.Build();
 
