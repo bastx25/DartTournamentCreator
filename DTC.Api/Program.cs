@@ -21,6 +21,8 @@ builder.Services.AddScoped<IMatchParticipantRepository, MatchParticipantReposito
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IRoundRepository, RoundRepository>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 
 var app = builder.Build();
 

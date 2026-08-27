@@ -1,10 +1,11 @@
 ﻿using DTC.Api.Data;
+using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DTC.Api.Repositories
 {
-    public class RoundRepository
+    public class RoundRepository : IRoundRepository
     {
         private readonly DartDbContext _context;
 
