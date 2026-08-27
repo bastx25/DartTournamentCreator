@@ -29,7 +29,7 @@ namespace DTC.Api.Mappers
         }
 
         // Update DTO -> vorhandene Entity aktualisieren
-        public static void UpdatePlayerModel(this UpdatePlayerDto dto, Player player)
+        public static void UpdatePlayerEntity(this UpdatePlayerDto dto, Player player)
         {
             player.FirstName = dto.FirstName.Trim();
             player.LastName = dto.LastName.Trim();
