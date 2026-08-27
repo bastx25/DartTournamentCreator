@@ -61,7 +61,7 @@ public class PlayerController : ControllerBase
             return NotFound();
         }
 
-        playerDto.UpdatePlayerModel(existingPlayer);
+        playerDto.UpdatePlayerEntity(existingPlayer);
 
         await _playerRepo.UpdateAsync(existingPlayer);
         
