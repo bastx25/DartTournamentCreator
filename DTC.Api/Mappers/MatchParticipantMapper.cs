@@ -5,7 +5,6 @@ namespace DTC.Api.Mappers
 {
     public static class MatchParticipantMapper
     {
-
         public static MatchParticipantDto ToMatchParticipantDto(this MatchParticipant participant)
         {
             return new MatchParticipantDto
