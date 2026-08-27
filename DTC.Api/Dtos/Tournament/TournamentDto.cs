@@ -1,4 +1,5 @@
-﻿using DTC.Api.Enums;
+﻿using DTC.Api.Dtos.Round;
+using DTC.Api.Enums;
 
 namespace DTC.Api.Dtos.Tournament
 {
