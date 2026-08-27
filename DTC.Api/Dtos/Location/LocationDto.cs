@@ -1,4 +1,6 @@
-﻿namespace DTC.Api.Dtos.Location
+﻿using DTC.Api.Dtos.Board;
+
+namespace DTC.Api.Dtos.Location
 {
     public class LocationDto
     {
