@@ -1,32 +1,57 @@
-﻿using DTC.Api.Interfaces;
+﻿using DTC.Api.Data;
+using DTC.Api.Interfaces;
+using DTC.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DTC.Api.Repositories
 {
     public class MatchRepository : IMatchRepository
     {
-        public Task<Match> CreateAsync(Match match)
+        private readonly DartDbContext _context;
+
+        public MatchRepository(DartDbContext dartDbContext)
         {
-            throw new NotImplementedException();
+            _context = dartDbContext;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<IEnumerable<Match>> GetByRoundIdAsync(int roundId)
         {
-            throw new NotImplementedException();
+            return await _context.Matches
+                .Include(m => m.Participants)
+                    .ThenInclude(p => p.Player)
+                .Where(m => m.RoundId == roundId)
+                .ToListAsync();
         }
 
-        public Task<Match?> GetByIdAsync(int id)
+        public async Task<Match?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Matches
+                .Include(m => m.Participants)
+                    .ThenInclude(p => p.Player)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public Task<IEnumerable<Match>> GetByRoundIdAsync(int roundId)
+        public async Task<Match> CreateAsync(Match match)
         {
-            throw new NotImplementedException();
+            await _context.Matches.AddAsync(match);
+            await _context.SaveChangesAsync();
+            return match;
         }
 
-        public Task<Match> UpdateAsync(Match match)
+        public async Task<Match> UpdateAsync(Match match)
         {
-            throw new NotImplementedException();
+            await _context.SaveChangesAsync();
+            return match;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var match = await _context.Matches.FindAsync(id);
+            if (match == null) return false;
+
+            _context.Matches.Remove(match);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
