@@ -1,0 +1,332 @@
+Hier ist die ausführliche, fachliche und technische Überprüfung deiner bisherigen Entity Framework Core (EF Core) Entities sowie die Empfehlung für ein stabiles, skalierbares und zukunftssicheres Datenmodell.
+
+1. Bewertung deiner 4 bestehenden Models
+Tournament
+Kritikpunkt & Problem:
+
+Fehlende Stammdaten: Wichtige Kerninformationen wie Name, StartDate (oder Date), Description und Status fehlen vollständig.
+
+Kopplung an TournamentConfiguration: Die 1:1-Beziehung zu TournamentConfiguration erzeugt unnötige Tabellen-Komplexität, wenn diese Konfiguration nur ein einziges Attribut (Mode) enthält.
+
+Direkte List<Game>-Beziehung: Ein Turnier verweist direkt auf Spiele. Das widerspricht deiner fachlichen Anforderung, dass ein Turnier in Runden strukturiert sein soll (Tournament -> Round -> Match).
+
+TournamentConfiguration
+Kritikpunkt & Problem:
+
+Unnötige eigenständige Entity: Wenn eine Klasse nur eine Id und ein Enum (TournamentMode) besitzt, sollte sie in der relativen Datenbank nicht als eigene Entität mit Primärschlüssel modelliert werden.
+
+EF-Core-Auswirkung: Das führt zu unnötigen SQL-JOINs beim Laden eines Turniers. Es ist besser, Mode als Enum-Property direkt in Tournament aufzunehmen oder als EF Core Owned Entity (ComplexType) zu konfigurieren.
+
+Game (später Match)
+Kritikpunkt & Problem:
+
+Beziehungsprobleme bei WinningPlayersId & WinningPlayers: Das Verwalten einer primären Liste von IDs (List<int>) parallel zu einer Navigations-Property (List<Player>) durchbricht die referenzielle Integrität in relationalen Datenbanken. EF Core 8+ unterstützt zwar primitive Collections, für Fremdschlüsselbeziehungen ist dies jedoch ein Anti-Pattern.
+
+List<int> Scores: Die Ablage als primitive Integer-Liste verliert den Kontext (welcher Score gehört zu welchem Spieler/Set/Leg?).
+
+UI- & Logik-Kopplung (GetScores()): Methoden zur String-Formatierung (scores += score.ToString() + ":") gehören in die Präsentations- bzw. Service-Schicht (oder DTOs), nicht in EF-Core-Entities.
+
+Fehlende Runden- und Board-Zuordnung: Das Spiel weiß derzeit nicht, in welcher Runde oder auf welchem Board es stattfindet.
+
+Player
+Kritikpunkt & Problem:
+
+Die Modellierung ist grundsätzlich in Ordnung, sollte aber um Vor- und Nachnamen oder Nickname ergänzt werden.
+
+2. Zentrale Modellierungsfragen
+Location & Board: Variante A vs. Variante B
+Variante A (Round.BoardCount = 8):
+
+Nachteil: Reicht für eine reale Turniersteuerung nicht aus. Man kann damit zwar berechnen, wie viele Boards theoretisch da sind, aber man kann einem Spiel kein konkretes Board (z. B. "Board 3 in Halle A") zuweisen, keinen Board-Status verwalten (z. B. "Board 2 defekt") und keine Auslastung visualisieren.
+
+Variante B (Location und Board als eigene Entities) — Empfohlen!:
+
+Vorteil: Abbildung der realen Gegebenheiten. Ein Spielort (z. B. "Sporthalle Freistadt") besitzt N physische Boards (z. B. Board 1 bis 8). Ein Match wird einer konkreten BoardId zugewiesen. Dadurch ist sowohl die automatische als auch die manuelle Board-Zuweisung datenbankseitig sauber umsetzbar.
+
+Ist die Beziehung Match -> Location redundant?
+Ja, sie ist absolut redundant.
+
+Begründung:
+
+Ein Match ist einer BoardId zugewiesen.
+
+Das Board gehört über LocationId zu einer Location.
+
+Das Match ist außerdem einer Round zugewiesen, welche ebenfalls einer Location zugeordnet ist.
+
+Würde man zusätzlich LocationId in Match speichern, würde eine Form der Redundanz (Denormalisierung) entstehen. Es bestünde das Risiko von Dateninkonsistenzen (z. B. Match.LocationId = 1, aber Match.Board.LocationId = 2).
+
+3. Beantwortung der einzelnen Modellierungsfragen
+Ist die Aufteilung der 4 Models sinnvoll? Nein. TournamentConfiguration sollte aufgelöst werden, Game benötigt eine saubere relationale Struktur (Match & MatchParticipant), Round, Location und Board fehlen.
+
+Welche Entities sollten mindestens existieren? Tournament, Round, Location, Board, Match, Player, MatchParticipant (Join-Table).
+
+Welche Beziehungen sollten bestehen?
+
+Tournament 1:n Round
+
+Location 1:n Board
+
+Location 1:n Round
+
+Round 1:n Match
+
+Board 1:n Match (optional/nullable FK)
+
+Match 1:n MatchParticipant n:1 Player
+
+Properties in Tournament vs. Round:
+
+Tournament: Globales Turnier-Stammobjekt (Name, StartDate, Mode, Status).
+
+Round: Konkreter Rundenabschnitt (Sequence, PlannedStart, PlannedEnd, Status, LocationId).
+
+Sollte Location eine eigene Entity sein? Ja. Spielorte sind wiederverwendbar oder besitzen spezifische Meta-Daten (Name, Adresse).
+
+Sollte Board eine eigene Entity sein? Ja, um Einzel-Boards eindeutig identifizieren und Spielen zuweisen zu können.
+
+Wie sollte Location -> Board modelliert werden? 1:n-Beziehung. Board hat LocationId als FK (Required).
+
+Wie sollte Round -> Location modelliert werden? n:1-Beziehung. Round hat LocationId als FK (Required).
+
+Wie sollte ein späteres Match mit Round und Board verbunden werden? Match hat RoundId (FK, Required) und BoardId (FK, Nullable – da ein Spiel vor der Boardzuweisung existieren kann).
+
+Ist eine zusätzliche Match -> Location-Beziehung notwendig? Nein, sie ist redundant und führt zu Inkonsistenzen.
+
+Wie sollte die Reihenfolge der Runden modelliert werden? Über eine Sequence (Integer: 1, 2, 3...) in Round mit einem Unique Constraint (TournamentId, Sequence).
+
+Wie sollte der Status einer Runde modelliert werden? Als Enum (Scheduled, InProgress, Completed).
+
+Enum-Status vs. Zeitberechnung: Der Status muss als Enum gespeichert werden. Verzögerungen im Turnierverlauf machen rein zeitbasierte Status-Berechnungen in der Praxis unbrauchbar. Zeiten dienen zur Planung, das Enum steuert den tatsächlichen Turnierfluss.
+
+Modellierung von Datum & Uhrzeit: Verwendbar ist DateTime (in UTC) oder DateTimeOffset (empfohlen in .NET für explizite Zeitzonen-Handhabung).
+
+Geplante Start- und Endzeit für Runden: PlannedStart (DateTimeOffset, Required), PlannedEnd (DateTimeOffset?, Nullable).
+
+Match bereits jetzt als Beziehung vorsehen? Ja, das Grundmodell für Match sollte sofort eingeplant werden, damit die Navigationen in Round und Board stimmig sind.
+
+EF Core Foreign Keys & Migrationen: Durch explizite FK-Properties (TournamentId, LocationId etc.) generiert EF Core saubere SQL-Foreign-Key-Constraints und Indizes.
+
+Risiken (Cascade Delete / Constraints):
+
+Beim Löschen einer Location darf kein automatisches Kaskadieren auf Round erfolgen (DeleteBehavior.Restrict).
+
+BoardId in Match muss nullable (int?) sein.
+
+Ungeeignete Properties für Entities: Berechnete Display-Strings, UI-Farben, Formatter-Methoden, DTO-Mapping-Hilfen.
+
+Flexibilität für Board-Zuweisung: Durch Match.BoardId (nullable) kann eine automatische Logik oder ein Benutzer jederzeit BoardId setzen, wechseln oder auf null zurücksetzen.
+
+4. Ziel-Datenmodell (Empfehlung)
+ASCII / ER-Diagramm der Beziehungen
+Plaintext
+  ┌──────────────┐
+  │  Tournament  │
+  └──────┬───────┘
+         │ 1
+         │
+         │ n
+  ┌──────┴───────┐          ┌──────────────┐
+  │    Round     ├─────────>│   Location   │
+  └──────┬───────┘ n      1 └──────┬───────┘
+         │ 1                       │ 1
+         │                         │
+         │ n                       │ n
+  ┌──────┴───────┐          ┌──────┴───────┐
+  │    Match     ├─────────>│    Board     │
+  └──────┬───────┘ n    0..1└──────────────┘
+         │ 1
+         │
+         │ n
+  ┌──────┴───────┐
+  │MatchParticipant│
+  └──────┬───────┘
+         │ n
+         │
+         │ 1
+  ┌──────┴───────┐
+  │    Player    │
+  └──────────────┘
+Enums
+C#
+public enum TournamentMode
+{
+    SingleElimination = 1,
+    DoubleElimination = 2,
+    RoundRobin = 3,
+    SwissSystem = 4
+}
+
+public enum TournamentStatus
+{
+    Draft = 1,
+    Scheduled = 2,
+    InProgress = 3,
+    Completed = 4,
+    Cancelled = 5
+}
+
+public enum RoundStatus
+{
+    Scheduled = 1,
+    InProgress = 2,
+    Completed = 3
+}
+
+public enum MatchStatus
+{
+    Scheduled = 1,
+    InProgress = 2,
+    Completed = 3,
+    Cancelled = 4
+}
+Entity-Spezifikation (C# / EF Core)
+1. Tournament
+C#
+public class Tournament
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public DateTimeOffset StartDate { get; set; }
+    public string? Description { get; set; }
+    
+    public TournamentMode Mode { get; set; } = TournamentMode.SingleElimination;
+    public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
+
+    // Navigation Properties
+    public ICollection<Round> Rounds { get; set; } = new List<Round>();
+}
+2. Location
+C#
+public class Location
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty; // z. B. "Sporthalle Freistadt"
+    public string? Address { get; set; }
+
+    // Navigation Properties
+    public ICollection<Board> Boards { get; set; } = new List<Board>();
+    public ICollection<Round> Rounds { get; set; } = new List<Round>();
+}
+3. Board
+C#
+public class Board
+{
+    public int Id { get; set; }
+    public int LocationId { get; set; } // Foreign Key (Required)
+    public int Number { get; set; }     // Board-Nummer (z.B. 1, 2, 3)
+    public string? Label { get; set; }  // Optional: "Board A", "Show-Board"
+    public bool IsActive { get; set; } = true;
+
+    // Navigation Properties
+    public Location Location { get; set; } = null!;
+    public ICollection<Match> Matches { get; set; } = new List<Match>();
+}
+4. Round
+C#
+public class Round
+{
+    public int Id { get; set; }
+    public int TournamentId { get; set; } // Foreign Key (Required)
+    public int LocationId { get; set; }   // Foreign Key (Required)
+    
+    public int Sequence { get; set; }     // Runden-Reihenfolge (1, 2, 3...)
+    public string? Name { get; set; }     // Optional: "Achtelfinale", "Runde 1"
+    
+    public DateTimeOffset PlannedStart { get; set; }
+    public DateTimeOffset? PlannedEnd { get; set; }
+    
+    public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
+
+    // Navigation Properties
+    public Tournament Tournament { get; set; } = null!;
+    public Location Location { get; set; } = null!;
+    public ICollection<Match> Matches { get; set; } = new List<Match>();
+}
+5. Match
+C#
+public class Match
+{
+    public int Id { get; set; }
+    public int RoundId { get; set; }  // Foreign Key (Required)
+    public int? BoardId { get; set; } // Foreign Key (Optional / Nullable)
+    
+    public MatchStatus Status { get; set; } = MatchStatus.Scheduled;
+    public DateTimeOffset? ActualStart { get; set; }
+    public DateTimeOffset? ActualEnd { get; set; }
+
+    // Navigation Properties
+    public Round Round { get; set; } = null!;
+    public Board? Board { get; set; }
+    public ICollection<MatchParticipant> Participants { get; set; } = new List<MatchParticipant>();
+}
+6. Player
+C#
+public class Player
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string? Nickname { get; set; }
+
+    // Navigation Properties
+    public ICollection<MatchParticipant> MatchParticipants { get; set; } = new List<MatchParticipant>();
+}
+7. MatchParticipant (Join-Entity)
+C#
+public class MatchParticipant
+{
+    public int Id { get; set; }
+    public int MatchId { get; set; }  // Foreign Key
+    public int PlayerId { get; set; } // Foreign Key
+    
+    public int Score { get; set; }
+    public bool IsWinner { get; set; }
+
+    // Navigation Properties
+    public Match Match { get; set; } = null!;
+    public Player Player { get; set; } = null!;
+}
+5. EF Core Configuration (Fluent API, Constraints & Delete Behaviors)
+Zur Vermeidung von Migrationsproblemen und Cascade-Delete-Konflikten wird folgende DbContext-Konfiguration empfohlen:
+
+C#
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    base.OnModelCreating(modelBuilder);
+
+    // Board Constraints
+    modelBuilder.Entity<Board>()
+        .HasIndex(b => new { b.LocationId, b.Number })
+        .IsUnique(); // In einer Location darf jede Board-Nummer nur einmal vorkommen
+
+    // Round Constraints
+    modelBuilder.Entity<Round>()
+        .HasIndex(r => new { r.TournamentId, r.Sequence })
+        .IsUnique(); // In einem Turnier ist die Runden-Sequenz eindeutig
+
+    // Delete Behaviors (Verhindert versehentliches Kaskadieren beim Löschen von Stammdaten)
+    modelBuilder.Entity<Round>()
+        .HasOne(r => r.Location)
+        .WithMany(l => l.Rounds)
+        .HasForeignKey(r => r.LocationId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    modelBuilder.Entity<Match>()
+        .HasOne(m => m.Board)
+        .WithMany(b => b.Matches)
+        .HasForeignKey(m => m.BoardId)
+        .OnDelete(DeleteBehavior.SetNull); // Wird ein Board gelöscht/deaktiviert, bleibt das Match bestehen
+}
+6. Zusammenfassende Begründung der Architektur
+Vollständige Entkopplung von Persistenz und Präsentation:
+Entities beinhalten reine Persistenz-Eigenschaften und keine Formatierungslogik (GetScores()).
+
+Reale Abbildung der Turnierlogik:
+Ein Spielort (Location) stellt physische Ressourcen (Board) bereit. Runden finden an einem Spielort statt, und einzelne Matches werden konkret verfügbaren Boards zugewiesen.
+
+Flexible Board-Zuweisung:
+Durch Match.BoardId als int? (nullable) können Matches erstellt werden, ohne dass ihnen sofort ein Board zugewiesen werden muss. Der Algorithmus zur automatischen Board-Zuweisung oder der Turnierleiter kann das BoardId-Feld dynamisch befüllen oder ändern.
+
+Vermeidung von Dateninkonsistenzen:
+Auf eine direkte Match -> Location-Beziehung wurde verzichtet, da die Information eindeutig und redundantefrei über Match -> Board -> Location aufgelöst werden kann.
