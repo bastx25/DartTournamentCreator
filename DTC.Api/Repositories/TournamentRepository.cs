@@ -18,6 +18,9 @@ namespace DTC.Api.Repositories
         {
             return await _context.Tournaments
                 .Include(t => t.Rounds)
+                    .ThenInclude(r => r.Matches)
+                        .ThenInclude(m => m.Participants)
+                            .ThenInclude(p => p.Player)
                 .ToListAsync();
         }
 

@@ -1,6 +1,7 @@
 using DTC.Api.Data;
 using DTC.Api.Interfaces;
 using DTC.Api.Repositories;
+using DTC.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<DartDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
 
+//Repositories
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IMatchParticipantRepository, MatchParticipantRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
@@ -23,6 +25,9 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IRoundRepository, RoundRepository>();
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+
+//Services
+builder.Services.AddScoped<IMatchMakerService, MatchMakerService>();
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
-﻿using DTC.Api.Dtos.Tournament;
+﻿using DTC.Api.Dtos.MatchMaker;
+using DTC.Api.Dtos.Tournament;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using DTC.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
@@ -10,10 +12,14 @@ namespace DTC.Api.Controllers
     public class TournamentController : ControllerBase
     {
         private readonly ITournamentRepository _tournamentRepo;
+        private readonly IMatchMakerService _matchMakerService;
 
-        public TournamentController(ITournamentRepository tournamentRepo)
+        public TournamentController(
+            ITournamentRepository tournamentRepo,
+            IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
+            _matchMakerService = matchMakerService;
         }
 
         [HttpGet]
@@ -60,6 +66,18 @@ namespace DTC.Api.Controllers
             if (!success) return NotFound();
 
             return NoContent();
+        }
+
+        [HttpPost("{id:int}/generate-groups")]
+        public async Task<IActionResult> GenerateGroups([FromRoute] int id, [FromBody] GenerateGroupsDto dto)
+        {
+            var success = await _matchMakerService.GenerateRandomGroupsAsync(id, dto.GroupSize, dto.PlayerIds);
+            if (!success)
+            {
+                return BadRequest("Gruppen konnten nicht generiert werden. Prüfe Turnier-ID und verfügbare Standorte.");
+            }
+
+            return Ok(new { Message = "Gruppen und Matches erfolgreich generiert." });
         }
     }
 }
