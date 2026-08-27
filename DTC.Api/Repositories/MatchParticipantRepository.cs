@@ -14,7 +14,7 @@ namespace DTC.Api.Repositories
             _context = dartDbContext;
         }
 
-        public async Task<List<MatchParticipant>> GetByMatchIdAsync(int matchId)
+        public async Task<IEnumerable<MatchParticipant>> GetByMatchIdAsync(int matchId)
         {
             return await _context.MatchParticipants
                 .Include(mp => mp.Player)

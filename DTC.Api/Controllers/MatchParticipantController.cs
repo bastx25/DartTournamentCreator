@@ -18,7 +18,7 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("match/{matchId:int}")]
-        public async Task<ActionResult<List<MatchParticipantDto>>> GetByMatchId([FromRoute] int matchId)
+        public async Task<ActionResult<IEnumerable<MatchParticipantDto>>> GetByMatchId([FromRoute] int matchId)
         {
             var participants = await _participantRepo.GetByMatchIdAsync(matchId);
             var dtos = participants.Select(p => p.ToMatchParticipantDto());
