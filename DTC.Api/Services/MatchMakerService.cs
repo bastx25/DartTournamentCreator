@@ -19,7 +19,18 @@ namespace DTC.Api.Services
             var tournament = await _context.Tournaments.FindAsync(tournamentId);
             if (tournament == null) return false;
 
-            // 1. Spieler laden & per Zufall mischen (Fisher-Yates Shuffle)
+            // 1. Bestehende Runden dieses Turniers aufräumen (falls vorhanden)
+            var existingRounds = await _context.Rounds
+                .Where(r => r.TournamentId == tournamentId)
+                .ToListAsync();
+
+            if (existingRounds.Any())
+            {
+                _context.Rounds.RemoveRange(existingRounds);
+                await _context.SaveChangesAsync();
+            }
+
+            // 2. Spieler laden & per Zufall mischen (Fisher-Yates Shuffle)
             var query = _context.Players.AsQueryable();
             if (selectedPlayerIds != null && selectedPlayerIds.Any())
             {
@@ -30,10 +41,11 @@ namespace DTC.Api.Services
             var random = new Random();
             var shuffledPlayers = players.OrderBy(_ => random.Next()).ToList();
 
-            // 2. Erste Runde für die Gruppenphase anlegen (Falls noch nicht vorhanden)
+            // 3. Erste Runde für die Gruppenphase anlegen (Falls noch nicht vorhanden)
             var defaultLocation = await _context.Locations.FirstOrDefaultAsync();
             if (defaultLocation == null) return false;
 
+            //4. neue runde anlegen
             var round = new Round
             {
                 TournamentId = tournamentId,
@@ -46,28 +58,52 @@ namespace DTC.Api.Services
             _context.Rounds.Add(round);
             await _context.SaveChangesAsync();
 
-            // 3. Gruppen bilden und Matches generieren
+            // 5. Paarungen / Gruppen bilden
             for (int i = 0; i < shuffledPlayers.Count; i += groupSize)
             {
                 var groupPlayers = shuffledPlayers.Skip(i).Take(groupSize).ToList();
 
-                // Jeder gegen jeden innerhalb der Gruppe (Round Robin)
-                for (int p1 = 0; p1 < groupPlayers.Count; p1++)
+                // SONDERFALL: Ungerade Anzahl (ein einzelner Spieler bleibt übrig = Freilos)
+                if (groupPlayers.Count == 1)
                 {
-                    for (int p2 = p1 + 1; p2 < groupPlayers.Count; p2++)
+                    var byeMatch = new Match
                     {
-                        var match = new Match
-                        {
-                            RoundId = round.Id,
-                            Status = MatchStatus.Scheduled
-                        };
-                        _context.Matches.Add(match);
-                        await _context.SaveChangesAsync();
+                        RoundId = round.Id,
+                        Status = MatchStatus.Completed, // Direkt als abgeschlossen markieren
+                        ActualStart = DateTimeOffset.UtcNow,
+                        ActualEnd = DateTimeOffset.UtcNow
+                    };
+                    _context.Matches.Add(byeMatch);
+                    await _context.SaveChangesAsync();
 
-                        _context.MatchParticipants.AddRange(
-                            new MatchParticipant { MatchId = match.Id, PlayerId = groupPlayers[p1].Id },
-                            new MatchParticipant { MatchId = match.Id, PlayerId = groupPlayers[p2].Id }
-                        );
+                    _context.MatchParticipants.Add(new MatchParticipant
+                    {
+                        MatchId = byeMatch.Id,
+                        PlayerId = groupPlayers[0].Id,
+                        Score = 0,
+                        IsWinner = true // Automatisch als Sieger gewertet
+                    });
+                }
+                else
+                {
+                    // Regulärer Ablauf (Round Robin / 1v1)
+                    for (int p1 = 0; p1 < groupPlayers.Count; p1++)
+                    {
+                        for (int p2 = p1 + 1; p2 < groupPlayers.Count; p2++)
+                        {
+                            var match = new Match
+                            {
+                                RoundId = round.Id,
+                                Status = MatchStatus.Scheduled
+                            };
+                            _context.Matches.Add(match);
+                            await _context.SaveChangesAsync();
+
+                            _context.MatchParticipants.AddRange(
+                                new MatchParticipant { MatchId = match.Id, PlayerId = groupPlayers[p1].Id },
+                                new MatchParticipant { MatchId = match.Id, PlayerId = groupPlayers[p2].Id }
+                            );
+                        }
                     }
                 }
             }
