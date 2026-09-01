@@ -4,8 +4,6 @@ export function PlayerPage() {
   return (
     <>
       <Header />
-
-      <p>Spieler</p>
     </>
   );
 }
