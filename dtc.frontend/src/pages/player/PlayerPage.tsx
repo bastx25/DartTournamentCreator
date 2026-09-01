@@ -1,9 +1,10 @@
-import { DeletePlayerModal } from "../../components/DeletePlayerModal";
 import Header from "../../components/Header";
-import { PlayerDetails } from "../../components/PlayerDetails";
-import { PlayerList } from "../../components/PlayerList";
+
+import { PlayerList } from "./PlayerList";
 
 import { usePlayers } from "../../hooks/usePlayers";
+import { PlayerDetails } from "./PlayerDetails";
+import { DeletePlayerModal } from "./DeletePlayerModal";
 
 export function PlayerPage() {
   const {
@@ -24,7 +25,7 @@ export function PlayerPage() {
 
       <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 lg:px-8">
         {loading && (
-          <div className="flex min-h-[300px] items-center justify-center">
+          <div className="flex min-h-75 items-center justify-center">
             <p className="text-sm text-gray-400">Spieler werden geladen...</p>
           </div>
         )}

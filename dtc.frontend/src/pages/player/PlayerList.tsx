@@ -1,4 +1,4 @@
-import type { Player } from "../types/Player";
+import type { Player } from "../../types/Player";
 import { PlayerRow } from "./PlayerRow";
 
 interface PlayerListProps {

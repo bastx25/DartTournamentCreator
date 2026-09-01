@@ -1,4 +1,4 @@
-import type { Player } from "../types/Player";
+import type { Player } from "../../types/Player";
 
 interface PlayerRowProps {
   player: Player;
@@ -16,7 +16,7 @@ export function PlayerRow({
   return (
     <div
       onClick={() => onSelect(player)}
-      className={`group grid min-h-[56px] cursor-pointer grid-cols-[1fr_180px_80px] items-center px-4 transition-colors ${
+      className={`group grid min-h-14 cursor-pointer grid-cols-[1fr_180px_80px] items-center px-4 transition-colors ${
         selected ? "bg-blue-50" : "bg-white hover:bg-gray-50"
       }`}
     >
