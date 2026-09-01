@@ -1,3 +1,7 @@
 <Solution>
   <Project Path="DTC.Api/DTC.Api.csproj" />
+  <Project Path="DTC.Frontend/dtc.frontend.esproj">
+    <Build />
+    <Deploy />
+  </Project>
 </Solution>
