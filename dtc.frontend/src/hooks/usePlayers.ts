@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { deletePlayer, getPlayers } from "../services/playerService";
+import {
+  deletePlayer,
+  getPlayers,
+  updatePlayer,
+} from "../services/playerService";
 import type { Player } from "../types/Player";
 
 export function usePlayers() {
@@ -12,10 +16,14 @@ export function usePlayers() {
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [playerToUpdate, setPlayerToUpdate] = useState<Player | null>(null);
+  const [updating, setUpdating] = useState(false);
+
   useEffect(() => {
     async function fetchPlayers() {
       try {
         setLoading(true);
+        setError(null);
 
         const players = await getPlayers();
 
@@ -54,8 +62,41 @@ export function usePlayers() {
       setPlayerToDelete(null);
     } catch (error) {
       console.error("Fehler beim Löschen des Spielers:", error);
+      setError("Der Spieler konnte nicht gelöscht werden.");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleUpdate = async (player: Player) => {
+    try {
+      setUpdating(true);
+      setError(null);
+
+      const updatedPlayer = await updatePlayer(player.id, {
+        firstName: player.firstName,
+        lastName: player.lastName,
+        nickname: player.nickname,
+      });
+
+      setPlayers((currentPlayers) =>
+        currentPlayers.map((currentPlayer) =>
+          currentPlayer.id === updatedPlayer.id ? updatedPlayer : currentPlayer,
+        ),
+      );
+
+      setSelectedPlayer((currentSelectedPlayer) =>
+        currentSelectedPlayer?.id === updatedPlayer.id
+          ? updatedPlayer
+          : currentSelectedPlayer,
+      );
+
+      setPlayerToUpdate(null);
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Spielers:", error);
+      setError("Der Spieler konnte nicht aktualisiert werden.");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -72,5 +113,11 @@ export function usePlayers() {
 
     deleting,
     handleDelete,
+
+    playerToUpdate,
+    setPlayerToUpdate,
+
+    updating,
+    handleUpdate,
   };
 }

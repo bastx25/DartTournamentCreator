@@ -5,6 +5,7 @@ import { PlayerList } from "./PlayerList";
 import { usePlayers } from "../../hooks/usePlayers";
 import { PlayerDetails } from "./PlayerDetails";
 import { DeletePlayerModal } from "./DeletePlayerModal";
+import { UpdatePlayerModal } from "./UpdatePlayerModal";
 
 export function PlayerPage() {
   const {
@@ -17,6 +18,10 @@ export function PlayerPage() {
     setPlayerToDelete,
     deleting,
     handleDelete,
+    playerToUpdate,
+    setPlayerToUpdate,
+    updating,
+    handleUpdate,
   } = usePlayers();
 
   return (
@@ -43,6 +48,7 @@ export function PlayerPage() {
               selectedPlayer={selectedPlayer}
               onSelectPlayer={setSelectedPlayer}
               onDeletePlayer={setPlayerToDelete}
+              onUpdatePlayer={setPlayerToUpdate}
             />
 
             <PlayerDetails player={selectedPlayer} />
@@ -56,6 +62,15 @@ export function PlayerPage() {
           deleting={deleting}
           onCancel={() => setPlayerToDelete(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {playerToUpdate && (
+        <UpdatePlayerModal
+          player={playerToUpdate}
+          updating={updating}
+          onCancel={() => setPlayerToUpdate(null)}
+          onConfirm={handleUpdate}
         />
       )}
     </>

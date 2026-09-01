@@ -5,6 +5,7 @@ interface PlayerRowProps {
   selected: boolean;
   onSelect: (player: Player) => void;
   onDelete: (player: Player) => void;
+  onUpdate: (player: Player) => void;
 }
 
 export function PlayerRow({
@@ -12,6 +13,7 @@ export function PlayerRow({
   selected,
   onSelect,
   onDelete,
+  onUpdate,
 }: PlayerRowProps) {
   return (
     <div
@@ -49,9 +51,9 @@ export function PlayerRow({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            console.log("Edit", player);
+            onUpdate(player);
           }}
-          className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+          className="rounded-md p-1.5 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
           title="Edit player"
         >
           {/* Edit Icon */}
@@ -64,7 +66,7 @@ export function PlayerRow({
             e.stopPropagation();
             onDelete(player);
           }}
-          className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="rounded-md p-1.5 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
           title="Delete player"
         >
           {/* Delete Icon */}

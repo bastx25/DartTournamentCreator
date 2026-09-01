@@ -6,6 +6,7 @@ interface PlayerListProps {
   selectedPlayer: Player | null;
   onSelectPlayer: (player: Player) => void;
   onDeletePlayer: (player: Player) => void;
+  onUpdatePlayer: (player: Player) => void;
 }
 
 export function PlayerList({
@@ -13,6 +14,7 @@ export function PlayerList({
   selectedPlayer,
   onSelectPlayer,
   onDeletePlayer,
+  onUpdatePlayer,
 }: PlayerListProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -40,6 +42,7 @@ export function PlayerList({
             selected={selectedPlayer?.id === player.id}
             onSelect={onSelectPlayer}
             onDelete={onDeletePlayer}
+            onUpdate={onUpdatePlayer}
           />
         ))}
       </div>

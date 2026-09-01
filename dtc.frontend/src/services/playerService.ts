@@ -10,3 +10,22 @@ export async function getPlayers(): Promise<Player[]> {
 export async function deletePlayer(id: number): Promise<void> {
   await axios.delete(`/api/players/${id}`);
 }
+
+export interface UpdatePlayerData {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+}
+
+export async function updatePlayer(
+  id: number,
+  data: UpdatePlayerData,
+): Promise<Player> {
+  const response = await axios.put<Player>(`/api/players/${id}`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+}
