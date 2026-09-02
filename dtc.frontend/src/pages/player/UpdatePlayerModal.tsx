@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { Player } from "../../types/Player";
+import type { Dto } from "../../dtos/player/PlayerDto";
 
 interface UpdatePlayerModalProps {
-  player: Player;
+  player: Dto;
   updating: boolean;
   onCancel: () => void;
-  onConfirm: (updatedPlayer: Player) => void;
+  onConfirm: (updatedPlayer: Dto) => void;
 }
 
 export function UpdatePlayerModal({
@@ -21,7 +21,7 @@ export function UpdatePlayerModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const updatedPlayer: Player = {
+    const updatedPlayer: Dto = {
       ...player,
       firstName: firstName.trim(),
       lastName: lastName.trim(),

@@ -1,7 +1,5 @@
-export interface Player {
-  id: number;
+export interface UpdatePlayerDto {
   firstName: string;
   lastName: string;
   nickname: string;
-  displayName: string;
 }

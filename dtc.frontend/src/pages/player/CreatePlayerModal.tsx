@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { CreatePlayer } from "../../types/CreatePlayer";
+import type { CreatePlayerDto } from "../../dtos/player/CreatePlayerDto";
 
 interface CreatePlayerModalProps {
   adding: boolean;
   onCancel: () => void;
-  onConfirm: (createdPlayer: CreatePlayer) => void;
+  onConfirm: (createdPlayer: CreatePlayerDto) => void;
 }
 
 export function CreatePlayerModal({
@@ -19,7 +19,7 @@ export function CreatePlayerModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const updatedPlayer: CreatePlayer = {
+    const updatedPlayer: CreatePlayerDto = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       nickname: nickname.trim(),

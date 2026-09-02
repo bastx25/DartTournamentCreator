@@ -1,12 +1,12 @@
-import type { Player } from "../../types/Player";
+import type { Dto } from "../../dtos/player/PlayerDto";
 import { PlayerRow } from "./PlayerRow";
 
 interface PlayerListProps {
-  players: Player[];
-  selectedPlayer: Player | null;
-  onSelectPlayer: (player: Player) => void;
-  onDeletePlayer: (player: Player) => void;
-  onUpdatePlayer: (player: Player) => void;
+  players: Dto[];
+  selectedPlayer: Dto | null;
+  onSelectPlayer: (player: Dto) => void;
+  onDeletePlayer: (player: Dto) => void;
+  onUpdatePlayer: (player: Dto) => void;
   onAddPlayer: (addPlayer: boolean) => void;
 }
 

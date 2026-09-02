@@ -1,11 +1,11 @@
-import type { Player } from "../../types/Player";
+import type { Dto } from "../../dtos/player/PlayerDto";
 
 interface PlayerRowProps {
-  player: Player;
+  player: Dto;
   selected: boolean;
-  onSelect: (player: Player) => void;
-  onDelete: (player: Player) => void;
-  onUpdate: (player: Player) => void;
+  onSelect: (player: Dto) => void;
+  onDelete: (player: Dto) => void;
+  onUpdate: (player: Dto) => void;
 }
 
 export function PlayerRow({

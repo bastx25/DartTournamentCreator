@@ -1,7 +1,7 @@
-import type { Player } from "../../types/Player";
+import type { Dto } from "../../dtos/player/PlayerDto";
 
 interface DeletePlayerModalProps {
-  player: Player;
+  player: Dto;
   deleting: boolean;
   onCancel: () => void;
   onConfirm: () => void;

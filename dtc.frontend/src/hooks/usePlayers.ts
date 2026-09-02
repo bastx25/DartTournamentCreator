@@ -5,20 +5,20 @@ import {
   updatePlayer,
   createPlayer,
 } from "../services/playerService";
-import type { Player } from "../types/Player";
-import type { CreatePlayer } from "../types/CreatePlayer";
+import type { Dto } from "../dtos/player/PlayerDto";
+import type { CreatePlayerDto } from "../dtos/player/CreatePlayerDto";
 
 export function usePlayers() {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [players, setPlayers] = useState<Dto[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<Dto | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
+  const [playerToDelete, setPlayerToDelete] = useState<Dto | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const [playerToUpdate, setPlayerToUpdate] = useState<Player | null>(null);
+  const [playerToUpdate, setPlayerToUpdate] = useState<Dto | null>(null);
   const [updating, setUpdating] = useState(false);
 
   const [addPlayer, setAddPlayer] = useState(false);
@@ -73,7 +73,7 @@ export function usePlayers() {
     }
   };
 
-  const handleUpdate = async (player: Player) => {
+  const handleUpdate = async (player: Dto) => {
     try {
       setUpdating(true);
       setError(null);
@@ -105,7 +105,7 @@ export function usePlayers() {
     }
   };
 
-  const handleAdd = async (player: CreatePlayer) => {
+  const handleAdd = async (player: CreatePlayerDto) => {
     try {
       setAdding(true);
       setError(null);
