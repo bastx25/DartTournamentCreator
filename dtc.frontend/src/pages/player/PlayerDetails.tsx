@@ -1,7 +1,7 @@
-import type { Player } from "../types/Player";
+import type { PlayerDto } from "../../dtos/player/PlayerDto";
 
 interface PlayerDetailsProps {
-  player: Player | null;
+  player: PlayerDto | null;
 }
 
 export function PlayerDetails({ player }: PlayerDetailsProps) {
