@@ -1,11 +1,11 @@
 import z from "zod";
+import { boardDtoSchema } from "../board/BoardDto";
 
-export const boardDtoSchema = z.object({
+export const locationDtoSchema = z.object({
   id: z.number(),
-  locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
-  isActive: z.boolean(),
+  name: z.string(),
+  address: z.string().nullable(),
+  boards: z.array(boardDtoSchema),
 });
 
-export type BoardDto = z.infer<typeof boardDtoSchema>;
+export type LocationDto = z.infer<typeof locationDtoSchema>;
