@@ -13,3 +13,8 @@ export async function createTournament(
 
   return response.data;
 }
+
+export async function getTournaments(): Promise<TournamentDto[]> {
+  const response = await axios.get<TournamentDto[]>("/api/tournaments");
+  return response.data;
+}
