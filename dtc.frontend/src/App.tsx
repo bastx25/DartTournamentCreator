@@ -7,6 +7,7 @@ import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { TournamentPage } from "./pages/tournament/TournamentPage";
 import { CreateBoardPage } from "./pages/tournament/CreateBoardPage";
 import { CreateTournamentPage } from "./pages/tournament/CreateTournamentPage";
+import { CreateLocationPage } from "./pages/location/CreateLocationPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="boards/create" element={<CreateBoardPage />} />
         <Route path="tournaments/create" element={<CreateTournamentPage />} />
+        <Route path="location/create" element={<CreateLocationPage />} />
       </Routes>
     </>
   );
