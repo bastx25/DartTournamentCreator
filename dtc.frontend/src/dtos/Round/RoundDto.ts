@@ -1,11 +1,20 @@
 import z from "zod";
+import { matchDtoSchema } from "../Match/MatchDto";
 
-export const boardDtoSchema = z.object({
+export const roundDtoSchema = z.object({
   id: z.number(),
+  tournamentId: z.number(),
   locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
-  isActive: z.boolean(),
+  sequence: z.number(),
+
+  name: z.string().nullable(),
+
+  plannedStart: z.string().datetime({ offset: true }),
+  plannedEnd: z.string().datetime({ offset: true }).nullable(),
+
+  status: z.enum(["Scheduled", "InProgress", "Completed", "Cancelled"]),
+
+  matches: z.array(matchDtoSchema),
 });
 
-export type BoardDto = z.infer<typeof boardDtoSchema>;
+export type RoundDto = z.infer<typeof roundDtoSchema>;

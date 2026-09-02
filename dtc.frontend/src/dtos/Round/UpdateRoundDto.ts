@@ -1,17 +1,27 @@
 import z from "zod";
 
-export const updateBoardDtoSchema = z.object({
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+export const updateRoundDtoSchema = z.object({
+  locationId: z.number({
+    message: "LocationId ist ein Pflichtfeld.",
+  }),
 
-  label: z
+  sequence: z
+    .number()
+    .min(1, "Die Sequenz muss mindestens 1 sein.")
+    .max(100, "Die Sequenz darf maximal 100 sein."),
+
+  name: z
     .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
+    .max(50, "Der Rundenname darf maximal 50 Zeichen lang sein.")
     .nullable(),
 
-  isActive: z.boolean(),
+  plannedStart: z.string().datetime({ offset: true }),
+
+  plannedEnd: z.string().datetime({ offset: true }).nullable(),
+
+  status: z
+    .enum(["Scheduled", "InProgress", "Completed", "Cancelled"])
+    .default("Scheduled"),
 });
 
-export type UpdateBoardDto = z.infer<typeof updateBoardDtoSchema>;
+export type UpdateRoundDto = z.infer<typeof updateRoundDtoSchema>;
