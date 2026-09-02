@@ -1,9 +1,10 @@
 import z from "zod";
+import { MatchStatus } from "../../enums/MatchStatus";
 
 export const updateMatchDtoSchema = z.object({
   boardId: z.number().nullable(),
 
-  status: z.enum(["Scheduled", "InProgress", "Completed", "Cancelled"]),
+  status: z.enum(MatchStatus),
 
   actualStart: z.string().datetime({ offset: true }).nullable(),
 
