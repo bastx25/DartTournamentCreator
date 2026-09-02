@@ -20,9 +20,9 @@ export const createRoundDtoSchema = z.object({
     .max(50, "Der Rundenname darf maximal 50 Zeichen lang sein.")
     .nullable(),
 
-  plannedStart: z.string().datetime({ offset: true }),
+  plannedStart: z.iso.datetime({ offset: true }),
 
-  plannedEnd: z.string().datetime({ offset: true }).nullable(),
+  plannedEnd: z.iso.datetime({ offset: true }).nullable(),
 
   status: z.enum(RoundStatus).default(RoundStatus.Scheduled),
 });

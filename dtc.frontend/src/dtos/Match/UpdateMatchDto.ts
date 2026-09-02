@@ -6,9 +6,9 @@ export const updateMatchDtoSchema = z.object({
 
   status: z.enum(MatchStatus),
 
-  actualStart: z.string().datetime({ offset: true }).nullable(),
+  actualStart: z.iso.datetime({ offset: true }).nullable(),
 
-  actualEnd: z.string().datetime({ offset: true }).nullable(),
+  actualEnd: z.iso.datetime({ offset: true }).nullable(),
 });
 
 export type UpdateMatchDto = z.infer<typeof updateMatchDtoSchema>;

@@ -9,8 +9,8 @@ export const matchDtoSchema = z.object({
 
   status: z.enum(MatchStatus),
 
-  actualStart: z.string().datetime({ offset: true }).nullable(),
-  actualEnd: z.string().datetime({ offset: true }).nullable(),
+  actualStart: z.iso.datetime({ offset: true }).nullable(),
+  actualEnd: z.iso.datetime({ offset: true }).nullable(),
 
   participants: z.array(matchParticipantDtoSchema),
 });

@@ -10,8 +10,8 @@ export const roundDtoSchema = z.object({
 
   name: z.string().nullable(),
 
-  plannedStart: z.string().datetime({ offset: true }),
-  plannedEnd: z.string().datetime({ offset: true }).nullable(),
+  plannedStart: z.iso.datetime({ offset: true }),
+  plannedEnd: z.iso.datetime({ offset: true }).nullable(),
 
   status: z.enum(RoundStatus),
 
