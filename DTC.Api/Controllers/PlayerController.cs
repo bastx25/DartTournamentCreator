@@ -63,9 +63,9 @@ public class PlayerController : ControllerBase
 
         playerDto.UpdatePlayerEntity(existingPlayer);
 
-        await _playerRepo.UpdateAsync(existingPlayer);
+        var updatedPlayer = await _playerRepo.UpdateAsync(existingPlayer);
         
-        return NoContent();
+        return Ok(updatedPlayer.ToPlayerDto());
     }
 
     [HttpDelete("{id:int}")]
