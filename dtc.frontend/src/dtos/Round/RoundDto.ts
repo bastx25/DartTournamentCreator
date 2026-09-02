@@ -1,5 +1,6 @@
 import z from "zod";
 import { matchDtoSchema } from "../Match/MatchDto";
+import { RoundStatus } from "../../enums/RoundStatus";
 
 export const roundDtoSchema = z.object({
   id: z.number(),
@@ -12,7 +13,7 @@ export const roundDtoSchema = z.object({
   plannedStart: z.string().datetime({ offset: true }),
   plannedEnd: z.string().datetime({ offset: true }).nullable(),
 
-  status: z.enum(["Scheduled", "InProgress", "Completed", "Cancelled"]),
+  status: z.enum(RoundStatus),
 
   matches: z.array(matchDtoSchema),
 });
