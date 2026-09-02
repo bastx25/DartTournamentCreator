@@ -1,11 +1,11 @@
 import z from "zod";
 
-export const boardDtoSchema = z.object({
+export const playerDtoSchema = z.object({
   id: z.number(),
-  locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
-  isActive: z.boolean(),
+  firstName: z.string(),
+  lastName: z.string(),
+  nickname: z.string().nullable(),
+  displayName: z.string(),
 });
 
-export type BoardDto = z.infer<typeof boardDtoSchema>;
+export type PlayerDto = z.infer<typeof playerDtoSchema>;

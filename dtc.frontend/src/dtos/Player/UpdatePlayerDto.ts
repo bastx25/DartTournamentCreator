@@ -1,17 +1,24 @@
 import z from "zod";
 
-export const updateBoardDtoSchema = z.object({
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+export const updatePlayerDtoSchema = z.object({
+  firstName: z
+    .string({
+      message: "Der Vorname ist ein Pflichtfeld.",
+    })
+    .min(1, "Der Vorname ist ein Pflichtfeld.")
+    .max(50, "Der Vorname darf maximal 50 Zeichen lang sein."),
 
-  label: z
+  lastName: z
+    .string({
+      message: "Der Nachname ist ein Pflichtfeld.",
+    })
+    .min(1, "Der Nachname ist ein Pflichtfeld.")
+    .max(50, "Der Nachname darf maximal 50 Zeichen lang sein."),
+
+  nickname: z
     .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
+    .max(50, "Der Spitzname darf maximal 50 Zeichen lang sein.")
     .nullable(),
-
-  isActive: z.boolean(),
 });
 
-export type UpdateBoardDto = z.infer<typeof updateBoardDtoSchema>;
+export type UpdatePlayerDto = z.infer<typeof updatePlayerDtoSchema>;
