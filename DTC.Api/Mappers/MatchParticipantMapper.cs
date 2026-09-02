@@ -11,7 +11,6 @@ namespace DTC.Api.Mappers
             {
                 Id = participant.Id,
                 MatchId = participant.MatchId,
-                PlayerId = participant.PlayerId,
                 Player = participant.Player?.ToPlayerDto(),
                 Score = participant.Score,
                 IsWinner = participant.IsWinner
