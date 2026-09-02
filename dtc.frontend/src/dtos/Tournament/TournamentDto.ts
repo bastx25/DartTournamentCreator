@@ -1,11 +1,16 @@
 import z from "zod";
+import { roundDtoSchema } from "../Round/RoundDto";
+import { TournamentMode } from "../../enums/TournamentMode";
+import { TournamentStatus } from "../../enums/TournamentStatus";
 
-export const boardDtoSchema = z.object({
+export const tournamentDtoSchema = z.object({
   id: z.number(),
-  locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
-  isActive: z.boolean(),
+  name: z.string(),
+  startDate: z.iso.datetime({ offset: true }),
+  description: z.string().nullable(),
+  mode: z.enum(TournamentMode),
+  status: z.enum(TournamentStatus),
+  rounds: z.array(roundDtoSchema),
 });
 
-export type BoardDto = z.infer<typeof boardDtoSchema>;
+export type TournamentDto = z.infer<typeof tournamentDtoSchema>;

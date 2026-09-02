@@ -1,17 +1,17 @@
 import z from "zod";
+import { TournamentMode } from "../../enums/TournamentMode";
+import { TournamentStatus } from "../../enums/TournamentStatus";
 
-export const updateBoardDtoSchema = z.object({
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+export const updateTournamentDtoSchema = z.object({
+  name: z.string().min(1).max(100),
 
-  label: z
-    .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
-    .nullable(),
+  startDate: z.iso.datetime({ offset: true }),
 
-  isActive: z.boolean(),
+  description: z.string().max(500).nullable(),
+
+  mode: z.enum(TournamentMode),
+
+  status: z.enum(TournamentStatus),
 });
 
-export type UpdateBoardDto = z.infer<typeof updateBoardDtoSchema>;
+export type UpdateTournamentDto = z.infer<typeof updateTournamentDtoSchema>;

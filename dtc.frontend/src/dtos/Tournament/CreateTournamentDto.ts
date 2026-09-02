@@ -1,21 +1,17 @@
 import z from "zod";
+import { TournamentMode } from "../../enums/TournamentMode";
+import { TournamentStatus } from "../../enums/TournamentStatus";
 
-export const createBoardDtoSchema = z.object({
-  locationId: z.number({
-    message: "LocationId ist ein Pflichtfeld.",
-  }),
+export const createTournamentDtoSchema = z.object({
+  name: z.string().min(1).max(100),
 
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+  startDate: z.iso.datetime({ offset: true }),
 
-  label: z
-    .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
-    .nullable(),
+  description: z.string().max(500).nullable(),
 
-  isActive: z.boolean().default(true),
+  mode: z.enum(TournamentMode).default(TournamentMode.GroupStage),
+
+  status: z.enum(TournamentStatus).default(TournamentStatus.Draft),
 });
 
-export type CreateBoardDto = z.infer<typeof createBoardDtoSchema>;
+export type CreateTournamentDto = z.infer<typeof createTournamentDtoSchema>;
