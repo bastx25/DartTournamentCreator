@@ -8,6 +8,7 @@ import { TournamentPage } from "./pages/tournament/TournamentPage";
 import { CreateBoardPage } from "./pages/tournament/CreateBoardPage";
 import { CreateTournamentPage } from "./pages/tournament/CreateTournamentPage";
 import { CreateLocationPage } from "./pages/location/CreateLocationPage";
+import { TournamentManagePage } from "./pages/tournament/TournamentManagePage";
 
 function App() {
   return (
@@ -15,6 +16,10 @@ function App() {
       <Routes>
         <Route index element={<HomePage />} />
         <Route path="tournaments" element={<TournamentPage />} />
+        <Route
+          path="tournaments/:id/manage"
+          element={<TournamentManagePage />}
+        />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="players" element={<PlayerPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
