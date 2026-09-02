@@ -3,8 +3,10 @@ import {
   deletePlayer,
   getPlayers,
   updatePlayer,
+  createPlayer,
 } from "../services/playerService";
 import type { Player } from "../types/Player";
+import type { CreatePlayer } from "../types/CreatePlayer";
 
 export function usePlayers() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -18,6 +20,9 @@ export function usePlayers() {
 
   const [playerToUpdate, setPlayerToUpdate] = useState<Player | null>(null);
   const [updating, setUpdating] = useState(false);
+
+  const [addPlayer, setAddPlayer] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     async function fetchPlayers() {
@@ -100,6 +105,29 @@ export function usePlayers() {
     }
   };
 
+  const handleAdd = async (player: CreatePlayer) => {
+    try {
+      setAdding(true);
+      setError(null);
+
+      const newPlayer = await createPlayer({
+        firstName: player.firstName,
+        lastName: player.lastName,
+        nickname: player.nickname,
+      });
+
+      setPlayers((currentPlayers) => [...currentPlayers, newPlayer]);
+
+      setSelectedPlayer(newPlayer);
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Spielers:", error);
+      setError("Der Spieler konnte nicht aktualisiert werden.");
+    } finally {
+      setAddPlayer(false);
+      setAdding(false);
+    }
+  };
+
   return {
     players,
     selectedPlayer,
@@ -119,5 +147,10 @@ export function usePlayers() {
 
     updating,
     handleUpdate,
+
+    addPlayer,
+    setAddPlayer,
+    adding,
+    handleAdd,
   };
 }

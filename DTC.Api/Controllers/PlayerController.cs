@@ -45,11 +45,13 @@ public class PlayerController : ControllerBase
         
         var createdPlayer = await _playerRepo.CreateAsync(playerEntity);
 
-        return CreatedAtAction(
-            nameof(GetPlayerById),
-            new { id = createdPlayer.Id },
-            createdPlayer.ToPlayerDto()
-        );
+        // return CreatedAtAction(
+        //     nameof(GetPlayerById),
+        //     new { id = createdPlayer.Id },
+        //     createdPlayer.ToPlayerDto()
+        // );
+
+        return Ok(createdPlayer.ToPlayerDto());
     }
 
     [HttpPut("{id:int}")]

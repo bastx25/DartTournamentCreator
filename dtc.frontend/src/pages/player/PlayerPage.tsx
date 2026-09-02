@@ -6,6 +6,7 @@ import { usePlayers } from "../../hooks/usePlayers";
 import { PlayerDetails } from "./PlayerDetails";
 import { DeletePlayerModal } from "./DeletePlayerModal";
 import { UpdatePlayerModal } from "./UpdatePlayerModal";
+import { CreatePlayerModal } from "./CreatePlayerModal";
 
 export function PlayerPage() {
   const {
@@ -22,6 +23,11 @@ export function PlayerPage() {
     setPlayerToUpdate,
     updating,
     handleUpdate,
+
+    addPlayer,
+    setAddPlayer,
+    adding,
+    handleAdd,
   } = usePlayers();
 
   return (
@@ -49,6 +55,7 @@ export function PlayerPage() {
               onSelectPlayer={setSelectedPlayer}
               onDeletePlayer={setPlayerToDelete}
               onUpdatePlayer={setPlayerToUpdate}
+              onAddPlayer={setAddPlayer}
             />
 
             <PlayerDetails player={selectedPlayer} />
@@ -71,6 +78,16 @@ export function PlayerPage() {
           updating={updating}
           onCancel={() => setPlayerToUpdate(null)}
           onConfirm={handleUpdate}
+        />
+      )}
+
+      {addPlayer && (
+        <CreatePlayerModal
+          adding={adding}
+          onCancel={() => {
+            setAddPlayer(false);
+          }}
+          onConfirm={handleAdd}
         />
       )}
     </>

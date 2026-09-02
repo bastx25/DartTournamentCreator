@@ -18,11 +18,12 @@ export function PlayerRow({
   return (
     <div
       onClick={() => onSelect(player)}
-      className={`group grid min-h-14 cursor-pointer grid-cols-[1fr_180px_80px] items-center px-4 transition-colors ${
+      className={`group grid min-h-11 cursor-pointer grid-cols-[1fr_auto] items-center px-4 transition-colors md:grid-cols-[1fr_1fr_auto] ${
         selected ? "bg-blue-50" : "bg-white hover:bg-gray-50"
       }`}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      {/* Player */}
+      <div className="flex min-w-0 items-center gap-2">
         {selected && (
           <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
         )}
@@ -36,7 +37,8 @@ export function PlayerRow({
         </span>
       </div>
 
-      <div className="min-w-0">
+      {/* Nickname - nur Desktop */}
+      <div className="hidden min-w-0 px-4 md:block">
         {player.nickname ? (
           <span className="truncate text-sm text-gray-500">
             @{player.nickname}
@@ -46,17 +48,17 @@ export function PlayerRow({
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-1">
+      {/* Actions */}
+      <div className="flex shrink-0 items-center justify-end gap-1">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onUpdate(player);
           }}
-          className="rounded-md p-1.5 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+          className="rounded-md px-1.5 py-1 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
           title="Edit player"
         >
-          {/* Edit Icon */}
           Edit
         </button>
 
@@ -66,10 +68,9 @@ export function PlayerRow({
             e.stopPropagation();
             onDelete(player);
           }}
-          className="rounded-md p-1.5 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="rounded-md px-1.5 py-1 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
           title="Delete player"
         >
-          {/* Delete Icon */}
           Delete
         </button>
       </div>
