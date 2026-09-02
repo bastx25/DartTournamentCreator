@@ -15,7 +15,7 @@ export default function Header() {
 
           <div>
             <h1 className="text-lg font-black tracking-tight">
-              Dart<span className="text-primary">Forge</span>
+              Landjugend <span className="text-primary">Lasberg</span>
             </h1>
 
             <p className="text-text-subtle hidden text-[10px] font-medium uppercase tracking-[0.2em] sm:block">
