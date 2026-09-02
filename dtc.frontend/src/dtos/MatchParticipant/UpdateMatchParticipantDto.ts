@@ -1,17 +1,11 @@
 import z from "zod";
 
-export const updateBoardDtoSchema = z.object({
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+export const updateMatchParticipantDtoSchema = z.object({
+  score: z.number().min(0, "Der Score muss mindestens 0 sein."),
 
-  label: z
-    .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
-    .nullable(),
-
-  isActive: z.boolean(),
+  isWinner: z.boolean(),
 });
 
-export type UpdateBoardDto = z.infer<typeof updateBoardDtoSchema>;
+export type UpdateMatchParticipantDto = z.infer<
+  typeof updateMatchParticipantDtoSchema
+>;

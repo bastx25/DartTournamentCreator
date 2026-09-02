@@ -1,11 +1,12 @@
 import z from "zod";
+import { playerDtoSchema } from "../player/PlayerDto";
 
-export const boardDtoSchema = z.object({
+export const matchParticipantDtoSchema = z.object({
   id: z.number(),
-  locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
-  isActive: z.boolean(),
+  matchId: z.number(),
+  player: playerDtoSchema.nullable(),
+  score: z.number(),
+  isWinner: z.boolean(),
 });
 
-export type BoardDto = z.infer<typeof boardDtoSchema>;
+export type MatchParticipantDto = z.infer<typeof matchParticipantDtoSchema>;
