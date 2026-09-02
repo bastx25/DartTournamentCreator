@@ -15,8 +15,21 @@ export async function createTournament(
   return response.data;
 }
 
-export async function getTournaments(): Promise<TournamentDto[]> {
-  const response = await axios.get<TournamentDto[]>("/api/tournaments");
+export interface TournamentQuery {
+  activeOnly?: boolean;
+  status?: number;
+  sortBy?: "startDate" | "name";
+  isDescending?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export async function getTournaments(
+  query: TournamentQuery = {},
+): Promise<TournamentDto[]> {
+  const response = await axios.get<TournamentDto[]>("/api/tournaments", {
+    params: query,
+  });
   return response.data;
 }
 
