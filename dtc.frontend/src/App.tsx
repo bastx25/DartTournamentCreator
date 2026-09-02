@@ -6,6 +6,7 @@ import { PlayerPage } from "./pages/player/PlayerPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { TournamentPage } from "./pages/tournament/TournamentPage";
 import { CreateBoardPage } from "./pages/tournament/CreateBoardPage";
+import { CreateTournamentPage } from "./pages/tournament/CreateTournamentPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="players" element={<PlayerPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="boards/create" element={<CreateBoardPage />} />
+        <Route path="tournaments/create" element={<CreateTournamentPage />} />
       </Routes>
     </>
   );
