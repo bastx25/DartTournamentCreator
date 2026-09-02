@@ -1,17 +1,13 @@
 import z from "zod";
 
-export const updateBoardDtoSchema = z.object({
-  number: z
-    .number()
-    .min(1, "Die Boardnummer muss mindestens 1 sein.")
-    .max(100, "Die Boardnummer darf maximal 100 sein."),
+export const updateMatchDtoSchema = z.object({
+  boardId: z.number().nullable(),
 
-  label: z
-    .string()
-    .max(50, "Das Label darf maximal 50 Zeichen lang sein.")
-    .nullable(),
+  status: z.enum(["Scheduled", "InProgress", "Completed", "Cancelled"]),
 
-  isActive: z.boolean(),
+  actualStart: z.string().datetime({ offset: true }).nullable(),
+
+  actualEnd: z.string().datetime({ offset: true }).nullable(),
 });
 
-export type UpdateBoardDto = z.infer<typeof updateBoardDtoSchema>;
+export type UpdateMatchDto = z.infer<typeof updateMatchDtoSchema>;
