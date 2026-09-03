@@ -34,6 +34,8 @@ export function TournamentManagePage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [breakBetweenMatchesMinutes, setBreakBetweenMatchesMinutes] =
+    useState(0);
 
   const isValidTournamentId =
     Number.isInteger(tournamentId) && tournamentId > 0;
@@ -54,7 +56,11 @@ export function TournamentManagePage() {
         ]);
 
         setTournament(tournamentData);
+        setBreakBetweenMatchesMinutes(
+          tournamentData.breakBetweenMatchesMinutes ?? 0,
+        );
         setPlayers(playerData);
+
         setSelectedPlayerIds(playerData.map((player) => player.id));
       } catch (err) {
         console.error(err);
@@ -83,16 +89,10 @@ export function TournamentManagePage() {
   };
 
   const handleGenerate = async () => {
-    if (
-      selectedPlayers === 0 ||
-      groupCount < 1 ||
-      groupSize < 2 ||
-      selectedPlayers < groupCount * 2 ||
-      selectedPlayers > groupCount * groupSize ||
-      qualifiersPerGroup < 1 ||
-      qualifiersPerGroup > groupSize
-    ) {
-      setError("Prüfe Spieleranzahl, Gruppengröße, Gruppenzahl und Weiterkommer.");
+    if (selectedPlayers === 0 || groupCount < 1) {
+      setError(
+        "Prüfe Spieleranzahl, Gruppengröße, Gruppenzahl und Weiterkommer.",
+      );
       return;
     }
 
@@ -109,7 +109,7 @@ export function TournamentManagePage() {
         qualifiersPerGroup,
         startTime: tournament?.startDate ?? null,
         matchDurationMinutes: tournament?.matchDurationMinutes ?? null,
-        breakBetweenMatchesMinutes: tournament?.breakBetweenMatchesMinutes ?? null,
+        breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
       });
 
@@ -125,12 +125,14 @@ export function TournamentManagePage() {
   };
 
   const knockoutPrepared =
-    tournament?.rounds.some((round) => round.phase === RoundPhase.Knockout) ?? false;
+    tournament?.rounds.some((round) => round.phase === RoundPhase.Knockout) ??
+    false;
   const knockoutGenerated =
     tournament?.rounds
       .filter((round) => round.phase === RoundPhase.Knockout)
-      .some((round) => round.matches.some((match) => match.participants.length > 0)) ??
-    false;
+      .some((round) =>
+        round.matches.some((match) => match.participants.length > 0),
+      ) ?? false;
 
   const handleGenerateKnockout = async () => {
     try {
@@ -301,11 +303,38 @@ export function TournamentManagePage() {
                     className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                   <p className="mt-2 text-xs text-gray-500">
-                    Maximal {groupSize} Spieler pro Gruppe. Die tatsächliche Verteilung wird so ausgeglichen wie möglich vorgenommen.
+                    Maximal {groupSize} Spieler pro Gruppe. Die tatsächliche
+                    Verteilung wird so ausgeglichen wie möglich vorgenommen.
                   </p>
                 </div>
 
                 <div>
+                  <label
+                    htmlFor="breakBetweenMatchesMinutes"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Pause zwischen den Spielen in min.
+                  </label>
+
+                  <input
+                    id="breakBetweenMatchesMinutes"
+                    type="number"
+                    min={0}
+                    value={breakBetweenMatchesMinutes}
+                    onChange={(event) =>
+                      setBreakBetweenMatchesMinutes(
+                        Math.max(0, Number(event.target.value) || 0),
+                      )
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+
+                  <p className="mt-2 text-xs text-gray-500">
+                    Zeit in Minuten, die zwischen zwei Spielen eingeplant wird.
+                  </p>
+                </div>
+
+                {/* <div>
                   <label
                     htmlFor="groupSize"
                     className="block text-sm font-medium text-gray-900"
@@ -345,7 +374,7 @@ export function TournamentManagePage() {
                     }
                     className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
-                </div>
+                </div> */}
 
                 <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
@@ -365,13 +394,22 @@ export function TournamentManagePage() {
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
+                      <dt className="text-gray-600">
+                        Pause zwischen den Spielen
+                      </dt>
+                      <dd className="font-medium text-gray-900">
+                        {breakBetweenMatchesMinutes} min
+                      </dd>
+                    </div>
+
+                    {/* <div className="flex justify-between gap-4">
                       <dt className="text-gray-600">Max. Spieler / Gruppe</dt>
                       <dd className="font-medium text-gray-900">{groupSize}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-gray-600">Weiterkommer / Gruppe</dt>
                       <dd className="font-medium text-gray-900">{qualifiersPerGroup}</dd>
-                    </div>
+                    </div> */}
                   </dl>
                 </div>
 
@@ -397,7 +435,6 @@ export function TournamentManagePage() {
                       : "KO-Phase generieren"}
                   </button>
                 )}
-
               </div>
             </section>
 
