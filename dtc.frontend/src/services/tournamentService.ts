@@ -33,6 +33,14 @@ export async function getTournaments(
   return response.data;
 }
 
+export async function generateKnockout(id: number): Promise<void> {
+  await axios.post(`/api/tournaments/${id}/generate-knockout`, null, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
 export async function getTournament(id: number): Promise<TournamentDto> {
   const response = await axios.get<TournamentDto>(`/api/tournaments/${id}`);
   return response.data;

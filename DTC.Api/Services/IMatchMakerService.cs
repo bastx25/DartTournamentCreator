@@ -1,7 +1,10 @@
-﻿namespace DTC.Api.Services
+﻿using DTC.Api.Dtos.MatchMaker;
+
+namespace DTC.Api.Services
 {
     public interface IMatchMakerService
     {
-        Task<bool> GenerateRandomGroupsAsync(int tournamentId, int groupSize, List<int>? selectedPlayerIds = null);
+        Task GenerateGroupsAsync(int tournamentId, GenerateGroupsDto options);
+        Task GenerateKnockoutAsync(int tournamentId);
     }
 }

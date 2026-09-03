@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace DTC.Api.Dtos.Round
@@ -20,5 +20,6 @@ namespace DTC.Api.Dtos.Round
         public DateTimeOffset PlannedStart { get; set; }
         public DateTimeOffset? PlannedEnd { get; set; }
         public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
+        public RoundPhase Phase { get; set; } = RoundPhase.GroupStage;
     }
 }

@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DTC.Api.Models
@@ -17,6 +17,7 @@ namespace DTC.Api.Models
         public DateTimeOffset? PlannedEnd { get; set; }
 
         public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
+        public RoundPhase Phase { get; set; } = RoundPhase.GroupStage;
 
         // Navigation Properties
         public Tournament Tournament { get; set; } = null!;

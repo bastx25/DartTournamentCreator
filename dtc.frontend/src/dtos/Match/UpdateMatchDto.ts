@@ -3,6 +3,8 @@ import { MatchStatus } from "../../enums/MatchStatus";
 
 export const updateMatchDtoSchema = z.object({
   boardId: z.number().nullable(),
+  plannedStart: z.iso.datetime({ offset: true }).nullable(),
+  plannedEnd: z.iso.datetime({ offset: true }).nullable(),
 
   status: z.enum(MatchStatus),
 

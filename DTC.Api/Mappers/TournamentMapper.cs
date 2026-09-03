@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Tournament;
+using DTC.Api.Dtos.Tournament;
 using DTC.Api.Models;
 
 namespace DTC.Api.Mappers
@@ -16,6 +16,8 @@ namespace DTC.Api.Mappers
                 Description = tournament.Description,
                 Mode = tournament.Mode,
                 Status = tournament.Status,
+                MatchDurationMinutes = tournament.MatchDurationMinutes,
+                BreakBetweenMatchesMinutes = tournament.BreakBetweenMatchesMinutes,
                 Rounds = tournament.Rounds.Select(r => r.ToRoundDto()).ToList()
             };
         }
@@ -28,7 +30,9 @@ namespace DTC.Api.Mappers
                 StartDate = dto.StartDate,
                 Description = dto.Description?.Trim(),
                 Mode = dto.Mode,
-                Status = dto.Status
+                Status = dto.Status,
+                MatchDurationMinutes = dto.MatchDurationMinutes,
+                BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes
             };
         }
 
@@ -39,6 +43,8 @@ namespace DTC.Api.Mappers
             tournament.Description = dto.Description?.Trim();
             tournament.Mode = dto.Mode;
             tournament.Status = dto.Status;
+            tournament.MatchDurationMinutes = dto.MatchDurationMinutes ?? tournament.MatchDurationMinutes;
+            tournament.BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes ?? tournament.BreakBetweenMatchesMinutes;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace DTC.Api.Dtos.Tournament
@@ -16,5 +16,7 @@ namespace DTC.Api.Dtos.Tournament
 
         public TournamentMode Mode { get; set; }
         public TournamentStatus Status { get; set; }
+        public int? MatchDurationMinutes { get; set; }
+        public int? BreakBetweenMatchesMinutes { get; set; }
     }
 }

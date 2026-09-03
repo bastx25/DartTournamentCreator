@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DTC.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,7 +50,9 @@ namespace DTC.Api.Migrations
                     StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Mode = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    MatchDurationMinutes = table.Column<int>(type: "int", nullable: false),
+                    BreakBetweenMatchesMinutes = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,7 +93,8 @@ namespace DTC.Api.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PlannedStart = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     PlannedEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Phase = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,14 +114,72 @@ namespace DTC.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Groups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TournamentId = table.Column<int>(type: "int", nullable: false),
+                    BoardId = table.Column<int>(type: "int", nullable: false),
+                    Sequence = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    QualifiersCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Groups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Groups_Boards_BoardId",
+                        column: x => x.BoardId,
+                        principalTable: "Boards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Groups_Tournaments_TournamentId",
+                        column: x => x.TournamentId,
+                        principalTable: "Tournaments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GroupPlayers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    PlayerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupPlayers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GroupPlayers_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GroupPlayers_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Matches",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoundId = table.Column<int>(type: "int", nullable: false),
+                    GroupId = table.Column<int>(type: "int", nullable: true),
                     BoardId = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    PlannedStart = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    PlannedEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ActualStart = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ActualEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
@@ -132,11 +193,17 @@ namespace DTC.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
+                        name: "FK_Matches_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
                         name: "FK_Matches_Rounds_RoundId",
                         column: x => x.RoundId,
                         principalTable: "Rounds",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -174,9 +241,36 @@ namespace DTC.Api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_GroupPlayers_GroupId_PlayerId",
+                table: "GroupPlayers",
+                columns: new[] { "GroupId", "PlayerId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupPlayers_PlayerId",
+                table: "GroupPlayers",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Groups_BoardId",
+                table: "Groups",
+                column: "BoardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Groups_TournamentId_Sequence",
+                table: "Groups",
+                columns: new[] { "TournamentId", "Sequence" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Matches_BoardId",
                 table: "Matches",
                 column: "BoardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matches_GroupId",
+                table: "Matches",
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Matches_RoundId",
@@ -209,6 +303,9 @@ namespace DTC.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "GroupPlayers");
+
+            migrationBuilder.DropTable(
                 name: "MatchParticipants");
 
             migrationBuilder.DropTable(
@@ -218,16 +315,19 @@ namespace DTC.Api.Migrations
                 name: "Players");
 
             migrationBuilder.DropTable(
-                name: "Boards");
+                name: "Groups");
 
             migrationBuilder.DropTable(
                 name: "Rounds");
 
             migrationBuilder.DropTable(
-                name: "Locations");
+                name: "Boards");
 
             migrationBuilder.DropTable(
                 name: "Tournaments");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
         }
     }
 }

@@ -7,8 +7,10 @@ import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/player/PlayerDto";
 import {
   generateGroups,
+  generateKnockout,
   getTournament,
 } from "../../services/tournamentService";
+import { RoundPhase } from "../../enums/RoundPhase";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -26,6 +28,8 @@ export function TournamentManagePage() {
   const [players, setPlayers] = useState<PlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
+  const [groupSize, setGroupSize] = useState(4);
+  const [qualifiersPerGroup, setQualifiersPerGroup] = useState(2);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,10 +72,6 @@ export function TournamentManagePage() {
   }
 
   const selectedPlayers = selectedPlayerIds.length;
-  const groupSize =
-    selectedPlayers === 0
-      ? 0
-      : Math.ceil(selectedPlayers / Math.max(1, groupCount));
 
   const togglePlayer = (playerId: number) => {
     setSelectedPlayerIds((current) =>
@@ -83,8 +83,16 @@ export function TournamentManagePage() {
   };
 
   const handleGenerate = async () => {
-    if (selectedPlayers === 0 || groupCount < 1 || groupSize < 2) {
-      setError("Wähle mindestens zwei Spieler und eine gültige Gruppenzahl.");
+    if (
+      selectedPlayers === 0 ||
+      groupCount < 1 ||
+      groupSize < 2 ||
+      selectedPlayers < groupCount * 2 ||
+      selectedPlayers > groupCount * groupSize ||
+      qualifiersPerGroup < 1 ||
+      qualifiersPerGroup > groupSize
+    ) {
+      setError("Prüfe Spieleranzahl, Gruppengröße, Gruppenzahl und Weiterkommer.");
       return;
     }
 
@@ -96,7 +104,12 @@ export function TournamentManagePage() {
       console.log("matches werden erstellt");
 
       await generateGroups(tournamentId, {
-        groupSize: groupCount,
+        groupCount,
+        groupSize,
+        qualifiersPerGroup,
+        startTime: tournament?.startDate ?? null,
+        matchDurationMinutes: tournament?.matchDurationMinutes ?? null,
+        breakBetweenMatchesMinutes: tournament?.breakBetweenMatchesMinutes ?? null,
         playerIds: selectedPlayerIds,
       });
 
@@ -106,6 +119,30 @@ export function TournamentManagePage() {
     } catch (err) {
       console.error(err);
       setError("Gruppen und Matches konnten nicht erstellt werden.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const knockoutPrepared =
+    tournament?.rounds.some((round) => round.phase === RoundPhase.Knockout) ?? false;
+  const knockoutGenerated =
+    tournament?.rounds
+      .filter((round) => round.phase === RoundPhase.Knockout)
+      .some((round) => round.matches.some((match) => match.participants.length > 0)) ??
+    false;
+
+  const handleGenerateKnockout = async () => {
+    try {
+      setGenerating(true);
+      setError(null);
+      setSuccess(null);
+      await generateKnockout(tournamentId);
+      setTournament(await getTournament(tournamentId));
+      setSuccess("Die K.-o.-Phase wurde aus den Match-Siegen generiert.");
+    } catch (err) {
+      console.error(err);
+      setError("Die K.-o.-Phase konnte nicht generiert werden.");
     } finally {
       setGenerating(false);
     }
@@ -264,9 +301,50 @@ export function TournamentManagePage() {
                     className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                   <p className="mt-2 text-xs text-gray-500">
-                    Bei {selectedPlayers} Spielern entstehen ungefähr{" "}
-                    {groupSize || "–"} Spieler pro Gruppe.
+                    Maximal {groupSize} Spieler pro Gruppe. Die tatsächliche Verteilung wird so ausgeglichen wie möglich vorgenommen.
                   </p>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="groupSize"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Max. Spieler pro Gruppe
+                  </label>
+                  <input
+                    id="groupSize"
+                    type="number"
+                    min={2}
+                    max={64}
+                    value={groupSize}
+                    onChange={(event) =>
+                      setGroupSize(Math.max(2, Number(event.target.value) || 2))
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="qualifiersPerGroup"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Weiterkommer pro Gruppe
+                  </label>
+                  <input
+                    id="qualifiersPerGroup"
+                    type="number"
+                    min={1}
+                    max={Math.max(1, groupSize)}
+                    value={qualifiersPerGroup}
+                    onChange={(event) =>
+                      setQualifiersPerGroup(
+                        Math.max(1, Number(event.target.value) || 1),
+                      )
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
                 </div>
 
                 <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
@@ -287,10 +365,12 @@ export function TournamentManagePage() {
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-gray-600">Spieler / Gruppe</dt>
-                      <dd className="font-medium text-gray-900">
-                        {groupSize || "–"}
-                      </dd>
+                      <dt className="text-gray-600">Max. Spieler / Gruppe</dt>
+                      <dd className="font-medium text-gray-900">{groupSize}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-gray-600">Weiterkommer / Gruppe</dt>
+                      <dd className="font-medium text-gray-900">{qualifiersPerGroup}</dd>
                     </div>
                   </dl>
                 </div>
@@ -305,6 +385,19 @@ export function TournamentManagePage() {
                     ? "Gruppen werden erstellt..."
                     : "Zufällig Gruppen & Matches erstellen"}
                 </button>
+                {knockoutPrepared && tournament?.mode === 1 && (
+                  <button
+                    type="button"
+                    disabled={generating || knockoutGenerated}
+                    onClick={() => void handleGenerateKnockout()}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {knockoutGenerated
+                      ? "K.-o.-Phase bereits generiert"
+                      : "KO-Phase generieren"}
+                  </button>
+                )}
+
               </div>
             </section>
 

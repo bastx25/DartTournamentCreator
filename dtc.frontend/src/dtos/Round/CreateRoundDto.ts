@@ -1,5 +1,6 @@
 import z from "zod";
 import { RoundStatus } from "../../enums/RoundStatus";
+import { RoundPhase } from "../../enums/RoundPhase";
 
 export const createRoundDtoSchema = z.object({
   tournamentId: z.number({
@@ -25,6 +26,7 @@ export const createRoundDtoSchema = z.object({
   plannedEnd: z.iso.datetime({ offset: true }).nullable(),
 
   status: z.enum(RoundStatus).default(RoundStatus.Scheduled),
+  phase: z.enum(RoundPhase).default(RoundPhase.GroupStage),
 });
 
 export type CreateRoundDto = z.infer<typeof createRoundDtoSchema>;

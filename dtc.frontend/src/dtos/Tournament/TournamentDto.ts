@@ -10,6 +10,8 @@ export const tournamentDtoSchema = z.object({
   description: z.string().nullable(),
   mode: z.enum(TournamentMode),
   status: z.enum(TournamentStatus),
+  matchDurationMinutes: z.number(),
+  breakBetweenMatchesMinutes: z.number(),
   rounds: z.array(roundDtoSchema),
 });
 

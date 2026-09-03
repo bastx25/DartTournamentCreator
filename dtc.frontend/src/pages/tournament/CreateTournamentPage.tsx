@@ -41,6 +41,8 @@ export function CreateTournamentPage() {
     description: null,
     mode: TournamentMode.GroupStage,
     status: TournamentStatus.Draft,
+    matchDurationMinutes: 30,
+    breakBetweenMatchesMinutes: 5,
   });
 
   const [errors, setErrors] = useState<

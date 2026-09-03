@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DTC.Api.Models
 {
@@ -14,5 +14,6 @@ namespace DTC.Api.Models
         // Navigation Properties
         public Location Location { get; set; } = null!;
         public ICollection<Match> Matches { get; set; } = new List<Match>();
+        public ICollection<Group> Groups { get; set; } = new List<Group>();
     }
 }

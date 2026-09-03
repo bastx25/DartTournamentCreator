@@ -41,6 +41,9 @@ namespace DTC.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TournamentDto>> Create([FromBody] CreateTournamentDto dto)
         {
+            if (dto.MatchDurationMinutes < 1 || dto.BreakBetweenMatchesMinutes < 0)
+                return BadRequest("Matchdauer muss mindestens 1 Minute und die Pause darf nicht negativ sein.");
+
             var entity = dto.ToEntityFromCreate();
             var created = await _tournamentRepo.CreateAsync(entity);
 
@@ -52,6 +55,10 @@ namespace DTC.Api.Controllers
         {
             var existing = await _tournamentRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
+            if (dto.MatchDurationMinutes.HasValue && dto.MatchDurationMinutes.Value < 1)
+                return BadRequest("Die Matchdauer muss mindestens 1 Minute betragen.");
+            if (dto.BreakBetweenMatchesMinutes.HasValue && dto.BreakBetweenMatchesMinutes.Value < 0)
+                return BadRequest("Die Pause darf nicht negativ sein.");
 
             dto.UpdateEntity(existing);
             await _tournamentRepo.UpdateAsync(existing);
@@ -71,13 +78,37 @@ namespace DTC.Api.Controllers
         [HttpPost("{id:int}/generate-groups")]
         public async Task<IActionResult> GenerateGroups([FromRoute] int id, [FromBody] GenerateGroupsDto dto)
         {
-            var success = await _matchMakerService.GenerateRandomGroupsAsync(id, dto.GroupSize, dto.PlayerIds);
-            if (!success)
+            try
             {
-                return BadRequest("Gruppen konnten nicht generiert werden. Prüfe Turnier-ID und verfügbare Standorte.");
+                await _matchMakerService.GenerateGroupsAsync(id, dto);
+                return Ok(new { Message = "Gruppenphase und vorbereitete K.-o.-Slots wurden erfolgreich generiert." });
             }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            return Ok(new { Message = "Gruppen und Matches erfolgreich generiert." });
+        [HttpPost("{id:int}/generate-knockout")]
+        public async Task<IActionResult> GenerateKnockout([FromRoute] int id)
+        {
+            try
+            {
+                await _matchMakerService.GenerateKnockoutAsync(id);
+                return Ok(new { Message = "K.-o.-Phase wurde anhand der Match-Siege generiert." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -5,3 +5,14 @@ export enum TournamentStatus {
   Completed = 4,
   Cancelled = 5,
 }
+
+export function tournamentStatusLabel(status: TournamentStatus) {
+  switch (status) {
+    case TournamentStatus.Scheduled:
+      return "Geplant";
+    case TournamentStatus.InProgress:
+      return "Laufend";
+    default:
+      return "Aktiv";
+  }
+}

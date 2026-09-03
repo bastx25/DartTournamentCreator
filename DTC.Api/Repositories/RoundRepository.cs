@@ -18,6 +18,8 @@ namespace DTC.Api.Repositories
         {
             return await _context.Rounds
                 .Include(r => r.Matches)
+                    .ThenInclude(m => m.Participants)
+                        .ThenInclude(p => p.Player)
                 .Where(r => r.TournamentId == tournamentId)
                 .OrderBy(r => r.Sequence)
                 .ToListAsync();

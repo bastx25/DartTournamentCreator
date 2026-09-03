@@ -12,6 +12,8 @@ export const updateTournamentDtoSchema = z.object({
   mode: z.enum(TournamentMode),
 
   status: z.enum(TournamentStatus),
+  matchDurationMinutes: z.number().int().min(1).nullable().optional(),
+  breakBetweenMatchesMinutes: z.number().int().min(0).nullable().optional(),
 });
 
 export type UpdateTournamentDto = z.infer<typeof updateTournamentDtoSchema>;

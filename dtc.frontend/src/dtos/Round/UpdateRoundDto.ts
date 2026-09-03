@@ -1,5 +1,6 @@
 import z from "zod";
 import { RoundStatus } from "../../enums/RoundStatus";
+import { RoundPhase } from "../../enums/RoundPhase";
 
 export const updateRoundDtoSchema = z.object({
   locationId: z.number({
@@ -21,6 +22,7 @@ export const updateRoundDtoSchema = z.object({
   plannedEnd: z.iso.datetime({ offset: true }).nullable(),
 
   status: z.enum(RoundStatus).default(RoundStatus.Scheduled),
+  phase: z.enum(RoundPhase).default(RoundPhase.GroupStage),
 });
 
 export type UpdateRoundDto = z.infer<typeof updateRoundDtoSchema>;

@@ -1,4 +1,4 @@
-﻿namespace DTC.Api.Models
+namespace DTC.Api.Models
 {
     public class Player
     {
@@ -9,5 +9,6 @@
 
         // Navigation Properties
         public ICollection<MatchParticipant> MatchParticipants { get; set; } = new List<MatchParticipant>();
+        public ICollection<GroupPlayer> Groups { get; set; } = new List<GroupPlayer>();
     }
 }

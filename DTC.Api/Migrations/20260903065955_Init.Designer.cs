@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DTC.Api.Migrations
 {
     [DbContext(typeof(DartDbContext))]
-    [Migration("20260826125726_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260903065955_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,64 @@ namespace DTC.Api.Migrations
                     b.ToTable("Boards");
                 });
 
+            modelBuilder.Entity("DTC.Api.Models.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BoardId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QualifiersCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TournamentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoardId");
+
+                    b.HasIndex("TournamentId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("DTC.Api.Models.GroupPlayer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("GroupId", "PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("GroupPlayers");
+                });
+
             modelBuilder.Entity("DTC.Api.Models.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -90,6 +148,15 @@ namespace DTC.Api.Migrations
                     b.Property<int?>("BoardId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("PlannedEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("PlannedStart")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("RoundId")
                         .HasColumnType("int");
 
@@ -99,6 +166,8 @@ namespace DTC.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BoardId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("RoundId");
 
@@ -172,6 +241,9 @@ namespace DTC.Api.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Phase")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset?>("PlannedEnd")
                         .HasColumnType("datetimeoffset");
 
@@ -205,8 +277,14 @@ namespace DTC.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BreakBetweenMatchesMinutes")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MatchDurationMinutes")
+                        .HasColumnType("int");
 
                     b.Property<int>("Mode")
                         .HasColumnType("int");
@@ -237,6 +315,44 @@ namespace DTC.Api.Migrations
                     b.Navigation("Location");
                 });
 
+            modelBuilder.Entity("DTC.Api.Models.Group", b =>
+                {
+                    b.HasOne("DTC.Api.Models.Board", "Board")
+                        .WithMany("Groups")
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DTC.Api.Models.Tournament", "Tournament")
+                        .WithMany("Groups")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Board");
+
+                    b.Navigation("Tournament");
+                });
+
+            modelBuilder.Entity("DTC.Api.Models.GroupPlayer", b =>
+                {
+                    b.HasOne("DTC.Api.Models.Group", "Group")
+                        .WithMany("Players")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DTC.Api.Models.Player", "Player")
+                        .WithMany("Groups")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Player");
+                });
+
             modelBuilder.Entity("DTC.Api.Models.Match", b =>
                 {
                     b.HasOne("DTC.Api.Models.Board", "Board")
@@ -244,13 +360,20 @@ namespace DTC.Api.Migrations
                         .HasForeignKey("BoardId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("DTC.Api.Models.Group", "Group")
+                        .WithMany("Matches")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("DTC.Api.Models.Round", "Round")
                         .WithMany("Matches")
                         .HasForeignKey("RoundId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Board");
+
+                    b.Navigation("Group");
 
                     b.Navigation("Round");
                 });
@@ -295,7 +418,16 @@ namespace DTC.Api.Migrations
 
             modelBuilder.Entity("DTC.Api.Models.Board", b =>
                 {
+                    b.Navigation("Groups");
+
                     b.Navigation("Matches");
+                });
+
+            modelBuilder.Entity("DTC.Api.Models.Group", b =>
+                {
+                    b.Navigation("Matches");
+
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Location", b =>
@@ -312,6 +444,8 @@ namespace DTC.Api.Migrations
 
             modelBuilder.Entity("DTC.Api.Models.Player", b =>
                 {
+                    b.Navigation("Groups");
+
                     b.Navigation("MatchParticipants");
                 });
 
@@ -322,6 +456,8 @@ namespace DTC.Api.Migrations
 
             modelBuilder.Entity("DTC.Api.Models.Tournament", b =>
                 {
+                    b.Navigation("Groups");
+
                     b.Navigation("Rounds");
                 });
 #pragma warning restore 612, 618

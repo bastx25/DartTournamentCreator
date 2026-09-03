@@ -12,6 +12,8 @@ export const createTournamentDtoSchema = z.object({
   mode: z.enum(TournamentMode).default(TournamentMode.GroupStage),
 
   status: z.enum(TournamentStatus).default(TournamentStatus.Draft),
+  matchDurationMinutes: z.number().int().min(1).default(30),
+  breakBetweenMatchesMinutes: z.number().int().min(0).default(5),
 });
 
 export type CreateTournamentDto = z.infer<typeof createTournamentDtoSchema>;

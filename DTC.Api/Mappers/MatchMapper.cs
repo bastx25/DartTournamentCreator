@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Match;
+using DTC.Api.Dtos.Match;
 using DTC.Api.Models;
 
 namespace DTC.Api.Mappers
@@ -11,8 +11,11 @@ namespace DTC.Api.Mappers
             {
                 Id = match.Id,
                 RoundId = match.RoundId,
+                GroupId = match.GroupId,
                 BoardId = match.BoardId,
                 Status = match.Status,
+                PlannedStart = match.PlannedStart,
+                PlannedEnd = match.PlannedEnd,
                 ActualStart = match.ActualStart,
                 ActualEnd = match.ActualEnd,
                 Participants = match.Participants
@@ -26,8 +29,11 @@ namespace DTC.Api.Mappers
             return new Match
             {
                 RoundId = dto.RoundId,
+                GroupId = dto.GroupId,
                 BoardId = dto.BoardId,
-                Status = dto.Status
+                Status = dto.Status,
+                PlannedStart = dto.PlannedStart,
+                PlannedEnd = dto.PlannedEnd
             };
         }
 
@@ -35,6 +41,8 @@ namespace DTC.Api.Mappers
         {
             match.BoardId = dto.BoardId;
             match.Status = dto.Status;
+            match.PlannedStart = dto.PlannedStart;
+            match.PlannedEnd = dto.PlannedEnd;
             match.ActualStart = dto.ActualStart;
             match.ActualEnd = dto.ActualEnd;
         }
