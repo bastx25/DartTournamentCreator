@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { CreatePlayerDto } from "../../dtos/Player/CreatePlayerDto";
+import {
+  createPlayerDtoSchema,
+  type CreatePlayerDto,
+} from "../../dtos/Player/CreatePlayerDto";
 
 interface CreatePlayerModalProps {
   adding: boolean;
@@ -16,16 +19,39 @@ export function CreatePlayerModal({
   const [lastName, setLastName] = useState("");
   const [nickname, setNickname] = useState("");
 
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreatePlayerDto, string>>
+  >({});
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const updatedPlayer: CreatePlayerDto = {
+    const formData: CreatePlayerDto = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       nickname: nickname.trim(),
     };
 
-    onConfirm(updatedPlayer);
+    const result = createPlayerDtoSchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof CreatePlayerDto, string>> = {};
+
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof CreatePlayerDto;
+
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      });
+
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+
+    onConfirm(result.data);
   };
 
   return (
@@ -94,9 +120,19 @@ export function CreatePlayerModal({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   disabled={adding}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                    errors.firstName
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                  }`}
                   placeholder="Vorname"
                 />
+
+                {errors.firstName && (
+                  <p className="mt-1.5 text-sm text-red-600">
+                    {errors.firstName}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -113,9 +149,19 @@ export function CreatePlayerModal({
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   disabled={adding}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                    errors.lastName
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                  }`}
                   placeholder="Nachname"
                 />
+
+                {errors.lastName && (
+                  <p className="mt-1.5 text-sm text-red-600">
+                    {errors.lastName}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -132,9 +178,19 @@ export function CreatePlayerModal({
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   disabled={adding}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                    errors.nickname
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                  }`}
                   placeholder="Spitzname"
                 />
+
+                {errors.nickname && (
+                  <p className="mt-1.5 text-sm text-red-600">
+                    {errors.nickname}
+                  </p>
+                )}
               </div>
             </div>
           </div>
