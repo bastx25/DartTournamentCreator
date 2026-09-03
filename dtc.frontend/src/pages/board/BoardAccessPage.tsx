@@ -91,9 +91,27 @@ export function BoardAccessPage() {
   }, [parsedBoardId]);
 
   useEffect(() => {
-    void refresh();
-    const timer = window.setInterval(() => void refresh(), 5000);
-    return () => window.clearInterval(timer);
+    let interval: number | undefined;
+
+    const initialRefresh = async () => {
+      await refresh();
+
+      interval = window.setInterval(() => {
+        void refresh();
+      }, 5000);
+    };
+
+    const timer = window.setTimeout(() => {
+      void initialRefresh();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+
+      if (interval !== undefined) {
+        window.clearInterval(interval);
+      }
+    };
   }, [refresh]);
 
   const selectedMatch = useMemo(
