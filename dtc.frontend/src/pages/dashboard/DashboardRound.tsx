@@ -1,3 +1,4 @@
+import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { MatchDto } from "../../dtos/Match/MatchDto";
 import type { RoundDto } from "../../dtos/Round/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
@@ -8,6 +9,7 @@ import type { MatchSchedule } from "./DashboardPage";
 interface DashboardRoundProps {
   round: RoundDto;
   sortedMatches: MatchDto[];
+  boards: BoardDto[];
   playerName: (match: MatchSchedule, index: number) => string;
   matchScore: (match: MatchSchedule, index: number) => number;
   matchTime: (match: MatchSchedule, roundStart: string) => string;
@@ -16,6 +18,7 @@ interface DashboardRoundProps {
 export function DashboardRound({
   round,
   sortedMatches,
+  boards,
   playerName,
   matchScore,
   matchTime,
@@ -57,6 +60,7 @@ export function DashboardRound({
             <DashboardMatch
               match={match}
               index={index}
+              boards={boards}
               scheduledTime={scheduledTime}
               firstScore={firstScore}
               secondScore={secondScore}

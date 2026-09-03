@@ -1,3 +1,4 @@
+import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { MatchDto } from "../../dtos/Match/MatchDto";
 import { MatchStatus, matchStatusLabel } from "../../enums/MatchStatus";
 import { formatTime } from "../../utils/formatTime";
@@ -6,6 +7,7 @@ import type { MatchSchedule } from "./DashboardPage";
 interface DashboardMatchProps {
   match: MatchDto;
   index: number;
+  boards: BoardDto[];
   scheduledTime: string;
   firstScore: number;
   secondScore: number;
@@ -15,15 +17,27 @@ interface DashboardMatchProps {
 export function DashboardMatch({
   match,
   index,
+  boards,
   scheduledTime,
   firstScore,
   secondScore,
   playerName,
 }: DashboardMatchProps) {
+  const firstParticipant = match.participants[0];
+  const secondParticipant = match.participants[1];
+
+  const boardLabel = (boardId: number | null) => {
+    if (boardId === null) return "";
+
+    const board = boards.find((board) => board.id === boardId);
+
+    return board?.label ?? "";
+  };
+
   return (
     <div
       key={match.id}
-      className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_120px] sm:items-center sm:px-8"
+      className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_90px_110px] sm:items-center sm:px-8"
     >
       <div>
         <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p>
@@ -33,32 +47,36 @@ export function DashboardMatch({
       </div>
 
       <div className="min-w-0">
-        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p
+              className={`truncate text-sm font-medium ${
+                firstParticipant?.isWinner ? "text-green-600" : "text-gray-900"
+              }`}
+            >
               {playerName(match, 0)}
             </p>
-            {firstScore !== null && (
-              <p className="mt-1 text-xs text-gray-500">Score: {firstScore}</p>
-            )}
           </div>
 
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-            vs.
+          <span className="whitespace-nowrap text-sm font-bold text-gray-900">
+            {firstScore ?? 0} : {secondScore ?? 0}
           </span>
 
           <div className="min-w-0 sm:text-right">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p
+              className={`truncate text-sm font-medium ${
+                secondParticipant?.isWinner ? "text-green-600" : "text-gray-900"
+              }`}
+            >
               {playerName(match, 1)}
             </p>
-            {secondScore !== null && (
-              <p className="mt-1 text-xs text-gray-500">Score: {secondScore}</p>
-            )}
           </div>
         </div>
       </div>
 
-      <div>{match.boardId}</div>
+      <div className="text-sm font-medium text-gray-600 sm:text-center">
+        Board {boardLabel(match.boardId)}
+      </div>
 
       <div className="sm:text-right">
         <span

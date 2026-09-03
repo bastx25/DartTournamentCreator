@@ -6,6 +6,7 @@ import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTorunamentDetails";
 import { DashboardRound } from "./DashboardRound";
+import { useBoards } from "../../hooks/useBoards";
 
 export type MatchSchedule = RoundDto["matches"][number];
 
@@ -28,6 +29,11 @@ export function DashboardPage() {
     loading: tournamentsLoading,
     error: tournamentsError,
   } = useActiveTournaments();
+
+  const { boards, loading: boardsLoading, error: boardsError } = useBoards();
+
+  console.log("Boards");
+  console.log(boards);
 
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
@@ -133,6 +139,7 @@ export function DashboardPage() {
                   return (
                     <DashboardRound
                       round={round}
+                      boards={boards}
                       sortedMatches={sortedMatches}
                       playerName={playerName}
                       matchScore={matchScore}

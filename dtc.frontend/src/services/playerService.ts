@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { PlayerDto } from "../dtos/player/PlayerDto";
-import type { UpdatePlayerDto } from "../dtos/player/UpdatePlayerDto";
-import type { CreatePlayerDto } from "../dtos/player/CreatePlayerDto";
+import type { UpdatePlayerDto } from "../dtos/Player/UpdatePlayerDto";
+import type { CreatePlayerDto } from "../dtos/Player/CreatePlayerDto";
 
 export async function getPlayers(): Promise<PlayerDto[]> {
   const response = await axios.get<PlayerDto[]>("/api/players");

@@ -6,7 +6,7 @@ import {
   createPlayer,
 } from "../services/playerService";
 import type { PlayerDto } from "../dtos/player/PlayerDto";
-import type { CreatePlayerDto } from "../dtos/player/CreatePlayerDto";
+import type { CreatePlayerDto } from "../dtos/Player/CreatePlayerDto";
 
 export function usePlayers() {
   const [players, setPlayers] = useState<PlayerDto[]>([]);
