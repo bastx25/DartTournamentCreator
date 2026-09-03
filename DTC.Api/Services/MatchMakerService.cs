@@ -3,6 +3,7 @@ using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Enums;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace DTC.Api.Services
 {
@@ -27,10 +28,11 @@ namespace DTC.Api.Services
             var alreadyGenerated = await _context.Rounds.AnyAsync(r => r.TournamentId == tournamentId)
                 || await _context.Groups.AnyAsync(g => g.TournamentId == tournamentId);
             if (alreadyGenerated)
-                throw new InvalidOperationException("Die Gruppenphase wurde für dieses Turnier bereits generiert und kann nicht erneut erstellt werden.");
+                await DeleteGeneratedTournamentPhaseAsync(tournament.Id);
+                //throw new InvalidOperationException("Die Gruppenphase wurde für dieses Turnier bereits generiert und kann nicht erneut erstellt werden.");
 
             var players = await LoadPlayersAsync(options.PlayerIds);
-            ValidatePlayers(players, options.GroupCount, options.GroupSize);
+            //ValidatePlayers(players, options.GroupCount, options.GroupSize);
 
             var locationAndBoards = await FindLocationWithBoardsAsync(options.GroupCount);
             if (locationAndBoards == null)
@@ -76,6 +78,48 @@ namespace DTC.Api.Services
 
             await _context.SaveChangesAsync();
         }
+
+
+        private async Task DeleteGeneratedTournamentPhaseAsync(int tournamentId)
+        {
+            var groupIds = await _context.Groups
+                .Where(g => g.TournamentId == tournamentId)
+                .Select(g => g.Id)
+                .ToListAsync();
+
+            var roundIds = await _context.Rounds
+                .Where(r => r.TournamentId == tournamentId)
+                .Select(r => r.Id)
+                .ToListAsync();
+
+            var matchIds = await _context.Matches
+                .Where(m =>
+                    (m.GroupId.HasValue && groupIds.Contains(m.GroupId.Value)) ||
+                    roundIds.Contains(m.RoundId))
+                .Select(m => m.Id)
+                .ToListAsync();
+
+            await _context.MatchParticipants
+                .Where(mp => matchIds.Contains(mp.MatchId))
+                .ExecuteDeleteAsync();
+
+            await _context.Matches
+                .Where(m => matchIds.Contains(m.Id))
+                .ExecuteDeleteAsync();
+
+            await _context.GroupPlayers
+                .Where(gp => groupIds.Contains(gp.GroupId))
+                .ExecuteDeleteAsync();
+
+            await _context.Groups
+                .Where(g => g.TournamentId == tournamentId)
+                .ExecuteDeleteAsync();
+
+            await _context.Rounds
+                .Where(r => r.TournamentId == tournamentId)
+                .ExecuteDeleteAsync();
+        }
+
 
         public async Task GenerateKnockoutAsync(int tournamentId)
         {
@@ -392,27 +436,55 @@ namespace DTC.Api.Services
 
                     var pairing = schedules[groupIndex][slotIndex];
                     var group = groups[groupIndex];
-                    round.Matches.Add(new Match
+
+
+                    var player1IsBye = pairing.Player1Id < 0;
+                    var player2IsBye = pairing.Player2Id < 0;
+
+                    var match = new Match
                     {
                         Round = round,
                         Group = group,
                         GroupId = group.Id == 0 ? null : group.Id,
                         BoardId = group.BoardId,
-                        Status = MatchStatus.Scheduled,
-                        PlannedStart = plannedStart,
-                        PlannedEnd = plannedStart.AddMinutes(matchDurationMinutes),
-                        Participants =
-                        {
-                            new MatchParticipant { PlayerId = pairing.Player1Id },
-                            new MatchParticipant { PlayerId = pairing.Player2Id }
-                        }
-                    });
-                }
 
-                round.PlannedEnd = round.Matches.Count == 0
-                    ? plannedStart
-                    : round.Matches.Max(m => m.PlannedEnd);
-                rounds.Add(round);
+                        Status = (player1IsBye || player2IsBye)
+                            ? MatchStatus.Completed
+                            : MatchStatus.Scheduled,
+
+                        PlannedStart = plannedStart,
+                        PlannedEnd = plannedStart.AddMinutes(matchDurationMinutes)
+                    };
+
+                    // Player 1 ist ein echter Spieler
+                    if (!player1IsBye)
+                    {
+                        match.Participants.Add(new MatchParticipant
+                        {
+                            PlayerId = pairing.Player1Id,
+                            IsWinner = player2IsBye
+                        });
+                    }
+
+                    // Player 2 ist ein echter Spieler
+                    if (!player2IsBye)
+                    {
+                        match.Participants.Add(new MatchParticipant
+                        {
+                            PlayerId = pairing.Player2Id,
+                            IsWinner = player1IsBye
+                        });
+                    }
+
+                    round.Matches.Add(match);
+
+
+
+                    round.PlannedEnd = round.Matches.Count == 0
+                        ? plannedStart
+                        : round.Matches.Max(m => m.PlannedEnd);
+                    rounds.Add(round);
+                }
             }
 
             return rounds;
@@ -422,7 +494,7 @@ namespace DTC.Api.Services
         {
             var players = playerIds.ToList();
             if (players.Count % 2 != 0)
-                players.Add(0);
+                players.Add(-1);
 
             var result = new List<List<Pairing>>();
             var totalRounds = players.Count - 1;
@@ -481,9 +553,9 @@ namespace DTC.Api.Services
                 });
             }
 
-            if (groups.Any(g => g.Players.Count < options.QualifiersPerGroup))
-                throw new InvalidOperationException(
-                    "Die Anzahl der Weiterkommer ist für mindestens eine tatsächlich gebildete Gruppe zu hoch. Verringere die Zahl der Weiterkommer oder passe die Spieler-/Gruppenkonfiguration an.");
+            //if (groups.Any(g => g.Players.Count < options.QualifiersPerGroup))
+            //    throw new InvalidOperationException(
+            //        "Die Anzahl der Weiterkommer ist für mindestens eine tatsächlich gebildete Gruppe zu hoch. Verringere die Zahl der Weiterkommer oder passe die Spieler-/Gruppenkonfiguration an.");
 
             return groups;
         }
