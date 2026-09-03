@@ -1,13 +1,15 @@
-import type { BoardDto } from "../../dtos/board/BoardDto";
+import { useEffect, useState } from "react";
 import type { MatchDto } from "../../dtos/Match/MatchDto";
 import { MatchStatus, matchStatusLabel } from "../../enums/MatchStatus";
+import { getBoards } from "../../services/boardService";
 import { formatTime } from "../../utils/formatTime";
 import type { MatchSchedule } from "./DashboardPage";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
 interface DashboardMatchProps {
   match: MatchDto;
   index: number;
-  boards: BoardDto[];
+  locationId: number;
   scheduledTime: string;
   firstScore: number;
   secondScore: number;
@@ -17,7 +19,7 @@ interface DashboardMatchProps {
 export function DashboardMatch({
   match,
   index,
-  boards,
+  locationId,
   scheduledTime,
   firstScore,
   secondScore,
@@ -26,19 +28,25 @@ export function DashboardMatch({
   const firstParticipant = match.participants[0];
   const secondParticipant = match.participants[1];
 
-  const boardLabel = (boardId: number | null) => {
-    if (boardId === null) return "";
+  const [boards, setBoards] = useState<BoardDto[]>([]);
 
+  useEffect(() => {
+    const loadBoards = async () => {
+      const boardsAtLocation = await getBoards(locationId);
+      setBoards(boardsAtLocation);
+    };
+
+    loadBoards();
+  }, [locationId]);
+
+  const boardLabel = (boardId: number | null) => {
     const board = boards.find((board) => board.id === boardId);
 
     return board?.label ?? "";
   };
 
   return (
-    <div
-      key={match.id}
-      className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_90px_110px] sm:items-center sm:px-8"
-    >
+    <div className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_90px_110px] sm:items-center sm:px-8">
       <div>
         <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p>
         <p className="mt-1 text-xs text-gray-500">

@@ -1,4 +1,3 @@
-import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { MatchDto } from "../../dtos/Match/MatchDto";
 import type { RoundDto } from "../../dtos/Round/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
@@ -9,7 +8,6 @@ import type { MatchSchedule } from "./DashboardPage";
 interface DashboardRoundProps {
   round: RoundDto;
   sortedMatches: MatchDto[];
-  boards: BoardDto[];
   playerName: (match: MatchSchedule, index: number) => string;
   matchScore: (match: MatchSchedule, index: number) => number;
   matchTime: (match: MatchSchedule, roundStart: string) => string;
@@ -18,16 +16,12 @@ interface DashboardRoundProps {
 export function DashboardRound({
   round,
   sortedMatches,
-  boards,
   playerName,
   matchScore,
   matchTime,
 }: DashboardRoundProps) {
   return (
-    <section
-      key={round.id}
-      className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-    >
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -58,13 +52,14 @@ export function DashboardRound({
 
           return (
             <DashboardMatch
+              key={match.id}
               match={match}
               index={index}
-              boards={boards}
               scheduledTime={scheduledTime}
               firstScore={firstScore}
               secondScore={secondScore}
               playerName={playerName}
+              locationId={round.locationId}
             />
           );
         })}

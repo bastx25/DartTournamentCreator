@@ -16,7 +16,10 @@ export function DashboardTournamentDetails({
   activeRoundCount,
 }: DashboardTournamentDetailsProps) {
   return (
-    <section className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <section
+      key={tournament.id}
+      className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+    >
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
