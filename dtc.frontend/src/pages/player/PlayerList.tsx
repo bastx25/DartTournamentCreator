@@ -1,4 +1,4 @@
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { PlayerDto } from "../../dtos/Player/PlayerDto";
 import { PlayerRow } from "./PlayerRow";
 
 interface PlayerListProps {

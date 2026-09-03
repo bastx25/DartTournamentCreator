@@ -1,5 +1,5 @@
 import z from "zod";
-import { playerDtoSchema } from "../player/PlayerDto";
+import { playerDtoSchema } from "../Player/PlayerDto";
 
 export const matchParticipantDtoSchema = z.object({
   id: z.number(),

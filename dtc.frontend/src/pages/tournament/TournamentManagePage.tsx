@@ -4,7 +4,7 @@ import Header from "../../components/Header";
 import { getPlayers } from "../../services/playerService";
 
 import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { PlayerDto } from "../../dtos/Player/PlayerDto";
 import {
   generateGroups,
   generateKnockout,

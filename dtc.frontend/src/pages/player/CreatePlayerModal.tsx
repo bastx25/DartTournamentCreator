@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CreatePlayerDto } from "../../dtos/player/CreatePlayerDto";
+import type { CreatePlayerDto } from "../../dtos/Player/CreatePlayerDto";
 
 interface CreatePlayerModalProps {
   adding: boolean;

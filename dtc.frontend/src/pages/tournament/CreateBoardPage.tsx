@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import Header from "../../components/Header";
 import {
   createBoardDtoSchema,
   type CreateBoardDto,
 } from "../../dtos/board/CreateBoardDto";
+import { createBoard } from "../../services/boardService";
 
 export function CreateBoardPage() {
   const [formData, setFormData] = useState<CreateBoardDto>({
@@ -13,11 +15,13 @@ export function CreateBoardPage() {
     isActive: true,
   });
 
+  const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreateBoardDto, string>>
   >({});
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const result = createBoardDtoSchema.safeParse(formData);
@@ -38,9 +42,18 @@ export function CreateBoardPage() {
     }
 
     setErrors({});
+    setSaving(true);
 
-    // Hier später API-Aufruf
-    console.log("Board erstellen:", result.data);
+    try {
+      const created = await createBoard(result.data);
+      navigate(`/boards/${created.id}/qr`);
+    } catch {
+      setErrors({
+        label: "Board konnte nicht gespeichert werden. Bitte API/Verbindung prüfen.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const inputClass = (field: keyof CreateBoardDto) =>
@@ -234,9 +247,10 @@ export function CreateBoardPage() {
 
               <button
                 type="submit"
-                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                disabled={saving}
+                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Board erstellen
+                {saving ? "Board wird erstellt..." : "Board erstellen"}
               </button>
             </div>
           </form>

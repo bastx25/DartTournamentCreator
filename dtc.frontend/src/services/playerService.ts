@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { PlayerDto } from "../dtos/player/PlayerDto";
+import type { PlayerDto } from "../dtos/Player/PlayerDto";
 import type { UpdatePlayerDto } from "../dtos/Player/UpdatePlayerDto";
 import type { CreatePlayerDto } from "../dtos/Player/CreatePlayerDto";
 
