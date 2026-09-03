@@ -29,7 +29,7 @@ namespace DTC.Api.Services
                 || await _context.Groups.AnyAsync(g => g.TournamentId == tournamentId);
             if (alreadyGenerated)
                 await DeleteGeneratedTournamentPhaseAsync(tournament.Id);
-                //throw new InvalidOperationException("Die Gruppenphase wurde für dieses Turnier bereits generiert und kann nicht erneut erstellt werden.");
+            //throw new InvalidOperationException("Die Gruppenphase wurde für dieses Turnier bereits generiert und kann nicht erneut erstellt werden.");
 
             var players = await LoadPlayersAsync(options.PlayerIds);
             //ValidatePlayers(players, options.GroupCount, options.GroupSize);
@@ -63,8 +63,13 @@ namespace DTC.Api.Services
 
             if (tournament.Mode == TournamentMode.GrouStageandKnockout)
             {
-                if (groups.Sum(g => g.QualifiersCount) < 2)
+                var qualifiersTotal = groups.Sum(g => g.QualifiersCount);
+                if (qualifiersTotal < 2)
                     throw new InvalidOperationException("Für die K.-o.-Phase müssen mindestens zwei Spieler qualifiziert werden.");
+
+                if (!IsPowerOfTwo(qualifiersTotal))
+                    throw new InvalidOperationException(
+                        $"Die Summe der Weiterkommer muss eine Zweierpotenz sein (2, 4, 8, 16, ...). Aktuell sind {qualifiersTotal} konfiguriert.");
 
                 BuildEmptyKnockoutRounds(
                     tournament,
@@ -140,15 +145,36 @@ namespace DTC.Api.Services
             if (groups.Count == 0)
                 throw new InvalidOperationException("Die Gruppenphase wurde noch nicht generiert.");
 
-            var knockoutMatches = await _context.Matches
-                .Where(m => m.Round.TournamentId == tournamentId && m.Round.Phase == RoundPhase.Knockout)
-                .Include(m => m.Participants)
+            var qualifiersTotal = groups.Sum(g => g.QualifiersCount);
+            if (!IsPowerOfTwo(qualifiersTotal))
+                throw new InvalidOperationException(
+                    $"Die Summe der Weiterkommer muss eine Zweierpotenz sein. Aktuell sind {qualifiersTotal} konfiguriert.");
+
+            var rounds = await _context.Rounds
+                .Where(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.Knockout)
+                .OrderBy(r => r.Sequence)
+                .Include(r => r.Matches)
+                    .ThenInclude(m => m.Participants)
                 .ToListAsync();
 
-            if (knockoutMatches.Count == 0)
+            var qualificationRound = rounds
+                .FirstOrDefault(r => r.Name == "Ausspielrunde");
+
+            var knockoutRounds = rounds
+                .Where(r => r.Name != "Ausspielrunde")
+                .OrderBy(r => r.Sequence)
+                .ToList();
+
+            if (knockoutRounds.Count == 0)
                 throw new InvalidOperationException("Für dieses Turnier wurden noch keine K.-o.-Slots vorbereitet.");
 
-            if (knockoutMatches.Any(m => m.Participants.Count > 0))
+            var firstRound = knockoutRounds.First();
+            var firstRoundMatches = firstRound.Matches.OrderBy(m => m.Id).ToList();
+
+            if (firstRoundMatches.Count * 2 < qualifiersTotal)
+                throw new InvalidOperationException("Die vorbereiteten K.-o.-Slots reichen für die qualifizierten Spieler nicht aus.");
+
+            if (firstRoundMatches.Any(m => m.Participants.Count > 0))
                 throw new InvalidOperationException("Die K.-o.-Phase wurde bereits generiert und kann nicht erneut generiert werden.");
 
             var groupMatches = await _context.Matches
@@ -156,10 +182,12 @@ namespace DTC.Api.Services
                 .Include(m => m.Participants)
                 .ToListAsync();
 
-            if (groupMatches.Count == 0 || groupMatches.Any(m => m.Participants.Count != 2 || m.Status != MatchStatus.Completed))
+            groupMatches.RemoveAll(m => m.GroupId == null);
+
+            if (groupMatches.Count == 0 || groupMatches.Any(m => m.Status != MatchStatus.Completed))
             {
                 throw new InvalidOperationException(
-                    "Die K.-o.-Phase kann erst generiert werden, wenn alle Gruppenphasen-Matches abgeschlossen sind und genau einen Sieger enthalten.");
+                    "Die K.-o.-Phase kann erst generiert werden, wenn alle Gruppenphasen-Matches abgeschlossen sind.");
             }
 
             if (groupMatches.Any(m => m.Participants.Count(p => p.IsWinner) != 1))
@@ -173,44 +201,130 @@ namespace DTC.Api.Services
                 .GroupBy(p => p.PlayerId)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            var qualifiedByGroup = groups
-                .Select(group => group.Players
+            var playoffWinnersByGroup = new Dictionary<int, List<int>>();
+            if (qualificationRound != null)
+            {
+                var playoffMatches = qualificationRound.Matches.OrderBy(m => m.Id).ToList();
+
+                if (playoffMatches.Any(m => m.Status != MatchStatus.Completed || m.Participants.Count(p => p.IsWinner) != 1))
+                {
+                    throw new InvalidOperationException(
+                        "Die Ausspielrunde muss abgeschlossen sein, bevor die K.-o.-Phase generiert werden kann.");
+                }
+
+                foreach (var match in playoffMatches)
+                {
+                    if (!match.GroupId.HasValue)
+                        continue;
+
+                    var winner = match.Participants.Single(p => p.IsWinner).PlayerId;
+                    if (!playoffWinnersByGroup.TryGetValue(match.GroupId.Value, out var winners))
+                    {
+                        winners = new List<int>();
+                        playoffWinnersByGroup[match.GroupId.Value] = winners;
+                    }
+
+                    winners.Add(winner);
+                }
+            }
+
+            var qualifiedByGroup = new List<List<int>>();
+            var playoffMatchesToCreate = new List<(Group Group, int Player1Id, int Player2Id)>();
+
+            foreach (var group in groups)
+            {
+                var rankedPlayers = group.Players
                     .Select(gp => new
                     {
                         gp.PlayerId,
                         Wins = winsByPlayer.TryGetValue(gp.PlayerId, out var wins) ? wins : 0
                     })
                     .OrderByDescending(x => x.Wins)
-                    // Deterministic tie-breaker: PlayerId ascending. Match score is deliberately ignored.
                     .ThenBy(x => x.PlayerId)
-                    .Take(group.QualifiersCount)
+                    .ToList();
+
+                if (rankedPlayers.Count < group.QualifiersCount)
+                {
+                    throw new InvalidOperationException(
+                        $"In {group.Name} gibt es weniger Spieler als konfigurierte Weiterkommer.");
+                }
+
+                var cutoffWins = rankedPlayers[group.QualifiersCount - 1].Wins;
+                var fixedPlayers = rankedPlayers
+                    .Where(x => x.Wins > cutoffWins)
                     .Select(x => x.PlayerId)
-                    .ToList())
-                .ToList();
+                    .ToList();
 
-            var qualifiedPlayerIds = qualifiedByGroup.SelectMany(x => x).ToList();
-            if (qualifiedPlayerIds.Count < 2)
-                throw new InvalidOperationException("Es müssen mindestens zwei Spieler für die K.-o.-Phase qualifiziert sein.");
+                var cutoffPlayers = rankedPlayers
+                    .Where(x => x.Wins == cutoffWins)
+                    .Select(x => x.PlayerId)
+                    .ToList();
 
-            var firstRound = await _context.Rounds
-                .Where(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.Knockout)
-                .OrderBy(r => r.Sequence)
-                .FirstAsync();
+                var slotsToFill = group.QualifiersCount - fixedPlayers.Count;
 
-            var boardCount = await _context.Boards
-                .Where(b => b.LocationId == firstRound.LocationId && b.IsActive)
-                .CountAsync();
-            if (boardCount == 0)
-                throw new InvalidOperationException("Für die K.-o.-Phase ist kein aktives Board verfügbar.");
+                playoffWinnersByGroup.TryGetValue(group.Id, out var playoffWinners);
+                playoffWinners ??= new List<int>();
+
+                if (playoffWinners.Count > 0)
+                {
+                    if (playoffWinners.Count != slotsToFill)
+                    {
+                        throw new InvalidOperationException(
+                            $"Die Ausspielrunde für {group.Name} liefert nicht genau {slotsToFill} Sieger.");
+                    }
+
+                    var result = fixedPlayers.Concat(playoffWinners).Distinct().ToList();
+                    if (result.Count != group.QualifiersCount)
+                        throw new InvalidOperationException($"Die Qualifikation für {group.Name} ist nicht eindeutig.");
+
+                    qualifiedByGroup.Add(result);
+                    continue;
+                }
+
+                if (cutoffPlayers.Count > slotsToFill)
+                {
+                    if (slotsToFill != 1 || cutoffPlayers.Count != 2)
+                    {
+                        throw new InvalidOperationException(
+                            $"In {group.Name} gibt es einen Gleichstand um den letzten Qualifikationsplatz mit {cutoffPlayers.Count} Spielern. " +
+                            "Aktuell wird die automatische Ausspielrunde nur für einen direkten 1-gegen-1-Gleichstand unterstützt.");
+                    }
+
+                    playoffMatchesToCreate.Add((group, cutoffPlayers[0], cutoffPlayers[1]));
+                    qualifiedByGroup.Add(fixedPlayers);
+                    continue;
+                }
+
+                qualifiedByGroup.Add(
+                    rankedPlayers
+                        .Take(group.QualifiersCount)
+                        .Select(x => x.PlayerId)
+                        .ToList());
+            }
+
+            if (playoffMatchesToCreate.Count > 0)
+            {
+                if (qualificationRound != null)
+                    throw new InvalidOperationException("Für dieses Turnier existiert bereits eine Ausspielrunde.");
+
+                qualificationRound = await CreateQualificationRoundAsync(
+                    tournament,
+                    firstRound,
+                    playoffMatchesToCreate);
+
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            var qualifiedPlayerIds = qualifiedByGroup.SelectMany(x => x).Distinct().ToList();
+            if (qualifiedPlayerIds.Count != qualifiersTotal)
+            {
+                throw new InvalidOperationException(
+                    $"Es wurden {qualifiedPlayerIds.Count} Spieler qualifiziert, erwartet werden {qualifiersTotal}.");
+            }
 
             var seedList = BuildSeedList(qualifiedByGroup);
-            var firstRoundMatches = await _context.Matches
-                .Where(m => m.RoundId == firstRound.Id)
-                .OrderBy(m => m.Id)
-                .ToListAsync();
-
-            if (firstRoundMatches.Count * 2 < seedList.Count)
-                throw new InvalidOperationException("Die vorbereiteten K.-o.-Slots reichen für die qualifizierten Spieler nicht aus.");
 
             for (var i = 0; i < firstRoundMatches.Count; i++)
             {
@@ -240,6 +354,90 @@ namespace DTC.Api.Services
             await _context.SaveChangesAsync();
             await PropagatePreparedByesAsync(tournamentId);
             await _context.SaveChangesAsync();
+        }
+
+        private async Task<Round> CreateQualificationRoundAsync(
+            Tournament tournament,
+            Round firstKnockoutRound,
+            IReadOnlyList<(Group Group, int Player1Id, int Player2Id)> playoffMatches)
+        {
+            var duration = tournament.MatchDurationMinutes;
+            var breakDuration = tournament.BreakBetweenMatchesMinutes;
+
+            var boards = await _context.Boards
+                .Where(b => b.LocationId == firstKnockoutRound.LocationId && b.IsActive)
+                .OrderBy(b => b.Number)
+                .ToListAsync();
+
+            if (boards.Count == 0)
+                throw new InvalidOperationException("Für die Ausspielrunde ist kein aktives Board verfügbar.");
+
+            var playoffSlots = (int)Math.Ceiling(playoffMatches.Count / (double)boards.Count);
+            var shiftMinutes = playoffSlots * (duration + breakDuration);
+
+            var roundsToShift = await _context.Rounds
+                .Where(r => r.TournamentId == tournament.Id
+                    && r.Phase == RoundPhase.Knockout
+                    && r.Sequence >= firstKnockoutRound.Sequence)
+                .Include(r => r.Matches)
+                .OrderByDescending(r => r.Sequence)
+                .ToListAsync();
+
+            foreach (var shiftround in roundsToShift)
+            {
+                shiftround.Sequence += 1;
+                shiftround.PlannedStart = shiftround.PlannedStart.AddMinutes(shiftMinutes);
+                if (shiftround.PlannedEnd.HasValue)
+                    shiftround.PlannedEnd = shiftround.PlannedEnd.Value.AddMinutes(shiftMinutes);
+
+                foreach (var match in shiftround.Matches)
+                {
+                    match.PlannedStart = match.PlannedStart?.AddMinutes(shiftMinutes);
+                    match.PlannedEnd = match.PlannedEnd?.AddMinutes(shiftMinutes);
+                }
+            }
+
+            var plannedStart = firstKnockoutRound.PlannedStart;
+            var round = new Round
+            {
+                TournamentId = tournament.Id,
+                LocationId = firstKnockoutRound.LocationId,
+                Sequence = firstKnockoutRound.Sequence,
+                Name = "Ausspielrunde",
+                PlannedStart = plannedStart,
+                Status = RoundStatus.Scheduled,
+                Phase = RoundPhase.Knockout
+            };
+
+            for (var i = 0; i < playoffMatches.Count; i++)
+            {
+                var (group, player1Id, player2Id) = playoffMatches[i];
+                var slot = i / boards.Count;
+                var plannedMatchStart = plannedStart.AddMinutes(
+                    slot * (duration + breakDuration));
+
+                var match = new Match
+                {
+                    Round = round,
+                    Group = group,
+                    GroupId = group.Id,
+                    BoardId = boards[i % boards.Count].Id,
+                    Status = MatchStatus.Scheduled,
+                    PlannedStart = plannedMatchStart,
+                    PlannedEnd = plannedMatchStart.AddMinutes(duration)
+                };
+
+                match.Participants.Add(new MatchParticipant { PlayerId = player1Id });
+                match.Participants.Add(new MatchParticipant { PlayerId = player2Id });
+                round.Matches.Add(match);
+            }
+
+            round.PlannedEnd = round.Matches.Count == 0
+                ? round.PlannedStart
+                : round.Matches.Max(m => m.PlannedEnd);
+
+            tournament.Rounds.Add(round);
+            return round;
         }
 
         private async Task PropagatePreparedByesAsync(int tournamentId)
@@ -315,6 +513,8 @@ namespace DTC.Api.Services
 
             return seeds;
         }
+
+        private static bool IsPowerOfTwo(int value) => value > 0 && (value & (value - 1)) == 0;
 
         private static int NextPowerOfTwo(int value)
         {
