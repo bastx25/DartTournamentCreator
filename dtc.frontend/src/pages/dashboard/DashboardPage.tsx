@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header";
 import type { RoundDto } from "../../dtos/Round/RoundDto";
 import { RoundStatus } from "../../enums/RoundStatus";
@@ -40,8 +40,8 @@ export function DashboardPage() {
       : (tournaments[0]?.id ?? null);
 
   const tournament = useMemo(
-    () => tournaments.find((item) => item.id === selectedTournamentId) ?? null,
-    [selectedTournamentId, tournaments],
+    () => tournaments.find((item) => item.id === effectiveTournamentId) ?? null,
+    [effectiveTournamentId, tournaments],
   );
 
   const rounds = useMemo(
@@ -66,6 +66,16 @@ export function DashboardPage() {
   );
 
   const dashboardError = tournamentsError;
+
+  useEffect(() => {
+    const SetInitialTournament = async () => {
+      setSelectedTournamentId(tournaments[0].id);
+    };
+
+    if (tournaments.length > 0 && selectedTournamentId === null) {
+      SetInitialTournament();
+    }
+  }, [tournaments, selectedTournamentId]);
 
   return (
     <div className="min-h-screen bg-gray-50">
