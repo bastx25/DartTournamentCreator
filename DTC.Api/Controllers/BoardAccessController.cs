@@ -5,6 +5,7 @@ using DTC.Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace DTC.Api.Controllers
 {
     // Public endpoints used by the QR code on a dart board.
@@ -123,14 +124,14 @@ namespace DTC.Api.Controllers
 
             if (match.Status == MatchStatus.InProgress)
             {
-                return Ok(ToBoardMatchDto(match));
+                return Ok(match.ToBoardMatchDto());
             }
 
             match.Status = MatchStatus.InProgress;
             match.ActualStart = DateTimeOffset.UtcNow;
             await _context.SaveChangesAsync();
 
-            return Ok(ToBoardMatchDto(match));
+            return Ok(match.ToBoardMatchDto());
 
         }
 
@@ -201,25 +202,9 @@ namespace DTC.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(ToBoardMatchDto(match));
+            return Ok(match.ToBoardMatchDto());
         }
 
-        private static BoardMatchDto ToBoardMatchDto(Models.Match match)
-        {
-            return new BoardMatchDto
-            {
-                MatchId = match.Id,
-                RoundId = match.RoundId,
-                RoundName = match.Round.Name,
-                TournamentName = match.Round.Tournament?.Name ?? string.Empty,
-                PlannedStart = match.PlannedStart,
-                ActualStart = match.ActualStart,
-                Status = match.Status,
-                Participants = match.Participants
-                    .OrderBy(p => p.Id)
-                    .Select(p => p.ToMatchParticipantDto())
-                    .ToList()
-            };
-        }
+        
     }
 }
