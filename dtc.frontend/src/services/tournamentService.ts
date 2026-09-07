@@ -46,6 +46,10 @@ export async function getTournament(id: number): Promise<TournamentDto> {
   return response.data;
 }
 
+export async function deleteTournament(id: number): Promise<void> {
+  await axios.delete(`/api/tournaments/${id}`);
+}
+
 export async function generateGroups(
   id: number,
   data: GenerateGroupsDto,

@@ -6,12 +6,14 @@ import { getPlayers } from "../../services/playerService";
 import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/Player/PlayerDto";
 import {
+  deleteTournament,
   generateGroups,
   generateKnockout,
   getTournament,
 } from "../../services/tournamentService";
 import { RoundPhase } from "../../enums/RoundPhase";
 import { TournamentMode } from "../../enums/TournamentMode";
+import { DeleteTournamentModal } from "./DeleteTournamentModal";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -30,6 +32,9 @@ export function TournamentManagePage() {
   const tournamentId = Number(id);
 
   const [tournament, setTournament] = useState<TournamentDto | null>(null);
+  const [tournamentToDelete, setTournamentToDelete] =
+    useState<TournamentDto | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [players, setPlayers] = useState<PlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
@@ -41,6 +46,7 @@ export function TournamentManagePage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [breakBetweenMatchesMinutes, setBreakBetweenMatchesMinutes] =
     useState(0);
+  const [matchDurationMinutes, setMatchDurationMinutes] = useState(0);
 
   const isValidTournamentId =
     Number.isInteger(tournamentId) && tournamentId > 0;
@@ -64,6 +70,8 @@ export function TournamentManagePage() {
         setBreakBetweenMatchesMinutes(
           tournamentData.breakBetweenMatchesMinutes ?? 0,
         );
+
+        setMatchDurationMinutes(tournamentData.matchDurationMinutes);
         setPlayers(playerData);
 
         setSelectedPlayerIds(playerData.map((player) => player.id));
@@ -121,7 +129,7 @@ export function TournamentManagePage() {
         groupSize,
         qualifiersPerGroup,
         startTime: tournament?.startDate ?? null,
-        matchDurationMinutes: tournament?.matchDurationMinutes ?? null,
+        matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
       });
@@ -160,6 +168,20 @@ export function TournamentManagePage() {
       setError("Die K.-o.-Phase konnte nicht generiert werden.");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      if (tournament) {
+        await deleteTournament(tournament.id);
+      }
+
+      navigate("/");
+    } finally {
+      setDeleting(false);
+      setTournamentToDelete(null);
     }
   };
 
@@ -323,6 +345,28 @@ export function TournamentManagePage() {
 
                 <div>
                   <label
+                    htmlFor="qualifiersPerGroup"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Weiterkommer pro Gruppe
+                  </label>
+                  <input
+                    id="qualifiersPerGroup"
+                    type="number"
+                    min={1}
+                    max={Math.max(1, groupSize)}
+                    value={qualifiersPerGroup}
+                    onChange={(event) =>
+                      setQualifiersPerGroup(
+                        Math.max(1, Number(event.target.value) || 1),
+                      )
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label
                     htmlFor="breakBetweenMatchesMinutes"
                     className="block text-sm font-medium text-gray-900"
                   >
@@ -347,46 +391,30 @@ export function TournamentManagePage() {
                   </p>
                 </div>
 
-                {/* <div>
-                  <label
-                    htmlFor="groupSize"
-                    className="block text-sm font-medium text-gray-900"
-                  >
-                    Max. Spieler pro Gruppe
-                  </label>
-                  <input
-                    id="groupSize"
-                    type="number"
-                    min={2}
-                    max={64}
-                    value={groupSize}
-                    onChange={(event) =>
-                      setGroupSize(Math.max(2, Number(event.target.value) || 2))
-                    }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>*/}
-
                 <div>
                   <label
-                    htmlFor="qualifiersPerGroup"
+                    htmlFor="matchDuration"
                     className="block text-sm font-medium text-gray-900"
                   >
-                    Weiterkommer pro Gruppe
+                    Spieldauer in min.
                   </label>
+
                   <input
-                    id="qualifiersPerGroup"
+                    id="matchDuration"
                     type="number"
-                    min={1}
-                    max={Math.max(1, groupSize)}
-                    value={qualifiersPerGroup}
+                    min={0}
+                    value={matchDurationMinutes}
                     onChange={(event) =>
-                      setQualifiersPerGroup(
-                        Math.max(1, Number(event.target.value) || 1),
+                      setMatchDurationMinutes(
+                        Math.max(0, Number(event.target.value) || 0),
                       )
                     }
                     className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
+
+                  <p className="mt-2 text-xs text-gray-500">
+                    Zeit in Minuten, die die Dauer eines Spiels angibt.
+                  </p>
                 </div>
 
                 <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
@@ -407,6 +435,12 @@ export function TournamentManagePage() {
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
+                      <dt className="text-gray-600">Weiterkommer / Gruppe</dt>
+                      <dd className="font-medium text-gray-900">
+                        {qualifiersPerGroup}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
                       <dt className="text-gray-600">
                         Pause zwischen den Spielen
                       </dt>
@@ -414,15 +448,10 @@ export function TournamentManagePage() {
                         {breakBetweenMatchesMinutes} min
                       </dd>
                     </div>
-
-                    {/* <div className="flex justify-between gap-4">
-                      <dt className="text-gray-600">Max. Spieler / Gruppe</dt>
-                      <dd className="font-medium text-gray-900">{groupSize}</dd>
-                    </div>*/}
                     <div className="flex justify-between gap-4">
-                      <dt className="text-gray-600">Weiterkommer / Gruppe</dt>
+                      <dt className="text-gray-600">Dauer eines Spiels</dt>
                       <dd className="font-medium text-gray-900">
-                        {qualifiersPerGroup}
+                        {matchDurationMinutes} min
                       </dd>
                     </div>
                   </dl>
@@ -466,6 +495,17 @@ export function TournamentManagePage() {
                 Gruppenzuteilung verbunden.
               </div>
             </section>
+
+            <button
+              type="button"
+              disabled={generating}
+              onClick={() => {
+                setTournamentToDelete(tournament);
+              }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 shadow-sm transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Turnier Löschen
+            </button>
           </aside>
         </div>
 
@@ -503,6 +543,15 @@ export function TournamentManagePage() {
           </section>
         )}
       </main>
+
+      {tournamentToDelete && (
+        <DeleteTournamentModal
+          tournament={tournamentToDelete}
+          deleting={deleting}
+          onCancel={() => setTournamentToDelete(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </div>
   );
 }
