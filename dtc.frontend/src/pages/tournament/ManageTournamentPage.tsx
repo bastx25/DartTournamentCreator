@@ -26,7 +26,7 @@ function isPowerOfTwo(value: number): boolean {
   return value > 0 && (value & (value - 1)) == 0;
 }
 
-export function TournamentManagePage() {
+export function ManageTournamentPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const tournamentId = Number(id);
@@ -178,7 +178,7 @@ export function TournamentManagePage() {
         await deleteTournament(tournament.id);
       }
 
-      navigate("/");
+      navigate("/tournaments");
     } finally {
       setDeleting(false);
       setTournamentToDelete(null);
