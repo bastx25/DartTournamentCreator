@@ -1,19 +1,183 @@
-┌──────────────┐
-│  Tournament  │
-└──────┬───────┘
-       │ 1
-       ├───────────────────────┐
-       │ n                     │ n
-┌──────┴───────┐         ┌─────┴─────┐
-│    Round     │         │   Group   │────> Board
-└──────┬───────┘         └─────┬─────┘
-       │ 1                     │ 1
-       │ n                     │ n
-┌──────┴───────┐         ┌─────┴────────┐
-│    Match     │<────────│ GroupPlayer  │<── Player
-└──────┬───────┘         └──────────────┘
-       │ n
-       │ 1
-┌──────┴────────────┐
-│ MatchParticipant  │────> Player
-└────────────────────┘
+So würde ich den kompletten ModelTree in der aktuellen Version aufbauen:
+
+Player
+│
+└── TournamentPlayers
+    │
+    ├── Tournament
+    │   │
+    │   ├── TournamentPlayers
+    │   │   └── Player
+    │   │
+    │   ├── Groups
+    │   │   │
+    │   │   ├── Group A
+    │   │   │   ├── GroupPlayers
+    │   │   │   │   └── TournamentPlayer
+    │   │   │   │
+    │   │   │   └── Matches
+    │   │   │       ├── Match
+    │   │   │       │   ├── Round
+    │   │   │       │   ├── Board
+    │   │   │       │   └── MatchParticipants
+    │   │   │       │       └── TournamentPlayer
+    │   │   │       │
+    │   │   │       └── ...
+    │   │   │
+    │   │   ├── Group B
+    │   │   │   └── ...
+    │   │   │
+    │   │   └── ...
+    │   │
+    │   └── Rounds
+    │       │
+    │       ├── Gruppenphase Runde 1
+    │       │   └── Matches
+    │       │
+    │       ├── Gruppenphase Runde 2
+    │       │   └── Matches
+    │       │
+    │       ├── Achtelfinale
+    │       │   └── Matches
+    │       │
+    │       ├── Viertelfinale
+    │       │   └── Matches
+    │       │
+    │       ├── Halbfinale
+    │       │   └── Matches
+    │       │
+    │       └── Finale
+    │           └── Matches
+    │
+    └── MatchParticipants
+        └── Match
+
+Und separat davon gibt es deine Location-Struktur:
+
+Location
+│
+├── Board 1
+│   └── Matches
+│
+├── Board 2
+│   └── Matches
+│
+├── Board 3
+│   └── Matches
+│
+└── Board 4
+    └── Matches
+Die eigentlichen Entities
+
+Damit besteht dein ModelTree aus:
+
+Player
+Tournament
+TournamentPlayer
+Group
+GroupPlayer
+Round
+Match
+MatchParticipant
+Location
+Board
+
+Die wichtigsten Beziehungen sind:
+
+Player
+  1
+  │
+  N
+TournamentPlayer
+  N
+  │
+  1
+Tournament
+Tournament
+  1
+  │
+  N
+Group
+  1
+  │
+  N
+GroupPlayer
+  N
+  │
+  1
+TournamentPlayer
+Tournament
+  1
+  │
+  N
+Round
+  1
+  │
+  N
+Match
+Group
+  1
+  │
+  N
+Match
+
+GroupId ist dabei optional, RoundId hingegen Pflicht:
+
+Match
+├── RoundId     required
+├── GroupId     optional
+├── BoardId     optional
+└── Participants
+
+Damit kannst du exakt diese zwei Fälle darstellen:
+
+Gruppenphase:
+
+Round
+└── Gruppenphase Runde 1
+    └── Match
+        ├── Group = Gruppe A
+        ├── Board = Board 3
+        └── Player A vs Player B
+
+und:
+
+KO-Phase:
+
+Round
+└── Viertelfinale
+    └── Match
+        ├── Group = null
+        ├── Board = Board 1
+        └── Gewinner AF1 vs Gewinner AF2
+Und der wichtige Zusammenhang für deine UI
+
+Damit kannst du problemlos:
+
+Turnier
+│
+├── Gruppenphase
+│   │
+│   ├── Gruppe A
+│   │   └── Spiele
+│   │       ├── Max vs Peter → Board 1
+│   │       ├── Tom vs Klaus → Board 3
+│   │       └── ...
+│   │
+│   └── Gruppe B
+│       └── Spiele
+│
+└── KO-Phase
+    │
+    ├── Achtelfinale
+    │   └── Spiele
+    ├── Viertelfinale
+    │   └── Spiele
+    ├── Halbfinale
+    │   └── Spiele
+    └── Finale
+        └── Spiel
+
+Ein Punkt ist für mich aber noch wichtig: Round sollte bei deinem Design vermutlich zwei Aufgaben unterscheiden können: Gruppenrunden und KO-Runden. Das hast du mit Phase bereits vorgesehen. Dadurch kannst du beide unter Tournament.Rounds verwalten, ohne zwei verschiedene Match-Typen zu benötigen.
+
+Die nächste sinnvolle Ergänzung wäre dann MatchParticipantSource, damit z. B. „Viertelfinale → Gewinner Achtelfinale Match 3“ modelliert werden kann.
