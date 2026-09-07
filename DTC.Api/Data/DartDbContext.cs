@@ -21,16 +21,6 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(p => p.Id);
 
-                entity.Property(p => p.FirstName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(p => p.LastName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(p => p.Nickname)
-                    .HasMaxLength(100);
             });
 
 
@@ -42,12 +32,6 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(t => t.Id);
 
-                entity.Property(t => t.Name)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(t => t.Description)
-                    .HasMaxLength(2000);
             });
 
 
@@ -88,13 +72,6 @@ namespace DTC.Api.Data
             modelBuilder.Entity<Location>(entity =>
             {
                 entity.HasKey(l => l.Id);
-
-                entity.Property(l => l.Name)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(l => l.Address)
-                    .HasMaxLength(500);
             });
 
 
@@ -119,8 +96,6 @@ namespace DTC.Api.Data
                 })
                 .IsUnique();
 
-                entity.Property(b => b.Label)
-                    .HasMaxLength(100);
             });
 
 
@@ -131,10 +106,6 @@ namespace DTC.Api.Data
             modelBuilder.Entity<Group>(entity =>
             {
                 entity.HasKey(g => g.Id);
-
-                entity.Property(g => g.Name)
-                    .IsRequired()
-                    .HasMaxLength(100);
 
                 // Tournament -> Groups
                 entity.HasOne(g => g.Tournament)
@@ -190,8 +161,7 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(r => r.Id);
 
-                entity.Property(r => r.Name)
-                    .HasMaxLength(100);
+
 
                 // Tournament -> Rounds
                 entity.HasOne(r => r.Tournament)
@@ -239,18 +209,7 @@ namespace DTC.Api.Data
                     .HasForeignKey(m => m.BoardId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-                // Zeiten
-                entity.Property(m => m.PlannedStart)
-                    .IsRequired(false);
 
-                entity.Property(m => m.PlannedEnd)
-                    .IsRequired(false);
-
-                entity.Property(m => m.ActualStart)
-                    .IsRequired(false);
-
-                entity.Property(m => m.ActualEnd)
-                    .IsRequired(false);
             });
 
 
