@@ -38,7 +38,7 @@ export function ManageTournamentPage() {
   const [players, setPlayers] = useState<PlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
-  const [groupSize, setGroupSize] = useState(4);
+  const [groupSize, setGroupSize] = useState(5);
   const [qualifiersPerGroup, setQualifiersPerGroup] = useState(2);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);

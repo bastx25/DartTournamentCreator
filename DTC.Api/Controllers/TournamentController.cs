@@ -81,7 +81,7 @@ namespace DTC.Api.Controllers
             try
             {
                 await _matchMakerService.GenerateGroupsAsync(id, dto);
-                return Ok(new { Message = "Gruppenphase und vorbereitete K.-o.-Slots wurden erfolgreich generiert." });
+                return Ok(new { Message = "Gruppenphase wurde generiert; die K.-o.-Runden wurden vorbereitet und werden nach Abschluss der Gruppenphase mit Teilnehmern besetzt." });
             }
             catch (KeyNotFoundException ex)
             {
@@ -99,7 +99,7 @@ namespace DTC.Api.Controllers
             try
             {
                 await _matchMakerService.GenerateKnockoutAsync(id);
-                return Ok(new { Message = "K.-o.-Phase wurde anhand der Match-Siege generiert." });
+                return Ok(new { Message = "K.-o.-Phase wurde aus den abgeschlossenen Gruppen-/Ausspielrunden generiert." });
             }
             catch (KeyNotFoundException ex)
             {
