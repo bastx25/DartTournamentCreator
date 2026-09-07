@@ -54,8 +54,7 @@ namespace DTC.Api.Controllers
                 .AsNoTracking()
                 .Where(t =>
                     (t.Status == TournamentStatus.Scheduled ||
-                     t.Status == TournamentStatus.InProgress) &&
-                    t.Rounds.Any(r => r.LocationId == board.LocationId))
+                     t.Status == TournamentStatus.InProgress))
                 .OrderByDescending(t => t.StartDate)
                 .FirstOrDefaultAsync();
 
@@ -69,7 +68,7 @@ namespace DTC.Api.Controllers
                 .Include(m => m.Round)
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
-                    .ThenInclude(p => p.Player)
+                    .ThenInclude(p => p.TournamentPlayer)
                 .Where(m =>
                     m.BoardId == boardId &&
                     m.Round.TournamentId == tournament.Id)
@@ -104,7 +103,7 @@ namespace DTC.Api.Controllers
                 .Include(m => m.Round)
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
-                    .ThenInclude(p => p.Player)
+                    .ThenInclude(p => p.TournamentPlayer)
                 .FirstOrDefaultAsync(m => m.Id == matchId && m.BoardId == boardId);
 
             if (match == null)
@@ -132,6 +131,7 @@ namespace DTC.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(ToBoardMatchDto(match));
+
         }
 
         [HttpPost("boards/{boardId:int}/matches/{matchId:int}/finish")]
@@ -144,7 +144,7 @@ namespace DTC.Api.Controllers
                 .Include(m => m.Round)
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
-                    .ThenInclude(p => p.Player)
+                    .ThenInclude(p => p.TournamentPlayer)
                 .FirstOrDefaultAsync(m => m.Id == matchId && m.BoardId == boardId);
 
             if (match == null)

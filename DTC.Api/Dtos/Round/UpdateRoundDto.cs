@@ -5,8 +5,6 @@ namespace DTC.Api.Dtos.Round
 {
     public class UpdateRoundDto
     {
-        [Required(ErrorMessage = "LocationId ist ein Pflichtfeld.")]
-        public int LocationId { get; set; }
 
         [Range(1, 100, ErrorMessage = "Die Sequenz muss mindestens 1 sein.")]
         public int Sequence { get; set; }

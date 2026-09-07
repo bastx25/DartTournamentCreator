@@ -12,7 +12,6 @@ namespace DTC.Api.Mappers
             {
                 Id = round.Id,
                 TournamentId = round.TournamentId,
-                LocationId = round.LocationId,
                 Sequence = round.Sequence,
                 Name = round.Name,
                 PlannedStart = round.PlannedStart,
@@ -28,7 +27,6 @@ namespace DTC.Api.Mappers
             return new Round
             {
                 TournamentId = dto.TournamentId,
-                LocationId = dto.LocationId,
                 Sequence = dto.Sequence,
                 Name = dto.Name?.Trim(),
                 PlannedStart = dto.PlannedStart,
@@ -40,7 +38,6 @@ namespace DTC.Api.Mappers
 
         public static void UpdateEntity(this UpdateRoundDto dto, Round round)
         {
-            round.LocationId = dto.LocationId;
             round.Sequence = dto.Sequence;
             round.Name = dto.Name?.Trim();
             round.PlannedStart = dto.PlannedStart;

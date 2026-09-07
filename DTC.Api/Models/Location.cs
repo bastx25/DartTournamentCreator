@@ -11,6 +11,6 @@ namespace DTC.Api.Models
 
         // Navigation Properties
         public ICollection<Board> Boards { get; set; } = new List<Board>();
-        public ICollection<Round> Rounds { get; set; } = new List<Round>();
+
     }
 }

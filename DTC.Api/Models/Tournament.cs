@@ -7,6 +7,7 @@ namespace DTC.Api.Models
     public class Tournament
     {
         public int Id { get; set; }
+
         public string Name { get; set; } = string.Empty;
         public DateTimeOffset StartDate { get; set; }
         public string? Description { get; set; }
@@ -18,7 +19,13 @@ namespace DTC.Api.Models
         public int BreakBetweenMatchesMinutes { get; set; } = 5;
 
         // Navigation Properties
-        public ICollection<Round> Rounds { get; set; } = new List<Round>();
-        public ICollection<Group> Groups { get; set; } = new List<Group>();
+        public ICollection<TournamentPlayer> TournamentPlayers { get; set; }
+            = new List<TournamentPlayer>();
+
+        public ICollection<Group> Groups { get; set; }
+            = new List<Group>();
+
+        public ICollection<Round> Rounds { get; set; }
+            = new List<Round>();
     }
 }

@@ -20,7 +20,7 @@ namespace DTC.Api.Repositories
                 .Include(t => t.Rounds)
                     .ThenInclude(r => r.Matches)
                         .ThenInclude(m => m.Participants)
-                            .ThenInclude(p => p.Player)
+                            .ThenInclude(p => p.TournamentPlayer)
                 .ToListAsync();
         }
 
@@ -30,7 +30,7 @@ namespace DTC.Api.Repositories
                 .Include(t => t.Rounds)
                     .ThenInclude(r => r.Matches)
                         .ThenInclude(m => m.Participants)
-                            .ThenInclude(p => p.Player)
+                            .ThenInclude(p => p.TournamentPlayer)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

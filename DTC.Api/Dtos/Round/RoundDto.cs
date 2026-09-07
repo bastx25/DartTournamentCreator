@@ -7,7 +7,6 @@ namespace DTC.Api.Dtos.Round
     {
         public int Id { get; set; }
         public int TournamentId { get; set; }
-        public int LocationId { get; set; }
         public int Sequence { get; set; }
         public string? Name { get; set; }
         public DateTimeOffset PlannedStart { get; set; }

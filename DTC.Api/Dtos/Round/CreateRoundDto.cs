@@ -8,8 +8,6 @@ namespace DTC.Api.Dtos.Round
         [Required(ErrorMessage = "TournamentId ist ein Pflichtfeld.")]
         public int TournamentId { get; set; }
 
-        [Required(ErrorMessage = "LocationId ist ein Pflichtfeld.")]
-        public int LocationId { get; set; }
 
         [Range(1, 100, ErrorMessage = "Die Sequenz muss mindestens 1 sein.")]
         public int Sequence { get; set; }

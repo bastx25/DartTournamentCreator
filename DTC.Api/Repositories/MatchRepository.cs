@@ -18,7 +18,7 @@ namespace DTC.Api.Repositories
         {
             return await _context.Matches
                 .Include(m => m.Participants)
-                    .ThenInclude(p => p.Player)
+                    .ThenInclude(p => p.TournamentPlayer)
                 .Where(m => m.RoundId == roundId)
                 .ToListAsync();
         }
@@ -27,7 +27,7 @@ namespace DTC.Api.Repositories
         {
             return await _context.Matches
                 .Include(m => m.Participants)
-                    .ThenInclude(p => p.Player)
+                    .ThenInclude(p => p.TournamentPlayer)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 

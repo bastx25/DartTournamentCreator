@@ -17,7 +17,7 @@ namespace DTC.Api.Repositories
         public async Task<IEnumerable<MatchParticipant>> GetByMatchIdAsync(int matchId)
         {
             return await _context.MatchParticipants
-                .Include(mp => mp.Player)
+                .Include(mp => mp.TournamentPlayer)
                 .Where(mp => mp.MatchId == matchId)
                 .ToListAsync();
         }
@@ -25,7 +25,7 @@ namespace DTC.Api.Repositories
         public async Task<MatchParticipant?> GetByIdAsync(int id)
         {
             return await _context.MatchParticipants
-                .Include(mp => mp.Player)
+                .Include(mp => mp.TournamentPlayer)
                 .FirstOrDefaultAsync(mp => mp.Id == id);
         }
 
@@ -35,7 +35,7 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
 
             // Player nachladen, damit der neu erstelle Record mit Player-Data fürs DTO bereitsteht
-            await _context.Entry(participant).Reference(p => p.Player).LoadAsync();
+            await _context.Entry(participant).Reference(p => p.TournamentPlayer).LoadAsync();
 
             return participant;
         }

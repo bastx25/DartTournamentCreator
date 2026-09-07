@@ -9,11 +9,11 @@ namespace DTC.Api.Mappers
         {
             return new MatchParticipantDto
             {
-                Id = participant.Id,
-                MatchId = participant.MatchId,
-                Player = participant.Player?.ToPlayerDto(),
-                Score = participant.Score,
-                IsWinner = participant.IsWinner
+                //Id = participant.Id,
+                //MatchId = participant.MatchId,
+                //Player = participant.TournamentPlayer?.ToPlayerDto(),
+                //Score = participant.Score,
+                //IsWinner = participant.IsWinner
             };
         }
 
@@ -21,10 +21,10 @@ namespace DTC.Api.Mappers
         {
             return new MatchParticipant
             {
-                MatchId = dto.MatchId,
-                PlayerId = dto.PlayerId,
-                Score = dto.Score,
-                IsWinner = dto.IsWinner
+                //MatchId = dto.MatchId,
+                //PlayerId = dto.PlayerId,
+                //Score = dto.Score,
+                //IsWinner = dto.IsWinner
             };
         }
 
