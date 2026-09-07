@@ -245,14 +245,15 @@ namespace DTC.Api.Data
         }
 
 
-        public DbSet<Location> Locations { get; set; } = null!;
         public DbSet<Board> Boards { get; set; } = null!;
-        public DbSet<Tournament> Tournaments { get; set; } = null!;
         public DbSet<Group> Groups { get; set; } = null!;
         public DbSet<GroupPlayer> GroupPlayers { get; set; } = null!;
-        public DbSet<Round> Rounds { get; set; } = null!;
+        public DbSet<Location> Locations { get; set; } = null!;
         public DbSet<Match> Matches { get; set; } = null!;
         public DbSet<MatchParticipant> MatchParticipants { get; set; } = null!;
         public DbSet<Player> Players { get; set; } = null!;
+        public DbSet<Round> Rounds { get; set; } = null!;
+        public DbSet<Tournament> Tournaments { get; set; } = null!;
+        public DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;
     }
 }

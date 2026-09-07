@@ -313,7 +313,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("TournamentId", "PlayerId")
                         .IsUnique();
 
-                    b.ToTable("TournamentPlayer");
+                    b.ToTable("TournamentPlayers");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Board", b =>
