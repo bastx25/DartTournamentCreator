@@ -1,5 +1,8 @@
+using DTC.Api.Dtos.Board;
 using DTC.Api.Dtos.MatchParticipant;
 using DTC.Api.Enums;
+using DTC.Api.Models;
+using System.Security.Cryptography.Pkcs;
 
 namespace DTC.Api.Dtos.Match
 {
@@ -8,7 +11,7 @@ namespace DTC.Api.Dtos.Match
         public int Id { get; set; }
         public int RoundId { get; set; }
         public int? GroupId { get; set; }
-        public int? BoardId { get; set; }
+        public BoardDto? Board { get; set; }
 
         public MatchStatus Status { get; set; }
         public DateTimeOffset? PlannedStart { get; set; }

@@ -12,7 +12,7 @@ namespace DTC.Api.Mappers
                 Id = match.Id,
                 RoundId = match.RoundId,
                 GroupId = match.GroupId,
-                BoardId = match.BoardId,
+                Board = match.Board?.ToBoardDto(),
                 Status = match.Status,
                 PlannedStart = match.PlannedStart,
                 PlannedEnd = match.PlannedEnd,

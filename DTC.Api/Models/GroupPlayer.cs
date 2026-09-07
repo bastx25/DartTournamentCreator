@@ -1,13 +1,10 @@
-namespace DTC.Api.Models
+namespace DTC.Api.Dtos.GroupPlayer
 {
-    public class GroupPlayer
+    public class GroupPlayerDto
     {
         public int Id { get; set; }
 
         public int GroupId { get; set; }
-        public Group Group { get; set; } = null!;
-
         public int TournamentPlayerId { get; set; }
-        public TournamentPlayer TournamentPlayer { get; set; } = null!;
     }
 }
