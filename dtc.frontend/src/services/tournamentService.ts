@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { CreateTournamentDto } from "../dtos/tournament/CreateTournamentDto";
 import type { TournamentDto } from "../dtos/tournament/TournamentDto";
-import type { GenerateGroupsDto } from "../dtos/MatchMaker/GenerateGroupsDto";
+import type { GenerateGroupsDto } from "../dtos/matchMaker/GenerateGroupDto";
 
 export async function createTournament(
   data: CreateTournamentDto,

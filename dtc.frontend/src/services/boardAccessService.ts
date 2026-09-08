@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { BoardDto } from "../dtos/board/BoardDto";
 import type { MatchStatus } from "../enums/MatchStatus";
-import type { MatchParticipantDto } from "../dtos/MatchParticipant/MatchParticipantDto";
+import type { MatchParticipantDto } from "../dtos/matchParticipant/MatchParticipantDto";
 
 export interface BoardMatchDto {
   matchId: number;
@@ -22,11 +22,15 @@ export interface FinishBoardMatchDto {
 }
 
 export async function getBoardForAccess(boardId: number): Promise<BoardDto> {
-  const response = await axios.get<BoardDto>(`/api/board-access/boards/${boardId}`);
+  const response = await axios.get<BoardDto>(
+    `/api/board-access/boards/${boardId}`,
+  );
   return response.data;
 }
 
-export async function getBoardMatches(boardId: number): Promise<BoardMatchDto[]> {
+export async function getBoardMatches(
+  boardId: number,
+): Promise<BoardMatchDto[]> {
   const response = await axios.get<BoardMatchDto[]>(
     `/api/board-access/boards/${boardId}/matches`,
   );
