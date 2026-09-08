@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
-import type { BoardDto } from "../../dtos/board/BoardDto";
+
 import { getBoardForAccess } from "../../services/boardAccessService";
 import Header from "../../components/Header";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
 function getPublicBaseUrl() {
   const configured = import.meta.env.VITE_PUBLIC_APP_URL as string | undefined;

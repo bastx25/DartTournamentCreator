@@ -8,9 +8,10 @@ import {
   startBoardMatch,
   type BoardMatchDto,
 } from "../../services/boardAccessService";
-import type { BoardDto } from "../../dtos/board/BoardDto";
+
 import Header from "../../components/Header";
 import { BoardAccessMatch } from "./BoardAccessMatch";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
 export interface ScoreDraft {
   first: string;

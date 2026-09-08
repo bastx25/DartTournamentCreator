@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header";
-import type { RoundDto } from "../../dtos/Round/RoundDto";
 import { RoundStatus } from "../../enums/RoundStatus";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTorunamentDetails";
 import { DashboardRound } from "./DashboardRound";
+import type { RoundDto } from "../../dtos/rounds/RoundDto";
 
 export type MatchSchedule = RoundDto["matches"][number];
 
@@ -14,7 +14,7 @@ function matchTime(match: MatchSchedule, roundStart: string) {
 }
 
 function playerName(match: MatchSchedule, index: number) {
-  const player = match.participants[index]?.player;
+  const player = match.participants[index]?.tournamentPlayer;
   return player?.displayName ?? "TBD";
 }
 
