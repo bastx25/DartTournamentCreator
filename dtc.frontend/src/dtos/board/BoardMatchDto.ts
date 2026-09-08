@@ -1,6 +1,6 @@
 import z from "zod";
-import { matchParticipantDtoSchema } from "../MatchParticipant/MatchParticipantDto";
 import { MatchStatus } from "../../enums/MatchStatus";
+import { matchParticipantDtoSchema } from "../matchParticipant/MatchParticipantDto";
 
 export const boardMatchDtoSchema = z.object({
   matchId: z.number(),
