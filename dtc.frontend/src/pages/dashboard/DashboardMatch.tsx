@@ -17,8 +17,8 @@ export function DashboardMatch({
   index,
   playerName,
 }: DashboardMatchProps) {
-  const firstParticipant = match.participants[0];
-  const secondParticipant = match.participants[1];
+  const firstParticipant = match.participants?.[0];
+  const secondParticipant = match.participants?.[1];
 
   const [board, setBoard] = useState<BoardDto | null>(null);
 
@@ -57,8 +57,8 @@ export function DashboardMatch({
           </div>
 
           <span className="whitespace-nowrap text-sm font-bold text-gray-900">
-            {match.participants[0].score ?? 0} :{" "}
-            {match.participants[1].score ?? 0}
+            {match.participants?.[0]?.score ?? 0} :{" "}
+            {match.participants?.[1]?.score ?? 0}
           </span>
 
           <div className="min-w-0 sm:text-right">

@@ -34,8 +34,8 @@ export function DashboardRound({
             </p>
           </div>
           <span className="text-sm font-medium text-gray-500">
-            {round.matches.length}{" "}
-            {round.matches.length === 1 ? "Match" : "Matches"}
+            {round.matches?.length}{" "}
+            {round.matches?.length === 1 ? "Match" : "Matches"}
           </span>
         </div>
       </div>

@@ -12,7 +12,7 @@ export const matchDtoSchema = z.object({
   plannedEnd: z.iso.datetime({ offset: true }).nullable(),
   actualStart: z.iso.datetime({ offset: true }).nullable(),
   actualEnd: z.iso.datetime({ offset: true }).nullable(),
-  participants: z.array(matchParticipantDtoSchema),
+  participants: z.array(matchParticipantDtoSchema).nullable(),
 });
 
 export type MatchDto = z.infer<typeof matchDtoSchema>;
