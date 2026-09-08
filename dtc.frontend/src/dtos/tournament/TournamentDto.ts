@@ -3,6 +3,7 @@ import { TournamentMode } from "../../enums/TournamentMode";
 import { TournamentStatus } from "../../enums/TournamentStatus";
 import { groupDtoSchema } from "../group/GroupDto";
 import { roundDtoSchema } from "../rounds/RoundDto";
+import { tournamentPlayerDtoSchema } from "../tournamentPlayer/TournamentPlayer";
 
 export const tournamentDtoSchema = z.object({
   id: z.number().int(),
