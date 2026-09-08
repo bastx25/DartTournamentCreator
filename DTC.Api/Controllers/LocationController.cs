@@ -47,7 +47,7 @@ namespace DTC.Api.Controllers
             var existing = await _locationRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
 
-            dto.UpdateEntity(existing);
+            dto.UpdateLocationEntity(existing);
             await _locationRepo.UpdateAsync(existing);
 
             return NoContent();

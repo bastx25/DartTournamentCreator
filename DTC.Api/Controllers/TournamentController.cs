@@ -55,12 +55,12 @@ namespace DTC.Api.Controllers
         {
             var existing = await _tournamentRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
-            if (dto.MatchDurationMinutes.HasValue && dto.MatchDurationMinutes.Value < 1)
+            if (dto.MatchDurationMinutes < 1)
                 return BadRequest("Die Matchdauer muss mindestens 1 Minute betragen.");
-            if (dto.BreakBetweenMatchesMinutes.HasValue && dto.BreakBetweenMatchesMinutes.Value < 0)
+            if (dto.BreakBetweenMatchesMinutes < 0)
                 return BadRequest("Die Pause darf nicht negativ sein.");
 
-            dto.UpdateEntity(existing);
+            dto.UpdateTournamentEntity(existing);
             await _tournamentRepo.UpdateAsync(existing);
 
             return NoContent();

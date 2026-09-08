@@ -59,7 +59,7 @@ namespace DTC.Api.Controllers
                 return NotFound();
             }
 
-            dto.UpdateEntity(existingParticipant);
+            dto.UpdateMatchParticipantEntity(existingParticipant);
             await _participantRepo.UpdateAsync(existingParticipant);
 
             return NoContent();

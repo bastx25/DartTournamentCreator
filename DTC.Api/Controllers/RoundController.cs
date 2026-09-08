@@ -47,7 +47,7 @@ namespace DTC.Api.Controllers
             var existing = await _roundRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
 
-            dto.UpdateEntity(existing);
+            dto.UpdateRoundEntity(existing);
             await _roundRepo.UpdateAsync(existing);
 
             return NoContent();
