@@ -47,7 +47,7 @@ namespace DTC.Api.Controllers
             var existing = await _boardRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
 
-            dto.UpdateEntity(existing);
+            dto.UpdateBoardEntity(existing);
             await _boardRepo.UpdateAsync(existing);
 
             return NoContent();
