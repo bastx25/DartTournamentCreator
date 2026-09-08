@@ -1,4 +1,6 @@
-﻿namespace DTC.Api.Dtos.TournamentPlayer
+﻿using DTC.Api.Dtos.Player;
+
+namespace DTC.Api.Dtos.TournamentPlayer
 {
     public class TournamentPlayerDto
     {
@@ -6,6 +8,6 @@
 
         public int TournamentId { get; set; }
 
-        public int PlayerId { get; set; }
+        public PlayerDto? Player { get; set; }
     }
 }
