@@ -18,7 +18,8 @@ namespace DTC.Api.Mappers
                 PlannedStart = match.PlannedStart,
                 PlannedEnd = match.PlannedEnd,
                 ActualStart = match.ActualStart,
-                ActualEnd = match.ActualEnd
+                ActualEnd = match.ActualEnd,
+                Participants = match.Participants.Select(p => p.ToMatchParticipantDto()).ToList()
             };
         }
 

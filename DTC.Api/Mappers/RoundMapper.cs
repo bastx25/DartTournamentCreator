@@ -17,7 +17,8 @@ namespace DTC.Api.Mappers
                 PlannedStart = round.PlannedStart,
                 PlannedEnd = round.PlannedEnd,
                 Status = round.Status,
-                Phase = round.Phase
+                Phase = round.Phase,
+                Matches = round.Matches.Select(m => m.ToMatchDto()).ToList()
             };
         }
 

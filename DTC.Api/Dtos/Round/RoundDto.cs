@@ -1,4 +1,5 @@
-﻿using DTC.Api.Enums;
+﻿using DTC.Api.Dtos.Match;
+using DTC.Api.Enums;
 
 namespace DTC.Api.Dtos.Round
 {
@@ -19,5 +20,8 @@ namespace DTC.Api.Dtos.Round
         public RoundStatus Status { get; set; }
 
         public RoundPhase Phase { get; set; }
+        public ICollection<MatchDto> Matches { get; set; }
+            = new List<MatchDto>();
+
     }
 }

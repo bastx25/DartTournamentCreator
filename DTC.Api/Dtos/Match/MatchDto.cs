@@ -1,4 +1,5 @@
-﻿using DTC.Api.Enums;
+﻿using DTC.Api.Dtos.MatchParticipant;
+using DTC.Api.Enums;
 
 namespace DTC.Api.Dtos.Match
 {
@@ -23,5 +24,8 @@ namespace DTC.Api.Dtos.Match
         public DateTimeOffset? ActualStart { get; set; }
 
         public DateTimeOffset? ActualEnd { get; set; }
+
+        public ICollection<MatchParticipantDto> Participants { get; set; }
+            = new List<MatchParticipantDto>();
     }
 }
