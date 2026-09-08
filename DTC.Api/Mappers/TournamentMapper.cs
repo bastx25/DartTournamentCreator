@@ -18,7 +18,11 @@ namespace DTC.Api.Mappers
                 Mode = tournament.Mode,
                 Status = tournament.Status,
                 MatchDurationMinutes = tournament.MatchDurationMinutes,
-                BreakBetweenMatchesMinutes = tournament.BreakBetweenMatchesMinutes
+                BreakBetweenMatchesMinutes = tournament.BreakBetweenMatchesMinutes,
+                TournamentPlayers = tournament.TournamentPlayers.Select(p => p.ToTournamentPlayerDto()).ToList(),
+                Rounds = tournament.Rounds.Select(r => r.ToRoundDto()).ToList(),
+                Groups = tournament.Groups.Select(g => g.ToGroupDto()).ToList()
+
             };
         }
 

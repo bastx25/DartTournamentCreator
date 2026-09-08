@@ -33,7 +33,7 @@ namespace DTC.Api.Repositories
             try
             {
                 await _context.SaveChangesAsync();
-            }catch (Microsoft.EntityFrameworkCore.DbUpdateException ex )
+            }catch (Exception ex)
             {
                 return false;
             }

@@ -1,4 +1,7 @@
-﻿using DTC.Api.Enums;
+﻿using DTC.Api.Dtos.Group;
+using DTC.Api.Dtos.Round;
+using DTC.Api.Dtos.TournamentPlayer;
+using DTC.Api.Enums;
 
 namespace DTC.Api.Dtos.Tournament
 {
@@ -19,5 +22,14 @@ namespace DTC.Api.Dtos.Tournament
         public int MatchDurationMinutes { get; set; }
 
         public int BreakBetweenMatchesMinutes { get; set; }
+
+        public List<TournamentPlayerDto> TournamentPlayers { get; set; }
+           = new();
+
+        public List<GroupDto> Groups { get; set; }
+            = new();
+
+        public List<RoundDto> Rounds { get; set; }
+            = new();
     }
 }
