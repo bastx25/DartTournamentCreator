@@ -1,0 +1,27 @@
+﻿using DTC.Api.Enums;
+
+namespace DTC.Api.Dtos.Match
+{
+    public class MatchDto
+    {
+        public int Id { get; set; }
+
+        public int RoundId { get; set; }
+
+        // Nur bei Gruppenspielen gesetzt
+        public int? GroupId { get; set; }
+
+        // Board ist optional
+        public int? BoardId { get; set; }
+
+        public MatchStatus Status { get; set; }
+
+        public DateTimeOffset? PlannedStart { get; set; }
+
+        public DateTimeOffset? PlannedEnd { get; set; }
+
+        public DateTimeOffset? ActualStart { get; set; }
+
+        public DateTimeOffset? ActualEnd { get; set; }
+    }
+}
