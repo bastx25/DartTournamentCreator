@@ -67,7 +67,9 @@ export function usePlayers() {
       setPlayerToDelete(null);
     } catch (error) {
       console.error("Fehler beim Löschen des Spielers:", error);
-      setError("Der Spieler konnte nicht gelöscht werden.");
+      setError(
+        "Der Spieler konnte nicht gelöscht werden. Ist der Spieler eventuell noch in einem Turnier?",
+      );
     } finally {
       setDeleting(false);
     }
@@ -121,7 +123,7 @@ export function usePlayers() {
       setSelectedPlayer(newPlayer);
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Spielers:", error);
-      setError("Der Spieler konnte nicht aktualisiert werden.");
+      setError("Der Spieler konnte nicht hinzugefügt werden.");
     } finally {
       setAddPlayer(false);
       setAdding(false);

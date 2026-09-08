@@ -9,8 +9,10 @@ export async function getPlayers(): Promise<PlayerDto[]> {
   return response.data;
 }
 
-export async function deletePlayer(id: number): Promise<void> {
-  await axios.delete(`/api/players/${id}`);
+export async function deletePlayer(id: number): Promise<string> {
+  const response = await axios.delete(`/api/players/${id}`);
+
+  return response.data;
 }
 
 export async function updatePlayer(
