@@ -1,6 +1,5 @@
 import z from "zod";
 import { MatchStatus } from "../../enums/MatchStatus";
-import { matchParticipantDtoSchema } from "../matchParticipant/MatchParticipantDto";
 
 export const matchDtoSchema = z.object({
   id: z.number(),
@@ -12,7 +11,6 @@ export const matchDtoSchema = z.object({
   plannedEnd: z.iso.datetime({ offset: true }).nullable(),
   actualStart: z.iso.datetime({ offset: true }).nullable(),
   actualEnd: z.iso.datetime({ offset: true }).nullable(),
-  participants: z.array(matchParticipantDtoSchema).nullable(),
 });
 
 export type MatchDto = z.infer<typeof matchDtoSchema>;

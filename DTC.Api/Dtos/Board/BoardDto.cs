@@ -6,7 +6,7 @@ namespace DTC.Api.Dtos.Board
     {
         public int Id { get; set; }
 
-        public LocationDto? Location { get; set; }
+        public int LocationId { get; set; }
 
         public int Number { get; set; }
 

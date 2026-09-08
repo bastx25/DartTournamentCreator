@@ -23,13 +23,5 @@ namespace DTC.Api.Dtos.Tournament
 
         public int BreakBetweenMatchesMinutes { get; set; }
 
-        public List<TournamentPlayerDto> TournamentPlayers { get; set; }
-           = new();
-
-        public List<GroupDto> Groups { get; set; }
-            = new();
-
-        public List<RoundDto> Rounds { get; set; }
-            = new();
     }
 }

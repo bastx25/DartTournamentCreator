@@ -14,8 +14,5 @@ namespace DTC.Api.Dtos.Group
         public string Name { get; set; } = string.Empty;
 
         public int QualifiersCount { get; set; }
-
-        public ICollection<GroupPlayerDto> GroupPlayers { get; set; } = new List<GroupPlayerDto>();
-        public ICollection<MatchDto> Matches { get; set; } = new List<MatchDto>();
     }
 }

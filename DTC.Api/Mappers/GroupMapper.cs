@@ -15,8 +15,6 @@ namespace DTC.Api.Mappers
                 Sequence = group.Sequence,
                 Name = group.Name,
                 QualifiersCount = group.QualifiersCount,
-                Matches = group.Matches.Select(m => m.ToMatchDto()).ToList(),
-                GroupPlayers = group.GroupPlayers.Select(m => m.ToGroupPlayerDto()).ToList(),
             };
         }
 

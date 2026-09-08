@@ -22,28 +22,7 @@ namespace DTC.Api.Repositories
 
         public async Task<Tournament?> GetByIdAsync(int id)
         {
-            return await _context.Tournaments
-
-                // Tournament → Rounds → Matches → Participants → Player
-                .Include(t => t.Rounds)
-                    .ThenInclude(r => r.Matches)
-                        .ThenInclude(m => m.Participants)
-
-                // Tournament → Groups → GroupPlayers → Player
-                .Include(t => t.Groups)
-                    .ThenInclude(g => g.GroupPlayers)
-
-
-                // Tournament → Groups → Rounds → Matches → Participants → Player
-                .Include(t => t.Groups)
-                        .ThenInclude(r => r.Matches)
-                            .ThenInclude(m => m.Participants)
-
-                .Include(t => t.TournamentPlayers)
-                    .ThenInclude(tp => tp.Player)
-
-
-                .FirstOrDefaultAsync(t => t.Id == id);
+            return await _context.Tournaments.FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<Tournament> CreateAsync(Tournament tournament)

@@ -20,8 +20,6 @@ namespace DTC.Api.Dtos.Round
         public RoundStatus Status { get; set; }
 
         public RoundPhase Phase { get; set; }
-        public ICollection<MatchDto> Matches { get; set; }
-            = new List<MatchDto>();
 
     }
 }

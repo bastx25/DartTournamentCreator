@@ -1,9 +1,8 @@
 import z from "zod";
-import { locationDtoSchema } from "../location/LocationDto";
 
 export const boardDtoSchema = z.object({
   id: z.number(),
-  location: locationDtoSchema.nullable(),
+  locationId: z.number(),
   number: z.number(),
   label: z.string().nullable(),
   isActive: z.boolean(),
