@@ -11,7 +11,7 @@ namespace DTC.Api.Mappers
             return new BoardDto
             {
                 Id = board.Id,
-                LocationId = board.LocationId,
+                Location = board.Location.ToLocationDto(),
                 Number = board.Number,
                 Label = board.Label,
                 IsActive = board.IsActive

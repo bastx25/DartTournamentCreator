@@ -8,6 +8,6 @@ namespace DTC.Api.Dtos.GroupPlayer
 
         public int GroupId { get; set; }
 
-        public TournamentPlayerDto? TournamentPlayer { get; set; }
+        public int TournamentPlayerId { get; set; }
     }
 }

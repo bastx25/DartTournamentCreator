@@ -9,7 +9,7 @@ namespace DTC.Api.Dtos.MatchParticipant
 
         public int MatchId { get; set; }
 
-        public TournamentPlayerDto? TournamentPlayer { get; set; }
+        public int TournamentPlayerId { get; set; }
 
         public int Score { get; set; }
 

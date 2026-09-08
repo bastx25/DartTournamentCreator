@@ -13,7 +13,7 @@ namespace DTC.Api.Mappers
             {
                 Id = groupPlayer.Id,
                 GroupId = groupPlayer.GroupId,
-                TournamentPlayerId = groupPlayer.TournamentPlayerId
+                TournamentPlayerId = groupPlayer.TournamentPlayer.Id
             };
         }
 

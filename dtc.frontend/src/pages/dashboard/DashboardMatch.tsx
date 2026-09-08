@@ -2,25 +2,26 @@ import { useEffect, useState } from "react";
 import { MatchStatus, matchStatusLabel } from "../../enums/MatchStatus";
 import { getBoard } from "../../services/boardService";
 import { formatTime } from "../../utils/formatTime";
-import type { MatchSchedule } from "./DashboardPage";
 import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { MatchDto } from "../../dtos/match/MatchDto";
 
 interface DashboardMatchProps {
   match: MatchDto;
   index: number;
-  playerName: (match: MatchSchedule, index: number) => string;
 }
 
-export function DashboardMatch({
-  match,
-  index,
-  playerName,
-}: DashboardMatchProps) {
+export function DashboardMatch({ match, index }: DashboardMatchProps) {
   const firstParticipant = match.participants?.[0];
   const secondParticipant = match.participants?.[1];
 
   const [board, setBoard] = useState<BoardDto | null>(null);
+
+  const playerName = (matchParticipantIndex: number): string => {
+    const player =
+      match.participants?.[matchParticipantIndex]?.tournamentPlayer?.player;
+
+    return player?.displayName ?? "";
+  };
 
   useEffect(() => {
     const loadBoard = async () => {
@@ -52,7 +53,7 @@ export function DashboardMatch({
                 firstParticipant?.isWinner ? "text-green-600" : "text-gray-900"
               }`}
             >
-              {playerName(match, 0)}
+              {playerName(0)}
             </p>
           </div>
 
@@ -67,7 +68,7 @@ export function DashboardMatch({
                 secondParticipant?.isWinner ? "text-green-600" : "text-gray-900"
               }`}
             >
-              {playerName(match, 1)}
+              {playerName(1)}
             </p>
           </div>
         </div>

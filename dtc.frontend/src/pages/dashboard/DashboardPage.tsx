@@ -4,19 +4,9 @@ import { RoundStatus } from "../../enums/RoundStatus";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
-import { DashboardRound } from "./DashboardRound";
-import type { RoundDto } from "../../dtos/rounds/RoundDto";
-
-export type MatchSchedule = RoundDto["matches"][number];
-
-function matchTime(match: MatchSchedule, roundStart: string) {
-  return match.actualStart ?? roundStart;
-}
-
-function playerName(match: MatchSchedule, index: number) {
-  const player = match.participants[index]?.tournamentPlayer;
-  return player?.displayName ?? "TBD See Code";
-}
+import { DashboardGroup } from "./DashboardGroup";
+import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
+import { getTournament } from "../../services/tournamentService";
 
 export function DashboardPage() {
   const {
@@ -29,16 +19,27 @@ export function DashboardPage() {
     number | null
   >(null);
 
+  const [tournament, setTournament] = useState<TournamentDto | null>(null);
+
   const effectiveTournamentId =
     selectedTournamentId !== null &&
     tournaments.some((tournament) => tournament.id === selectedTournamentId)
       ? selectedTournamentId
       : (tournaments[0]?.id ?? null);
 
-  const tournament = useMemo(
-    () => tournaments.find((item) => item.id === effectiveTournamentId) ?? null,
-    [effectiveTournamentId, tournaments],
-  );
+  useEffect(() => {
+    if (effectiveTournamentId === null) {
+      return;
+    }
+
+    const loadSelectedTournament = async () => {
+      const response = await getTournament(effectiveTournamentId);
+
+      setTournament(response);
+    };
+
+    loadSelectedTournament();
+  }, [effectiveTournamentId]);
 
   const rounds = useMemo(
     () =>
@@ -50,8 +51,11 @@ export function DashboardPage() {
     [tournament],
   );
 
+  const groups = tournament?.groups ?? [];
+
   const totalMatches = useMemo(
-    () => rounds.reduce((total, round) => total + round.matches.length, 0),
+    () =>
+      rounds.reduce((total, round) => total + (round.matches?.length ?? 0), 0),
     [rounds],
   );
 
@@ -115,7 +119,26 @@ export function DashboardPage() {
               activeRoundCount={activeRoundCount}
             />
 
-            {rounds.length === 0 && (
+            {groups.length === 0 && (
+              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Noch keine Gruppen vorhanden
+                </h2>
+                <p className="mt-2 text-sm text-gray-500">
+                  Für dieses Turnier wurden noch keine Gruppen erstellt.
+                </p>
+              </section>
+            )}
+
+            {groups.length > 0 && (
+              <div className="space-y-6">
+                {groups.map((group) => {
+                  return <DashboardGroup key={group.id} group={group} />;
+                })}
+              </div>
+            )}
+
+            {/* {rounds.length === 0 && (
               <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
@@ -146,7 +169,7 @@ export function DashboardPage() {
                   );
                 })}
               </div>
-            )}
+            )} */}
           </>
         )}
       </main>

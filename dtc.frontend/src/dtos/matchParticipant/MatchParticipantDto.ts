@@ -1,10 +1,9 @@
 import z from "zod";
-import { tournamentPlayerDtoSchema } from "../tournamentPlayer/TournamentPlayer";
 
 export const matchParticipantDtoSchema = z.object({
   id: z.number().int(),
   matchId: z.number().int(),
-  tournamentPlayer: tournamentPlayerDtoSchema.nullable(),
+  tournamentPlayerId: z.number(),
   score: z.number().int(),
   isWinner: z.boolean(),
 });

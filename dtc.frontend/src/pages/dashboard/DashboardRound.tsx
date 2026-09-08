@@ -3,19 +3,16 @@ import type { RoundDto } from "../../dtos/rounds/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
 import { formatDate } from "../../utils/formatDate";
 import { DashboardMatch } from "./DashboardMatch";
-import type { MatchSchedule } from "./DashboardPage";
 
-interface DashboardRoundProps {
+interface DashboardKnockoutListProps {
   round: RoundDto;
   sortedMatches: MatchDto[];
-  playerName: (match: MatchSchedule, index: number) => string;
 }
 
-export function DashboardRound({
+export function DashboardKnockoutList({
   round,
   sortedMatches,
-  playerName,
-}: DashboardRoundProps) {
+}: DashboardKnockoutListProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
@@ -42,14 +39,7 @@ export function DashboardRound({
 
       <div className="divide-y divide-gray-100">
         {sortedMatches.map((match, index) => {
-          return (
-            <DashboardMatch
-              key={match.id}
-              match={match}
-              index={index}
-              playerName={playerName}
-            />
-          );
+          return <DashboardMatch key={match.id} match={match} index={index} />;
         })}
       </div>
     </section>
