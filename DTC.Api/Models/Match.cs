@@ -28,7 +28,6 @@ namespace DTC.Api.Models
         public DateTimeOffset? ActualStart { get; set; }
         public DateTimeOffset? ActualEnd { get; set; }
 
-        // Navigation Properties
         public ICollection<MatchParticipant> Participants { get; set; }
             = new List<MatchParticipant>();
     }

@@ -11,7 +11,6 @@ namespace DTC.Api.Models
         public string LastName { get; set; } = string.Empty;
         public string? Nickname { get; set; }
 
-        // Navigation Properties
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; }
             = new List<TournamentPlayer>();
     }

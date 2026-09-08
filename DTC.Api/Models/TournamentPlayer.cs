@@ -13,7 +13,6 @@ namespace DTC.Api.Models
         public int PlayerId { get; set; }
         public Player Player { get; set; } = null!;
 
-        // Navigation Properties
         public ICollection<GroupPlayer> Groups { get; set; }
             = new List<GroupPlayer>();
 

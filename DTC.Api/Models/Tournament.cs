@@ -18,7 +18,6 @@ namespace DTC.Api.Models
         public int MatchDurationMinutes { get; set; } = 30;
         public int BreakBetweenMatchesMinutes { get; set; } = 5;
 
-        // Navigation Properties
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; }
             = new List<TournamentPlayer>();
 

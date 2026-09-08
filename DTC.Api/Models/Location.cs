@@ -9,7 +9,7 @@ namespace DTC.Api.Models
         public string Name { get; set; } = string.Empty; // z. B. "Sporthalle Freistadt"
         public string? Address { get; set; }
 
-        // Navigation Properties
+        
         public ICollection<Board> Boards { get; set; } = new List<Board>();
 
     }

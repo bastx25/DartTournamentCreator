@@ -9,6 +9,7 @@ namespace DTC.Api.Models
         public int Id { get; set; }
 
         public int TournamentId { get; set; }
+        public Tournament Tournament { get; set; } = null!;
 
         public int Sequence { get; set; }
 
@@ -20,9 +21,6 @@ namespace DTC.Api.Models
         public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
 
         public RoundPhase Phase { get; set; } = RoundPhase.GroupStage;
-
-        // Navigation Properties
-        public Tournament Tournament { get; set; } = null!;
 
         public ICollection<Match> Matches { get; set; }
             = new List<Match>();
