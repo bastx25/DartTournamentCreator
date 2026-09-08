@@ -133,7 +133,7 @@ namespace DTC.Api.Data
 
                 // Group -> GroupPlayers
                 entity.HasOne(gp => gp.Group)
-                    .WithMany(g => g.Players)
+                    .WithMany(g => g.GroupPlayers)
                     .HasForeignKey(gp => gp.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
 

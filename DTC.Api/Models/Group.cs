@@ -12,7 +12,7 @@ namespace DTC.Api.Models
         public int QualifiersCount { get; set; }
 
         public Tournament Tournament { get; set; } = null!;
-        public ICollection<GroupPlayer> Players { get; set; } = new List<GroupPlayer>();
+        public ICollection<GroupPlayer> GroupPlayers { get; set; } = new List<GroupPlayer>();
         public ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 }

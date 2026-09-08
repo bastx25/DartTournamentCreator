@@ -14,7 +14,9 @@ namespace DTC.Api.Mappers
                 TournamentId = group.TournamentId,
                 Sequence = group.Sequence,
                 Name = group.Name,
-                QualifiersCount = group.QualifiersCount
+                QualifiersCount = group.QualifiersCount,
+                Matches = group.Matches.Select(m => m.ToMatchDto()).ToList(),
+                GropuPlayers = group.GroupPlayers.Select(m => m.ToGroupPlayerDto()).ToList(),
             };
         }
 

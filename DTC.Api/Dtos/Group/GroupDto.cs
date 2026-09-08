@@ -1,4 +1,7 @@
-﻿namespace DTC.Api.Dtos.Group
+﻿using DTC.Api.Dtos.GroupPlayer;
+using DTC.Api.Dtos.Match;
+
+namespace DTC.Api.Dtos.Group
 {
     public class GroupDto
     {
@@ -11,5 +14,8 @@
         public string Name { get; set; } = string.Empty;
 
         public int QualifiersCount { get; set; }
+
+        public ICollection<GroupPlayerDto> GropuPlayers { get; set; } = new List<GroupPlayerDto>();
+        public ICollection<MatchDto> Matches { get; set; } = new List<MatchDto>();
     }
 }
