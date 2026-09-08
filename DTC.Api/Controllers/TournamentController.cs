@@ -14,15 +14,18 @@ namespace DTC.Api.Controllers
         private readonly ITournamentRepository _tournamentRepo;
         private readonly IMatchMakerService _matchMakerService;
         private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
+        private readonly IGroupRepository _groupRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
             ITournamentPlayerRepository tournamentPlayerRepository,
+            IGroupRepository groupRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
             _tournamentPlayerRepo = tournamentPlayerRepository;
+            _groupRepo = groupRepository;
         }
 
         [HttpGet]
@@ -110,6 +113,20 @@ namespace DTC.Api.Controllers
                 return NotFound(ex.Message);
             }
             catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id:int}/groups")]
+        public async Task<IActionResult> GetGroupsByTournamentId([FromRoute] int id)
+        {
+            try
+            {
+                var groups = await _groupRepo.GetGroupsByTournamentId(id);
+                return Ok(groups.Select(g => g.ToGroupDto()));
+            }
+            catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }

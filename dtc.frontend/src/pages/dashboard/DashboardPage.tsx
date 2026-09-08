@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import { RoundStatus } from "../../enums/RoundStatus";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
 import { DashboardGroup } from "./DashboardGroup";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
-import { getTournament } from "../../services/tournamentService";
+import {
+  getGroupsByTournamentId,
+  getTournament,
+} from "../../services/tournamentService";
+import type { GroupDto } from "../../dtos/group/GroupDto";
 
 export function DashboardPage() {
   const {
@@ -41,29 +44,11 @@ export function DashboardPage() {
     loadSelectedTournament();
   }, [effectiveTournamentId]);
 
-  const rounds = useMemo(
-    () =>
-      [...(tournament?.rounds ?? [])].sort(
-        (a, b) =>
-          new Date(a.plannedStart).getTime() -
-          new Date(b.plannedStart).getTime(),
-      ),
-    [tournament],
-  );
+  const totalMatches = 3;
 
-  const groups = tournament?.groups ?? [];
+  const activeRoundCount = 2;
 
-  const totalMatches = useMemo(
-    () =>
-      rounds.reduce((total, round) => total + (round.matches?.length ?? 0), 0),
-    [rounds],
-  );
-
-  const activeRoundCount = useMemo(
-    () =>
-      rounds.filter((round) => round.status === RoundStatus.InProgress).length,
-    [rounds],
-  );
+  const roundsLength = 4;
 
   const dashboardError = tournamentsError;
 
@@ -76,6 +61,18 @@ export function DashboardPage() {
       SetInitialTournament();
     }
   }, [tournaments, selectedTournamentId]);
+
+  const [groups, setGroups] = useState<GroupDto[]>([]);
+  useEffect(() => {
+    if (tournament === null) return;
+
+    const loadGroups = async () => {
+      const response = await getGroupsByTournamentId(tournament?.id);
+      setGroups(response);
+    };
+
+    loadGroups();
+  }, [tournament]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,7 +111,7 @@ export function DashboardPage() {
           <>
             <DashboardTournamentDetails
               tournament={tournament}
-              roundsLength={rounds.length}
+              roundsLength={roundsLength}
               totalMatches={totalMatches}
               activeRoundCount={activeRoundCount}
             />

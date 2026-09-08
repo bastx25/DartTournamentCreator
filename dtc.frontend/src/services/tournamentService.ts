@@ -2,6 +2,7 @@ import axios from "axios";
 import type { CreateTournamentDto } from "../dtos/tournament/CreateTournamentDto";
 import type { TournamentDto } from "../dtos/tournament/TournamentDto";
 import type { GenerateGroupsDto } from "../dtos/matchMaker/GenerateGroupDto";
+import type { GroupDto } from "../dtos/group/GroupDto";
 
 export async function createTournament(
   data: CreateTournamentDto,
@@ -59,4 +60,13 @@ export async function generateGroups(
       "Content-Type": "application/json",
     },
   });
+}
+
+export async function getGroupsByTournamentId(
+  tournamentId: number,
+): Promise<GroupDto[]> {
+  const response = await axios.get<GroupDto[]>(
+    `/api/tournaments/${tournamentId}/groups`,
+  );
+  return response.data ?? [];
 }
