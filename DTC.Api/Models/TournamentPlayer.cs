@@ -1,5 +1,8 @@
-﻿namespace DTC.Api.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DTC.Api.Models
 {
+    [Table("TournamentPlayers")]
     public class TournamentPlayer
     {
         public int Id { get; set; }
