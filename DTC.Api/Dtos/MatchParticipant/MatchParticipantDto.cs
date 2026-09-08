@@ -1,4 +1,7 @@
-﻿namespace DTC.Api.Dtos.MatchParticipant
+﻿using DTC.Api.Dtos.TournamentPlayer;
+using DTC.Api.Models;
+
+namespace DTC.Api.Dtos.MatchParticipant
 {
     public class MatchParticipantDto
     {
@@ -6,7 +9,7 @@
 
         public int MatchId { get; set; }
 
-        public int TournamentPlayerId { get; set; }
+        public TournamentPlayerDto? TournamentPlayer { get; set; }
 
         public int Score { get; set; }
 
