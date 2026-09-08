@@ -76,7 +76,7 @@ public class PlayerController : ControllerBase
         var success = await _playerRepo.DeleteAsync(id);
         if (!success)
         {
-            return NotFound();
+            return BadRequest("Spieler konnte nicht gelöscht werden! Ist der Spieler noch in einem Turnier?");
         }
 
         return NoContent();

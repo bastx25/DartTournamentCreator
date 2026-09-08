@@ -30,8 +30,14 @@ namespace DTC.Api.Repositories
             if (playerModel == null) return false;
 
             _context.Players.Remove(playerModel);
-
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }catch (Microsoft.EntityFrameworkCore.DbUpdateException ex )
+            {
+                return false;
+            }
+            
 
             return true;
         }
