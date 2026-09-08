@@ -3,13 +3,16 @@ import Header from "../../components/Header";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
-import { DashboardGroup } from "./DashboardGroup";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import {
   getGroupsByTournamentId,
+  getRoundsByTournamentId,
   getTournament,
 } from "../../services/tournamentService";
 import type { GroupDto } from "../../dtos/group/GroupDto";
+import { DashboardRound } from "./DashboardRound";
+import { DashboardGroup } from "./DashboardGroup";
+import type { RoundDto } from "../../dtos/rounds/RoundDto";
 
 export function DashboardPage() {
   const {
@@ -74,6 +77,19 @@ export function DashboardPage() {
     loadGroups();
   }, [tournament]);
 
+  const [rounds, setRounds] = useState<RoundDto[]>([]);
+
+  useEffect(() => {
+    if (tournament === null) return;
+
+    const loadRounds = async () => {
+      const response = await getRoundsByTournamentId(tournament.id);
+      setRounds(response);
+    };
+
+    loadRounds();
+  }, [tournament]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -135,7 +151,7 @@ export function DashboardPage() {
               </div>
             )}
 
-            {/* {rounds.length === 0 && (
+            {rounds.length === 0 && (
               <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
@@ -150,23 +166,10 @@ export function DashboardPage() {
             {rounds.length > 0 && (
               <div className="space-y-6">
                 {rounds.map((round) => {
-                  const sortedMatches = [...round.matches].sort(
-                    (a, b) =>
-                      new Date(matchTime(a, round.plannedStart)).getTime() -
-                      new Date(matchTime(b, round.plannedStart)).getTime(),
-                  );
-
-                  return (
-                    <DashboardRound
-                      key={round.id}
-                      round={round}
-                      sortedMatches={sortedMatches}
-                      playerName={playerName}
-                    />
-                  );
+                  return <DashboardRound key={round.id} round={round} />;
                 })}
               </div>
-            )} */}
+            )}
           </>
         )}
       </main>

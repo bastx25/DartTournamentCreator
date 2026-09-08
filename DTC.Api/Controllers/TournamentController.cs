@@ -15,17 +15,20 @@ namespace DTC.Api.Controllers
         private readonly IMatchMakerService _matchMakerService;
         private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
         private readonly IGroupRepository _groupRepo;
+        private readonly IRoundRepository _roundRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
             ITournamentPlayerRepository tournamentPlayerRepository,
             IGroupRepository groupRepository,
+            IRoundRepository roundRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
             _tournamentPlayerRepo = tournamentPlayerRepository;
             _groupRepo = groupRepository;
+            _roundRepo = roundRepository;
         }
 
         [HttpGet]
@@ -127,6 +130,20 @@ namespace DTC.Api.Controllers
                 return Ok(groups.Select(g => g.ToGroupDto()));
             }
             catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id:int}/rounds")]
+        public async Task<IActionResult> GetRoundsByTournamentId([FromRoute] int id)
+        {
+            try
+            {
+                var rounds = await _roundRepo.GetRoundsByTournamentId(id);
+                return Ok(rounds.Select(r => r.ToRoundDto()));
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -9,5 +9,6 @@ namespace DTC.Api.Interfaces
         Task<Round> CreateAsync(Round round);
         Task<Round> UpdateAsync(Round round);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Round>> GetRoundsByTournamentId(int id);
     }
 }

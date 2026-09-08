@@ -1,18 +1,13 @@
-import type { MatchDto } from "../../dtos/match/MatchDto";
 import type { RoundDto } from "../../dtos/rounds/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
 import { formatDate } from "../../utils/formatDate";
 import { DashboardMatch } from "./DashboardMatch";
 
-interface DashboardKnockoutListProps {
+interface DashboardRoundProps {
   round: RoundDto;
-  sortedMatches: MatchDto[];
 }
 
-export function DashboardKnockoutList({
-  round,
-  sortedMatches,
-}: DashboardKnockoutListProps) {
+export function DashboardRound({ round }: DashboardRoundProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
@@ -30,18 +25,18 @@ export function DashboardKnockoutList({
               Geplanter Start: {formatDate(round.plannedStart)}
             </p>
           </div>
-          <span className="text-sm font-medium text-gray-500">
-            {round.matches?.length}{" "}
-            {round.matches?.length === 1 ? "Match" : "Matches"}
-          </span>
+          {/* <span className="text-sm font-medium text-gray-500">
+            {sortedMatches?.length}{" "}
+            {sortedMatches?.length === 1 ? "Match" : "Matches"}
+          </span> */}
         </div>
       </div>
 
-      <div className="divide-y divide-gray-100">
+      {/* <div className="divide-y divide-gray-100">
         {sortedMatches.map((match, index) => {
           return <DashboardMatch key={match.id} match={match} index={index} />;
         })}
-      </div>
+      </div> */}
     </section>
   );
 }
