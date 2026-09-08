@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Header from "../../components/Header";
+
+import { useCreateLocation } from "../../hooks/useCreateLocation";
 import {
   createLocationDtoSchema,
   type CreateLocationDto,
 } from "../../dtos/location/CreateLocationDto";
-import { useCreateLocation } from "../../hooks/useCreateLocation";
 
 export function CreateLocationPage() {
   const navigate = useNavigate();

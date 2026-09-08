@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-import type { PlayerDto } from "../../dtos/Player/PlayerDto";
+import type { PlayerDto } from "../../dtos/player/PlayerDto";
 import {
   updatePlayerDtoSchema,
   type UpdatePlayerDto,
-} from "../../dtos/Player/UpdatePlayerDto";
+} from "../../dtos/player/UpdatePlayerDto";
 
 interface UpdatePlayerModalProps {
   player: PlayerDto;

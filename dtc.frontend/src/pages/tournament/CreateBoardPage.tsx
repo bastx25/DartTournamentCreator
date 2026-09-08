@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Header from "../../components/Header";
+
+import { createBoard } from "../../services/boardService";
 import {
   createBoardDtoSchema,
   type CreateBoardDto,
 } from "../../dtos/board/CreateBoardDto";
-import { createBoard } from "../../services/boardService";
 
 export function CreateBoardPage() {
   const [formData, setFormData] = useState<CreateBoardDto>({
@@ -49,7 +50,8 @@ export function CreateBoardPage() {
       navigate(`/boards/${created.id}/qr`);
     } catch {
       setErrors({
-        label: "Board konnte nicht gespeichert werden. Bitte API/Verbindung prüfen.",
+        label:
+          "Board konnte nicht gespeichert werden. Bitte API/Verbindung prüfen.",
       });
     } finally {
       setSaving(false);

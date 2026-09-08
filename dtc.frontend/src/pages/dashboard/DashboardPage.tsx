@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import { RoundStatus } from "../../enums/RoundStatus";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
-import { DashboardTournamentDetails } from "./DashboardTorunamentDetails";
+import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
 import { DashboardRound } from "./DashboardRound";
 import type { RoundDto } from "../../dtos/rounds/RoundDto";
 
@@ -15,11 +15,7 @@ function matchTime(match: MatchSchedule, roundStart: string) {
 
 function playerName(match: MatchSchedule, index: number) {
   const player = match.participants[index]?.tournamentPlayer;
-  return player?.displayName ?? "TBD";
-}
-
-function matchScore(match: MatchSchedule, index: number) {
-  return match.participants[index]?.score ?? null;
+  return player?.displayName ?? "TBD See Code";
 }
 
 export function DashboardPage() {
@@ -146,8 +142,6 @@ export function DashboardPage() {
                       round={round}
                       sortedMatches={sortedMatches}
                       playerName={playerName}
-                      matchScore={matchScore}
-                      matchTime={matchTime}
                     />
                   );
                 })}

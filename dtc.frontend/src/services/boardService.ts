@@ -2,7 +2,9 @@ import axios from "axios";
 import type { BoardDto } from "../dtos/board/BoardDto";
 import type { CreateBoardDto } from "../dtos/board/CreateBoardDto";
 
-export async function getBoards(locationId: number): Promise<BoardDto[]> {
+export async function getBoards(
+  locationId: number | null,
+): Promise<BoardDto[]> {
   const response = await axios.get<BoardDto[]>(
     `/api/boards/location/${locationId}`,
   );
@@ -10,6 +12,11 @@ export async function getBoards(locationId: number): Promise<BoardDto[]> {
   return response.data;
 }
 
+export async function getBoard(boardId: number): Promise<BoardDto | null> {
+  const response = await axios.get<BoardDto>(`/api/boards/${boardId}`);
+
+  return response.data;
+}
 
 export async function createBoard(data: CreateBoardDto): Promise<BoardDto> {
   const response = await axios.post<BoardDto>("/api/boards", data, {

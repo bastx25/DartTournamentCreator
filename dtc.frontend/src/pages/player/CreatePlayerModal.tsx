@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   createPlayerDtoSchema,
   type CreatePlayerDto,
-} from "../../dtos/Player/CreatePlayerDto";
+} from "../../dtos/player/CreatePlayerDto";
 
 interface CreatePlayerModalProps {
   adding: boolean;

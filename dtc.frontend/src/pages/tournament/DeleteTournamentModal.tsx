@@ -1,4 +1,4 @@
-import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
+import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 
 interface DeletetournamentModalProps {
   tournament: TournamentDto;

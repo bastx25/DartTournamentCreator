@@ -1,5 +1,5 @@
-import type { MatchDto } from "../../dtos/Match/MatchDto";
-import type { RoundDto } from "../../dtos/Round/RoundDto";
+import type { MatchDto } from "../../dtos/match/MatchDto";
+import type { RoundDto } from "../../dtos/rounds/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
 import { formatDate } from "../../utils/formatDate";
 import { DashboardMatch } from "./DashboardMatch";
@@ -9,16 +9,12 @@ interface DashboardRoundProps {
   round: RoundDto;
   sortedMatches: MatchDto[];
   playerName: (match: MatchSchedule, index: number) => string;
-  matchScore: (match: MatchSchedule, index: number) => number;
-  matchTime: (match: MatchSchedule, roundStart: string) => string;
 }
 
 export function DashboardRound({
   round,
   sortedMatches,
   playerName,
-  matchScore,
-  matchTime,
 }: DashboardRoundProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -46,20 +42,12 @@ export function DashboardRound({
 
       <div className="divide-y divide-gray-100">
         {sortedMatches.map((match, index) => {
-          const scheduledTime = matchTime(match, round.plannedStart);
-          const firstScore = matchScore(match, 0);
-          const secondScore = matchScore(match, 1);
-
           return (
             <DashboardMatch
               key={match.id}
               match={match}
               index={index}
-              scheduledTime={scheduledTime}
-              firstScore={firstScore}
-              secondScore={secondScore}
               playerName={playerName}
-              locationId={round.locationId}
             />
           );
         })}

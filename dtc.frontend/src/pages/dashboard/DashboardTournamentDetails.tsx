@@ -1,4 +1,4 @@
-import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
+import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import { tournamentStatusLabel } from "../../enums/TournamentStatus";
 import { formatDate } from "../../utils/formatDate";
 

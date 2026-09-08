@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTournaments } from "../services/tournamentService";
-import type { TournamentDto } from "../dtos/Tournament/TournamentDto";
+import type { TournamentDto } from "../dtos/tournament/TournamentDto";
 
 export function useTournaments() {
   const [tournaments, setTournaments] = useState<TournamentDto[]>([]);

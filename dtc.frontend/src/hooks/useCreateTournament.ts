@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { CreateTournamentDto } from "../dtos/Tournament/CreateTournamentDto";
+
 import { createTournament } from "../services/tournamentService";
+import type { CreateTournamentDto } from "../dtos/tournament/CreateTournamentDto";
 
 export function useCreateTournament() {
   const [adding, setAdding] = useState(false);

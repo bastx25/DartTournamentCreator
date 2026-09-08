@@ -4,7 +4,7 @@ import Header from "../../components/Header";
 import {
   createTournamentDtoSchema,
   type CreateTournamentDto,
-} from "../../dtos/Tournament/CreateTournamentDto";
+} from "../../dtos/tournament/CreateTournamentDto";
 import { TournamentMode } from "../../enums/TournamentMode";
 import { TournamentStatus } from "../../enums/TournamentStatus";
 import { useCreateTournament } from "../../hooks/useCreateTournament";

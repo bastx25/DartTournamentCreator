@@ -1,56 +1,46 @@
 import { useEffect, useState } from "react";
-import type { MatchDto } from "../../dtos/Match/MatchDto";
 import { MatchStatus, matchStatusLabel } from "../../enums/MatchStatus";
-import { getBoards } from "../../services/boardService";
+import { getBoard } from "../../services/boardService";
 import { formatTime } from "../../utils/formatTime";
 import type { MatchSchedule } from "./DashboardPage";
 import type { BoardDto } from "../../dtos/board/BoardDto";
+import type { MatchDto } from "../../dtos/match/MatchDto";
 
 interface DashboardMatchProps {
   match: MatchDto;
   index: number;
-  locationId: number;
-  scheduledTime: string;
-  firstScore: number;
-  secondScore: number;
   playerName: (match: MatchSchedule, index: number) => string;
 }
 
 export function DashboardMatch({
   match,
   index,
-  locationId,
-  scheduledTime,
-  firstScore,
-  secondScore,
   playerName,
 }: DashboardMatchProps) {
   const firstParticipant = match.participants[0];
   const secondParticipant = match.participants[1];
 
-  const [boards, setBoards] = useState<BoardDto[]>([]);
+  const [board, setBoard] = useState<BoardDto | null>(null);
 
   useEffect(() => {
-    const loadBoards = async () => {
-      const boardsAtLocation = await getBoards(locationId);
-      setBoards(boardsAtLocation);
+    const loadBoard = async () => {
+      if (match.boardId != null) {
+        const boardFromMatch = await getBoard(match.boardId);
+        setBoard(boardFromMatch);
+      }
     };
 
-    loadBoards();
-  }, [locationId]);
+    loadBoard();
+  }, [match.boardId]);
 
-  const boardLabel = (boardId: number | null) => {
-    const board = boards.find((board) => board.id === boardId);
-
-    return board?.label ?? "";
-  };
+  const boardLabel = board?.label;
 
   return (
     <div className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_90px_110px] sm:items-center sm:px-8">
       <div>
         <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p>
         <p className="mt-1 text-xs text-gray-500">
-          {formatTime(scheduledTime)} Uhr
+          {formatTime(match.actualStart)} Uhr
         </p>
       </div>
 
@@ -67,7 +57,8 @@ export function DashboardMatch({
           </div>
 
           <span className="whitespace-nowrap text-sm font-bold text-gray-900">
-            {firstScore ?? 0} : {secondScore ?? 0}
+            {match.participants[0].score ?? 0} :{" "}
+            {match.participants[1].score ?? 0}
           </span>
 
           <div className="min-w-0 sm:text-right">
@@ -83,7 +74,7 @@ export function DashboardMatch({
       </div>
 
       <div className="text-sm font-medium text-gray-600 sm:text-center">
-        Board {boardLabel(match.boardId)}
+        Board {boardLabel}
       </div>
 
       <div className="sm:text-right">
