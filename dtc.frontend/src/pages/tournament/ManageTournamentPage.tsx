@@ -3,8 +3,6 @@ import { useNavigate, useParams } from "react-router";
 import Header from "../../components/Header";
 import { getPlayers } from "../../services/playerService";
 
-import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
-import type { PlayerDto } from "../../dtos/Player/PlayerDto";
 import {
   deleteTournament,
   generateGroups,
@@ -14,6 +12,8 @@ import {
 import { RoundPhase } from "../../enums/RoundPhase";
 import { TournamentMode } from "../../enums/TournamentMode";
 import { DeleteTournamentModal } from "./DeleteTournamentModal";
+import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
+import type { PlayerDto } from "../../dtos/player/PlayerDto";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -74,7 +74,7 @@ export function ManageTournamentPage() {
         setMatchDurationMinutes(tournamentData.matchDurationMinutes);
         setPlayers(playerData);
 
-        setSelectedPlayerIds(playerData.map((player) => player.id));
+        setSelectedPlayerIds(playerData.map((player: PlayerDto) => player.id));
       } catch (err) {
         console.error(err);
         setError("Die Turnierdaten konnten nicht geladen werden.");
@@ -146,11 +146,11 @@ export function ManageTournamentPage() {
   };
 
   const knockoutPrepared =
-    tournament?.rounds.some((round) => round.phase === RoundPhase.Knockout) ??
+    tournament?.rounds?.some((round) => round.phase === RoundPhase.Knockout) ??
     false;
   const knockoutGenerated =
     tournament?.rounds
-      .filter((round) => round.phase === RoundPhase.Knockout)
+      ?.filter((round) => round.phase === RoundPhase.Knockout)
       .some((round) =>
         round.matches.some((match) => match.participants.length > 0),
       ) ?? false;
@@ -509,39 +509,41 @@ export function ManageTournamentPage() {
           </aside>
         </div>
 
-        {tournament && tournament.rounds.length > 0 && (
-          <section className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Erstellte Runden & Matches
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Die aktuell vom MatchMaker erzeugten Daten.
-              </p>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {tournament.rounds.map((round) => (
-                <div
-                  key={round.id}
-                  className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {round.name ?? `Runde ${round.sequence}`}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {round.matches.length}{" "}
-                      {round.matches.length === 1 ? "Match" : "Matches"}
-                    </p>
+        {tournament &&
+          tournament.rounds != null &&
+          tournament.rounds.length > 0 && (
+            <section className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+              <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Erstellte Runden & Matches
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Die aktuell vom MatchMaker erzeugten Daten.
+                </p>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {tournament.rounds?.map((round) => (
+                  <div
+                    key={round.id}
+                    className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {round.name ?? `Runde ${round.sequence}`}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {round.matches.length}{" "}
+                        {round.matches.length === 1 ? "Match" : "Matches"}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {formatDate(round.plannedStart)}
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {formatDate(round.plannedStart)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
       </main>
 
       {tournamentToDelete && (

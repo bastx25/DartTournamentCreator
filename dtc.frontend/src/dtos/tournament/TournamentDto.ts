@@ -15,8 +15,8 @@ export const tournamentDtoSchema = z.object({
   matchDurationMinutes: z.number().int(),
   breakBetweenMatchesMinutes: z.number().int(),
   tournamentPlayers: z.array(tournamentPlayerDtoSchema),
-  groups: z.array(groupDtoSchema),
-  rounds: z.array(roundDtoSchema),
+  groups: z.array(groupDtoSchema).nullable(),
+  rounds: z.array(roundDtoSchema).nullable(),
 });
 
 export type TournamentDto = z.infer<typeof tournamentDtoSchema>;

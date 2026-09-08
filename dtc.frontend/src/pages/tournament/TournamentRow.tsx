@@ -1,31 +1,18 @@
-import type { TournamentDto } from "../../dtos/Tournament/TournamentDto";
+import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import { TournamentMode } from "../../enums/TournamentMode";
-import { TournamentStatus } from "../../enums/TournamentStatus";
+import {
+  tournamentStatusClasses,
+  tournamentStatusLabels,
+} from "../../enums/TournamentStatus";
 
 interface TournamentRowProps {
   tournament: TournamentDto;
   onManage: (tournament: TournamentDto) => void;
 }
 
-const statusLabels: Record<TournamentStatus, string> = {
-  [TournamentStatus.Draft]: "Entwurf",
-  [TournamentStatus.Scheduled]: "Geplant",
-  [TournamentStatus.InProgress]: "Laufend",
-  [TournamentStatus.Completed]: "Abgeschlossen",
-  [TournamentStatus.Cancelled]: "Abgebrochen",
-};
-
 const modeLabels: Record<TournamentMode, string> = {
   [TournamentMode.GroupStage]: "Gruppenphase",
   [TournamentMode.GrouStageandKnockout]: "Gruppenphase & K.-o.",
-};
-
-const statusClasses: Record<TournamentStatus, string> = {
-  [TournamentStatus.Draft]: "bg-gray-100 text-gray-700",
-  [TournamentStatus.Scheduled]: "bg-blue-50 text-blue-700",
-  [TournamentStatus.InProgress]: "bg-green-50 text-green-700",
-  [TournamentStatus.Completed]: "bg-purple-50 text-purple-700",
-  [TournamentStatus.Cancelled]: "bg-red-50 text-red-700",
 };
 
 function formatStartDate(startDate: string) {
@@ -36,7 +23,7 @@ function formatStartDate(startDate: string) {
 }
 
 export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
-  const matchCount = tournament.rounds.reduce(
+  const matchCount = tournament.rounds?.reduce(
     (count, round) => count + round.matches.length,
     0,
   );
@@ -50,9 +37,9 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
           </span>
 
           <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium lg:hidden ${statusClasses[tournament.status]}`}
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium lg:hidden ${tournamentStatusClasses[tournament.status]}`}
           >
-            {statusLabels[tournament.status]}
+            {tournamentStatusLabels[tournament.status]}
           </span>
         </div>
 
@@ -66,8 +53,8 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
           <span>{formatStartDate(tournament.startDate)}</span>
           <span>{modeLabels[tournament.mode]}</span>
           <span>
-            {tournament.rounds.length}{" "}
-            {tournament.rounds.length === 1 ? "Runde" : "Runden"}
+            {tournament.rounds?.length}{" "}
+            {tournament.rounds?.length === 1 ? "Runde" : "Runden"}
           </span>
           <span>
             {matchCount} {matchCount === 1 ? "Match" : "Matches"}
@@ -85,14 +72,14 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
 
       <div className="hidden lg:block">
         <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClasses[tournament.status]}`}
+          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${tournamentStatusClasses[tournament.status]}`}
         >
-          {statusLabels[tournament.status]}
+          {tournamentStatusLabels[tournament.status]}
         </span>
       </div>
 
       <div className="hidden text-sm text-gray-600 lg:block">
-        {tournament.rounds.length} / {matchCount}
+        {tournament.rounds?.length} / {matchCount}
       </div>
 
       <div className="flex justify-end">
