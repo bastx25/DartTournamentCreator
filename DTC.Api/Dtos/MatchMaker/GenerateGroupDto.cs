@@ -7,10 +7,6 @@ namespace DTC.Api.Dtos.MatchMaker
         [Range(1, 64, ErrorMessage = "Die Anzahl der Gruppen muss zwischen 1 und 64 liegen.")]
         public int GroupCount { get; set; } = 1;
 
-
-        [Range(1, 64, ErrorMessage = "Die Spieleranzahl pro Gruppe muss mindestens 1 sein.")]
-        public int? PlayersPerGroup { get; set; }
-
         [Range(1, 64, ErrorMessage = "Die Anzahl der Weiterkommer pro Gruppe muss mindestens 1 sein.")]
         public int QualifiersPerGroup { get; set; } = 1;
 
