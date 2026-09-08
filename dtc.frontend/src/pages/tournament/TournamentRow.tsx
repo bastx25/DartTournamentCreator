@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import { TournamentMode } from "../../enums/TournamentMode";
 import {
@@ -29,7 +30,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
   );
 
   return (
-    <div className="grid gap-4 px-4 py-4 transition-colors hover:bg-gray-50 sm:px-6 lg:grid-cols-[minmax(220px,1.5fr)_170px_180px_130px_110px_48px] lg:items-center lg:gap-0">
+    <div className="grid gap-4 px-4 py-4 transition-colors hover:bg-gray-50 sm:px-6 lg:grid-cols-[minmax(220px,1.5fr)_170px_180px_130px_110px_80px] lg:items-center lg:gap-0">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-semibold text-gray-900">
@@ -90,21 +91,11 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
           title={`Turnier "${tournament.name}" verwalten`}
           aria-label={`Turnier "${tournament.name}" verwalten`}
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            className="h-5 w-5"
+          <Settings
+            className="h-5 w-5 text-gray-500"
+            strokeWidth={1.8}
             aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.3 3.2h3.4l.5 2.1c.5.2 1 .4 1.4.8l2.1-.8 1.7 3-1.6 1.4c.1.5.1 1 0 1.5l1.6 1.4-1.7 3-2.1-.8c-.4.3-.9.6-1.4.8l-.5 2.1h-3.4l-.5-2.1c-.5-.2-1-.4-1.4-.8l-2.1.8-1.7-3 1.6-1.4a6 6 0 0 1 0-1.5L4.6 8.3l1.7-3 2.1.8c.4-.3.9-.6 1.4-.8l.5-2.1Z"
-            />
-            <circle cx="12" cy="12" r="2.5" />
-          </svg>
+          />
         </button>
       </div>
     </div>

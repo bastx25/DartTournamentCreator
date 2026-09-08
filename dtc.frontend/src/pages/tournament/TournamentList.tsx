@@ -25,7 +25,7 @@ export function TournamentList({
         </div>
       </div>
 
-      <div className="hidden grid-cols-[minmax(220px,1.5fr)_170px_180px_130px_110px_48px] items-center border-b border-gray-200 bg-gray-50 px-6 py-2.5 text-xs font-medium uppercase tracking-wide text-gray-500 lg:grid">
+      <div className="hidden grid-cols-[minmax(220px,1.5fr)_170px_180px_130px_110px_80px] items-center border-b border-gray-200 bg-gray-50 px-6 py-2.5 text-xs font-medium uppercase tracking-wide text-gray-500 lg:grid">
         <span>Turnier</span>
         <span>Start</span>
         <span>Modus</span>
