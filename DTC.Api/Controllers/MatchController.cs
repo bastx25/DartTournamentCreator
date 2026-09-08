@@ -1,6 +1,7 @@
 ﻿using DTC.Api.Dtos.Match;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using DTC.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
@@ -10,10 +11,12 @@ namespace DTC.Api.Controllers
     public class MatchController : ControllerBase
     {
         private readonly IMatchRepository _matchRepo;
+        private readonly IMatchMakerService _matchMakerService;
 
-        public MatchController(IMatchRepository matchRepo)
+        public MatchController(IMatchRepository matchRepo, IMatchMakerService matchMakerService)
         {
             _matchRepo = matchRepo;
+            _matchMakerService = matchMakerService;
         }
 
         [HttpGet("round/{roundId:int}")]
@@ -60,6 +63,9 @@ namespace DTC.Api.Controllers
 
             dto.UpdateMatchEntity(existingMatch);
             await _matchRepo.UpdateAsync(existingMatch);
+
+            if (existingMatch.Status == DTC.Api.Enums.MatchStatus.Completed)
+                await _matchMakerService.AdvanceKnockoutAsync(existingMatch.Id);
 
             return NoContent();
         }

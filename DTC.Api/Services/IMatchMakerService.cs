@@ -6,5 +6,6 @@ namespace DTC.Api.Services
     {
         Task GenerateGroupsAsync(int tournamentId, GenerateGroupsDto options);
         Task GenerateKnockoutAsync(int tournamentId);
+        Task AdvanceKnockoutAsync(int matchId);
     }
 }

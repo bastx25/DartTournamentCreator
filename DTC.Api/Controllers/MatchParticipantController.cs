@@ -1,6 +1,7 @@
 ﻿using DTC.Api.Dtos.MatchParticipant;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using DTC.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
@@ -11,10 +12,14 @@ namespace DTC.Api.Controllers
     public class MatchParticipantController : ControllerBase
     {
         private readonly IMatchParticipantRepository _participantRepo;
+        private readonly IMatchMakerService _matchMakerService;
 
-        public MatchParticipantController(IMatchParticipantRepository participantRepo)
+        public MatchParticipantController(
+            IMatchParticipantRepository participantRepo,
+            IMatchMakerService matchMakerService)
         {
             _participantRepo = participantRepo;
+            _matchMakerService = matchMakerService;
         }
 
         [HttpGet("match/{matchId:int}")]
@@ -61,6 +66,8 @@ namespace DTC.Api.Controllers
 
             dto.UpdateMatchParticipantEntity(existingParticipant);
             await _participantRepo.UpdateAsync(existingParticipant);
+
+            await _matchMakerService.AdvanceKnockoutAsync(existingParticipant.MatchId);
 
             return NoContent();
         }

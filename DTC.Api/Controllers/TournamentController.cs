@@ -13,13 +13,16 @@ namespace DTC.Api.Controllers
     {
         private readonly ITournamentRepository _tournamentRepo;
         private readonly IMatchMakerService _matchMakerService;
+        private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
+            ITournamentPlayerRepository tournamentPlayerRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
+            _tournamentPlayerRepo = tournamentPlayerRepository;
         }
 
         [HttpGet]
@@ -80,8 +83,9 @@ namespace DTC.Api.Controllers
         {
             try
             {
+                await _tournamentPlayerRepo.SetTournamentPlayers(id, dto.PlayerIds);
                 await _matchMakerService.GenerateGroupsAsync(id, dto);
-                return Ok(new { Message = "Gruppenphase wurde generiert; die K.-o.-Runden wurden vorbereitet und werden nach Abschluss der Gruppenphase mit Teilnehmern besetzt." });
+                return Ok(new { Message = "Gruppenphase wurde generiert." });
             }
             catch (KeyNotFoundException ex)
             {

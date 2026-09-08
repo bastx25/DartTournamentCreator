@@ -25,6 +25,7 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IRoundRepository, RoundRepository>();
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+builder.Services.AddScoped<ITournamentPlayerRepository, TournamentPlayerRepository>();
 
 //Services
 builder.Services.AddScoped<IMatchMakerService, MatchMakerService>();

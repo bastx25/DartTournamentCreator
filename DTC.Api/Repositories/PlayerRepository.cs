@@ -33,7 +33,7 @@ namespace DTC.Api.Repositories
             try
             {
                 await _context.SaveChangesAsync();
-            }catch (Exception ex)
+            }catch
             {
                 return false;
             }
