@@ -65,5 +65,22 @@ namespace DTC.Api.Repositories
             return true;
         }
 
+        public async Task DeleteByGroupId(int groupId)
+        {
+            var existing = await _context.Matches.Where(m => m.GroupId == groupId).ToListAsync();
+
+            _context.Matches.RemoveRange(existing);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteByRoundId(int roundId)
+        {
+            var existing = await _context.Matches.Where(m => m.RoundId == roundId).ToListAsync();
+
+            _context.Matches.RemoveRange(existing);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

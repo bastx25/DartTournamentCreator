@@ -12,6 +12,7 @@ namespace DTC.Api.Services
     {
         private readonly DartDbContext _context;
         private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
+        private readonly IMatchRepository _matchRepo;
         private readonly IGroupRepository _groupRepo;
         private readonly Random _random = Random.Shared;
 
@@ -19,11 +20,13 @@ namespace DTC.Api.Services
 
         public MatchMakerService(DartDbContext context,
             ITournamentPlayerRepository tournamentPlayerRepository,
+            IMatchRepository matchRepository,
             IGroupRepository groupRepository,
             IRoundRepository roundRepository)
         {
             _context = context;
             _tournamentPlayerRepo = tournamentPlayerRepository;
+            _matchRepo = matchRepository;
             _groupRepo = groupRepository;
             _roundRepo = roundRepository;
         }

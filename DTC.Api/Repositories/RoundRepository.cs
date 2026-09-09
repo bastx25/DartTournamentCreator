@@ -8,10 +8,12 @@ namespace DTC.Api.Repositories
     public class RoundRepository : IRoundRepository
     {
         private readonly DartDbContext _context;
+        private readonly IMatchRepository _matchRepo;
 
-        public RoundRepository(DartDbContext context)
+        public RoundRepository(DartDbContext context, IMatchRepository matchRepository)
         {
             _context = context;
+            _matchRepo = matchRepository;
         }
 
         public async Task<IEnumerable<Round>> GetByTournamentIdAsync(int tournamentId)
@@ -65,6 +67,11 @@ namespace DTC.Api.Repositories
         public async Task DeleteAllTournamentRounds(int tournamentId)
         {
             var existing = await _context.Rounds.Where(r => r.TournamentId == tournamentId).ToListAsync();
+
+            foreach (var round in existing)
+            {
+                await _matchRepo.DeleteByRoundId(round.Id);
+            }
 
             _context.Rounds.RemoveRange(existing);
 

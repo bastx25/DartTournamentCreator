@@ -10,5 +10,7 @@ namespace DTC.Api.Interfaces
         Task<Match> UpdateAsync(Match match);
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<Match>> GetByGroupIdAsync(int groupId);
+        Task DeleteByGroupId(int id);
+        Task DeleteByRoundId(int id);
     }
 }
