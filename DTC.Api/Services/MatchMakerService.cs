@@ -183,52 +183,131 @@ namespace DTC.Api.Services
 
             var groups = await _groupRepo.GetGroupsByTournamentIdAsync(tournamentId);
 
-            var winningPlayers = await GetWinningPlayersFromGroups(groups);
+            var groupResults = await GetGroupResults(groups);
 
-            var knockoutPlayers = await GetKnockoutPlayers(winningPlayers, options);
+            var (knockoutPlayers, tiebreakPlayers) =
+                GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
 
-        }
-
-        private async Task<List<TournamentPlayer>> GetKnockoutPlayers(List<GroupWinner> winningPlayers, GenerateGroupsDto options)
-        {
-            var groupIds = winningPlayers.Select(p => p.GroupId).Distinct().ToList();
-
-            int qualifiersPerGroup = options.QualifiersPerGroup;
-
-            var qualifiers = new List<TournamentPlayer>();
-
-            foreach (var id in groupIds)
+            if (tiebreakPlayers.Count > 0)
             {
-                var qualifiedPlayers = winningPlayers.Where(x => x.GroupId == id).Select(x => x.Player).OrderByDescending(x => x.Score).Take(qualifiersPerGroup).Select(mp => mp.TournamentPlayer).ToList();
+                //var tiebreakerRound = await CreateTiebreakerRoundAsync(
+                //    tournamentId,
+                //    tiebreakPlayers);
 
-                qualifiers.AddRange(qualifiedPlayers);
+                //await CreateTiebreakerMatchesAsync(
+                //    tiebreakerRound,
+                //    tiebreakPlayers);
             }
 
-            return qualifiers;
+            // knockoutPlayers -> direkt in die KnockoutPlayerListe
+            // tiebreakPlayers -> werden erst nach den Tiebreaker-Matches
+            //                    in die KnockoutPlayerListe übernommen
         }
 
-
-        private async Task<List<GroupWinner>> GetWinningPlayersFromGroups(IEnumerable<Group> groups)
+        private async Task<List<GroupResult>> GetGroupResults(IEnumerable<Group> groups)
         {
-            var winningPlayers = new List<GroupWinner>();
+            var results = new List<GroupResult>();
 
             foreach (var group in groups)
             {
-                var groupMatches = await _matchRepo.GetByGroupIdAsync(group.Id);
+                var matches = await _matchRepo.GetByGroupIdAsync(group.Id);
 
-                //get winning players
-                foreach (var match in groupMatches)
+                var playerWins = matches
+                    .SelectMany(match => match.Participants)
+                    .Where(participant => participant.IsWinner)
+                    .GroupBy(participant => participant.TournamentPlayer.Id)
+                    .Select(g => new GroupPlayerResult(
+                        g.First().TournamentPlayer,
+                        g.Count()))
+                    .OrderByDescending(x => x.Wins)
+                    .ToList();
+
+                results.Add(new GroupResult(
+                    group.Id,
+                    playerWins));
+            }
+
+            return results;
+        }
+
+        public sealed record GroupResult(
+    int GroupId,
+    List<GroupPlayerResult> Players);
+
+        public sealed record GroupPlayerResult(
+            TournamentPlayer Player,
+            int Wins);
+
+
+
+
+        private (
+    List<TournamentPlayer> KnockoutPlayers,
+    List<TournamentPlayer> TiebreakPlayers)
+    GetKnockoutPlayers(
+        IEnumerable<GroupResult> groups,
+        int qualifiersPerGroup)
+        {
+            var knockoutPlayers = new List<TournamentPlayer>();
+            var tiebreakPlayers = new List<TournamentPlayer>();
+
+            foreach (var group in groups)
+            {
+                var players = group.Players
+                    .OrderByDescending(x => x.Wins)
+                    .ToList();
+
+                if (players.Count == 0)
+                    continue;
+
+                // Alle Spieler bis zur Qualifikationsgrenze
+                var qualifiedCandidates = players
+                    .Take(qualifiersPerGroup)
+                    .ToList();
+
+                // Wenn weniger Spieler als Qualifikationsplätze vorhanden sind
+                if (qualifiedCandidates.Count < qualifiersPerGroup)
                 {
-                    var winner = match.Participants.FirstOrDefault(p => p.IsWinner);
+                    knockoutPlayers.AddRange(
+                        qualifiedCandidates.Select(x => x.Player));
 
-                    if (winner == null) continue;
+                    continue;
+                }
 
-                    winningPlayers.Add(new GroupWinner(group.Id, winner));
+                var cutoffWins = qualifiedCandidates.Last().Wins;
+
+                // Spieler mit mehr Siegen als der Cutoff sind fix qualifiziert
+                var fixedQualified = players
+                    .Where(x => x.Wins > cutoffWins)
+                    .ToList();
+
+                knockoutPlayers.AddRange(
+                    fixedQualified.Select(x => x.Player));
+
+                // Spieler mit exakt den Cutoff-Siegen kämpfen um die
+                // verbleibenden Qualifikationsplätze
+                var tiedPlayers = players
+                    .Where(x => x.Wins == cutoffWins)
+                    .ToList();
+
+                var remainingSlots =
+                    qualifiersPerGroup - fixedQualified.Count;
+
+                if (tiedPlayers.Count <= remainingSlots)
+                {
+                    knockoutPlayers.AddRange(
+                        tiedPlayers.Select(x => x.Player));
+                }
+                else
+                {
+                    tiebreakPlayers.AddRange(
+                        tiedPlayers.Select(x => x.Player));
                 }
             }
 
-            return winningPlayers;
+            return (knockoutPlayers, tiebreakPlayers);
         }
+
 
         public sealed record GroupWinner(int GroupId, MatchParticipant Player);
 

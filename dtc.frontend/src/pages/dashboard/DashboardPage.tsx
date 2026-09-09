@@ -164,7 +164,7 @@ export function DashboardPage() {
             )}
 
             {rounds.length > 0 && (
-              <div className="space-y-6">
+              <div className="space-y-6 mt-8">
                 {rounds.map((round) => {
                   return <DashboardRound key={round.id} round={round} />;
                 })}
