@@ -6,6 +6,7 @@ using DTC.Api.Models;
 using DTC.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Collections.Frozen;
 using System.Runtime.InteropServices.ObjectiveC;
 using System.Security.Principal;
 
@@ -129,6 +130,16 @@ namespace DTC.Api.Services
             ValidateSchedule(startTime, matchDuration, breakMinutes);
 
 
+            await ScheduleGroupMatches(groups, startTime, matchDuration, breakMinutes);
+
+            //TODO: Update Tournament witch Options
+
+            await _context.Groups.AddRangeAsync(groups);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task ScheduleGroupMatches(List<Group> groups, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        {
             var scheduledMatches = new List<MatchCandidate>();
 
             foreach (var group in groups)
@@ -170,16 +181,22 @@ namespace DTC.Api.Services
                 if (!candidate.IsBye)
                     currentStart = currentStart.AddMinutes(matchDuration + breakMinutes);
             }
-
-            //TODO: Update Tournament witch Options
-
-            await _context.Groups.AddRangeAsync(groups);
-            await _context.SaveChangesAsync();
         }
 
         public async Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options)
         {
+            var tournament = await _context.Tournaments
+                .Include(t => t.TournamentPlayers)
+                .FirstOrDefaultAsync(t => t.Id == tournamentId);
+
+            #region Validation
+            if (tournament == null)
+                throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
+
+            ValidateGroupOptions(options);
+
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
+            await _groupRepo.DeleteAllTiebreakerAsync();
 
             var groups = await _groupRepo.GetGroupsByTournamentIdAsync(tournamentId);
 
@@ -188,20 +205,33 @@ namespace DTC.Api.Services
             var (knockoutPlayers, tiebreakPlayers) =
                 GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
 
+            var startTime = options.StartTime ?? tournament.StartDate;
+            var matchDuration = options.MatchDurationMinutes ?? tournament.MatchDurationMinutes;
+            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.BreakBetweenMatchesMinutes;
+
+
             if (tiebreakPlayers.Count > 0)
             {
-                //var tiebreakerRound = await CreateTiebreakerRoundAsync(
-                //    tournamentId,
-                //    tiebreakPlayers);
+                var tiebreakerGroup = await CreateTiebreakerRound(tiebreakPlayers, startTime, matchDuration, breakMinutes);
+                tiebreakerGroup.TournamentId = tournament.Id;
 
-                //await CreateTiebreakerMatchesAsync(
-                //    tiebreakerRound,
-                //    tiebreakPlayers);
+                await _context.Groups.AddAsync(tiebreakerGroup);
             }
+
+            await _context.SaveChangesAsync();
 
             // knockoutPlayers -> direkt in die KnockoutPlayerListe
             // tiebreakPlayers -> werden erst nach den Tiebreaker-Matches
             //                    in die KnockoutPlayerListe übernommen
+        }
+
+        private async Task<Group> CreateTiebreakerRound(List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        {
+            var groups = new List<Group> { new Group { Name = "Tiebreaker" } };
+                
+            await ScheduleGroupMatches(groups, startTime, matchDuration, breakMinutes);
+
+            return groups.First();
         }
 
         private async Task<List<GroupResult>> GetGroupResults(IEnumerable<Group> groups)
@@ -622,6 +652,7 @@ namespace DTC.Api.Services
 
         private static List<MatchCandidate> CreateRoundRobinCandidates(Group group, List<int> players)
         {
+            //Todo: Braucht man in der GruppenPhase ein Freilos?? 
             var result = new List<MatchCandidate>();
             var rotation = players.Cast<int?>().ToList();
             if (rotation.Count % 2 != 0)
