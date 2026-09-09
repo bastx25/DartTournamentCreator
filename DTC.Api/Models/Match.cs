@@ -9,8 +9,8 @@ namespace DTC.Api.Models
         public int Id { get; set; }
 
         // Jedes Match gehört zu einer Round
-        public int RoundId { get; set; }
-        public Round Round { get; set; } = null!;
+        public int? RoundId { get; set; }
+        public Round? Round { get; set; } = null!;
 
         // Nur bei Gruppenspielen gesetzt
         public int? GroupId { get; set; }
