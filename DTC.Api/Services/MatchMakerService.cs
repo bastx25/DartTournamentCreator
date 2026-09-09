@@ -652,37 +652,57 @@ namespace DTC.Api.Services
             return result;
         }
 
-        private static List<MatchCandidate> CreateRoundRobinCandidates(Group group, List<int> players)
+        //private static List<MatchCandidate> CreateRoundRobinCandidates(Group group, List<int> players)
+        //{
+        //    //Todo: Braucht man in der GruppenPhase ein Freilos?? 
+        //    var result = new List<MatchCandidate>();
+        //    var rotation = players.Cast<int?>().ToList();
+        //    if (rotation.Count % 2 != 0)
+        //        rotation.Add(null);
+
+        //    var rounds = rotation.Count - 1;
+        //    for (var round = 0; round < rounds; round++)
+        //    {
+        //        for (var index = 0; index < rotation.Count / 2; index++)
+        //        {
+        //            var first = rotation[index];
+        //            var second = rotation[rotation.Count - 1 - index];
+
+        //            if (first.HasValue && second.HasValue)
+        //            {
+        //                result.Add(new MatchCandidate(group, new[] { first.Value, second.Value }, false));
+        //            }
+        //            else if (first.HasValue || second.HasValue)
+        //            {
+        //                var player = first ?? second;
+        //                result.Add(new MatchCandidate(group, new[] { player!.Value }, true));
+        //            }
+        //        }
+
+        //        // Keep the first player fixed and rotate all others by one position.
+        //        var last = rotation[^1];
+        //        rotation.RemoveAt(rotation.Count - 1);
+        //        rotation.Insert(1, last);
+        //    }
+
+        //    return result;
+        //}
+
+        private static List<MatchCandidate> CreateRoundRobinCandidates(
+    Group group,
+    List<int> players)
         {
-            //Todo: Braucht man in der GruppenPhase ein Freilos?? 
             var result = new List<MatchCandidate>();
-            var rotation = players.Cast<int?>().ToList();
-            if (rotation.Count % 2 != 0)
-                rotation.Add(null);
 
-            var rounds = rotation.Count - 1;
-            for (var round = 0; round < rounds; round++)
+            for (var i = 0; i < players.Count; i++)
             {
-                for (var index = 0; index < rotation.Count / 2; index++)
+                for (var j = i + 1; j < players.Count; j++)
                 {
-                    var first = rotation[index];
-                    var second = rotation[rotation.Count - 1 - index];
-
-                    if (first.HasValue && second.HasValue)
-                    {
-                        result.Add(new MatchCandidate(group, new[] { first.Value, second.Value }, false));
-                    }
-                    else if (first.HasValue || second.HasValue)
-                    {
-                        var player = first ?? second;
-                        result.Add(new MatchCandidate(group, new[] { player!.Value }, true));
-                    }
+                    result.Add(new MatchCandidate(
+                        group,
+                        new[] { players[i], players[j] },
+                        false));
                 }
-
-                // Keep the first player fixed and rotate all others by one position.
-                var last = rotation[^1];
-                rotation.RemoveAt(rotation.Count - 1);
-                rotation.Insert(1, last);
             }
 
             return result;
