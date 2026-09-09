@@ -173,7 +173,16 @@ export function ManageTournamentPage() {
       setGenerating(true);
       setError(null);
       setSuccess(null);
-      await generateKnockout(tournamentId);
+      await generateKnockout(tournamentId, {
+        groupCount,
+        playersPerGroup: groupSize,
+        qualifiersPerGroup,
+        startTime: tournament?.startDate ?? null,
+        matchDurationMinutes: matchDurationMinutes,
+        breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
+        playerIds: selectedPlayerIds,
+      });
+
       setTournament(await getTournament(tournamentId));
       setSuccess("Die K.-o.-Phase wurde aus den Match-Siegen generiert.");
     } catch (err) {

@@ -35,8 +35,22 @@ export async function getTournaments(
   return response.data;
 }
 
-export async function generateKnockout(id: number): Promise<void> {
-  await axios.post(`/api/tournaments/${id}/generate-knockout`, null, {
+export async function generateKnockout(
+  id: number,
+  data: GenerateGroupsDto,
+): Promise<void> {
+  await axios.post(`/api/tournaments/${id}/generate-knockout`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function generateGroups(
+  id: number,
+  data: GenerateGroupsDto,
+): Promise<void> {
+  await axios.post(`/api/tournaments/${id}/generate-groups`, data, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -50,17 +64,6 @@ export async function getTournament(id: number): Promise<TournamentDto> {
 
 export async function deleteTournament(id: number): Promise<void> {
   await axios.delete(`/api/tournaments/${id}`);
-}
-
-export async function generateGroups(
-  id: number,
-  data: GenerateGroupsDto,
-): Promise<void> {
-  await axios.post(`/api/tournaments/${id}/generate-groups`, data, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
 }
 
 export async function getGroupsByTournamentId(
