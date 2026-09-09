@@ -16,7 +16,7 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("{id:int}/matches")]
-        public async Task<IActionResult> GetMatchesByRoundId([FromRoute] int id)
+        public async Task<IActionResult> GetMatchesByGroupId([FromRoute] int id)
         {
             try
             {

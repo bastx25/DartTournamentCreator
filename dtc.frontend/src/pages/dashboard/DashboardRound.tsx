@@ -3,8 +3,8 @@ import type { RoundDto } from "../../dtos/rounds/RoundDto";
 import { roundStatusLabel } from "../../enums/RoundStatus";
 import { formatDate } from "../../utils/formatDate";
 import { DashboardMatch } from "./DashboardMatch";
-import { getMatchesByGroupId } from "../../services/groupService";
 import type { MatchDto } from "../../dtos/match/MatchDto";
+import { getMatchesByRoundId } from "../../services/roundService";
 
 interface DashboardRoundProps {
   round: RoundDto;
@@ -14,7 +14,7 @@ export function DashboardRound({ round }: DashboardRoundProps) {
   const [matches, setMatches] = useState<MatchDto[]>([]);
   useEffect(() => {
     const loadMatches = async () => {
-      const response = await getMatchesByGroupId(round.id);
+      const response = await getMatchesByRoundId(round.id);
       setMatches(response);
     };
 
