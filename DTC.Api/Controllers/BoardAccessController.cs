@@ -80,8 +80,8 @@ namespace DTC.Api.Controllers
             var result = matches.Select(m => new BoardMatchDto
             {
                 MatchId = m.Id,
-                RoundId = m.RoundId,
-                RoundName = m.Round.Name,
+                RoundId = m.RoundId ?? -1,
+                RoundName = m.Round?.Name,
                 TournamentName = tournament.Name,
                 PlannedStart = m.PlannedStart,
                 ActualStart = m.ActualStart,
