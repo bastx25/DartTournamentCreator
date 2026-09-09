@@ -100,11 +100,11 @@ namespace DTC.Api.Controllers
         }
 
         [HttpPost("{id:int}/generate-knockout")]
-        public async Task<IActionResult> GenerateKnockout([FromRoute] int id)
+        public async Task<IActionResult> GenerateKnockout([FromRoute] int id, [FromBody] GenerateGroupsDto dto)
         {
             try
             {
-                await _matchMakerService.GenerateKnockoutAsync(id);
+                await _matchMakerService.GenerateKnockoutAsync(id, dto);
                 return Ok(new { Message = "K.-o.-Phase wurde aus den abgeschlossenen Gruppen-/Ausspielrunden generiert." });
             }
             catch (KeyNotFoundException ex)
@@ -122,7 +122,7 @@ namespace DTC.Api.Controllers
         {
             try
             {
-                var groups = await _groupRepo.GetGroupsByTournamentId(id);
+                var groups = await _groupRepo.GetGroupsByTournamentIdAsync(id);
                 return Ok(groups.Select(g => g.ToGroupDto()));
             }
             catch(Exception ex)

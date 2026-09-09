@@ -5,6 +5,9 @@ using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using DTC.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Runtime.InteropServices.ObjectiveC;
+using System.Security.Principal;
 
 namespace DTC.Api.Services
 {
@@ -36,8 +39,6 @@ namespace DTC.Api.Services
             ArgumentNullException.ThrowIfNull(options);
 
             await _groupRepo.DeleteAllTournamentGroups(tournamentId);
-            await _roundRepo.DeleteAllTournamentRounds(tournamentId);
-
 
             await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds);
 
@@ -170,268 +171,330 @@ namespace DTC.Api.Services
                     currentStart = currentStart.AddMinutes(matchDuration + breakMinutes);
             }
 
+            //TODO: Update Tournament witch Options
+
             await _context.Groups.AddRangeAsync(groups);
             await _context.SaveChangesAsync();
         }
 
-        public async Task GenerateKnockoutAsync(int tournamentId)
+        public async Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options)
         {
-            var tournament = await _context.Tournaments.FirstOrDefaultAsync(t => t.Id == tournamentId);
-            if (tournament == null)
-                throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
+            await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
 
-            var groups = await _context.Groups
-                .Include(g => g.GroupPlayers)
-                    .ThenInclude(gp => gp.TournamentPlayer)
-                .Where(g => g.TournamentId == tournamentId)
-                .OrderBy(g => g.Sequence)
-                .ToListAsync();
+            var groups = await _groupRepo.GetGroupsByTournamentIdAsync(tournamentId);
 
-            if (groups.Count == 0)
-                throw new InvalidOperationException("Vor der K.-o.-Phase muss die Gruppenphase generiert werden.");
+            var winningPlayers = await GetWinningPlayersFromGroups(groups);
 
-            var groupStageRounds = await _context.Rounds
-                .Where(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.GroupStage)
-                .OrderBy(r => r.Sequence)
-                .ToListAsync();
+            var knockoutPlayers = await GetKnockoutPlayers(winningPlayers, options);
 
-            if (groupStageRounds.Count == 0)
-                throw new InvalidOperationException("Es wurde keine Gruppenrunde gefunden.");
+        }
 
-            var groupStageMatches = await _context.Matches
-                .Where(m => m.Round.TournamentId == tournamentId && m.Round.Phase == RoundPhase.GroupStage)
-                .Include(m => m.Participants)
-                .ToListAsync();
+        private async Task<List<TournamentPlayer>> GetKnockoutPlayers(List<GroupWinner> winningPlayers, GenerateGroupsDto options)
+        {
+            var groupIds = winningPlayers.Select(p => p.GroupId).Distinct().ToList();
 
-            if (groupStageMatches.Any(m => m.Status != MatchStatus.Completed))
-                throw new InvalidOperationException("Die Gruppenphase ist noch nicht vollständig abgeschlossen.");
+            int qualifiersPerGroup = options.QualifiersPerGroup;
 
-            if (await _context.Rounds.AnyAsync(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.Knockout))
-                throw new InvalidOperationException("Für dieses Turnier wurde bereits eine K.-o.-Phase generiert.");
+            var qualifiers = new List<TournamentPlayer>();
 
-            var qualifiers = new List<QualifiedPlayer>();
+            foreach (var id in groupIds)
+            {
+                var qualifiedPlayers = winningPlayers.Where(x => x.GroupId == id).Select(x => x.Player).OrderByDescending(x => x.Score).Take(qualifiersPerGroup).Select(mp => mp.TournamentPlayer).ToList();
+
+                qualifiers.AddRange(qualifiedPlayers);
+            }
+
+            return qualifiers;
+        }
+
+
+        private async Task<List<GroupWinner>> GetWinningPlayersFromGroups(IEnumerable<Group> groups)
+        {
+            var winningPlayers = new List<GroupWinner>();
+
             foreach (var group in groups)
             {
-                if (group.QualifiersCount < 1)
-                    throw new InvalidOperationException($"Gruppe {group.Name} hat keine gültige Qualifikantenanzahl.");
+                var groupMatches = await _matchRepo.GetByGroupIdAsync(group.Id);
 
-                if (group.QualifiersCount > group.GroupPlayers.Count)
+                //get winning players
+                foreach (var match in groupMatches)
                 {
-                    throw new InvalidOperationException(
-                        $"Gruppe {group.Name} hat nur {group.GroupPlayers.Count} Spieler, aber {group.QualifiersCount} Qualifikanten.");
-                }
+                    var winner = match.Participants.FirstOrDefault(p => p.IsWinner);
 
-                var rankedPlayers = group.GroupPlayers
-                    .Select(gp => BuildStanding(gp.TournamentPlayerId, group.Id, groupStageMatches))
-                    .OrderByDescending(s => s.Wins)
-                    .ThenByDescending(s => s.ScoreDifference)
-                    .ThenByDescending(s => s.TotalScore)
-                    .ThenBy(s => s.TournamentPlayerId)
-                    .Take(group.QualifiersCount)
-                    .ToList();
+                    if (winner == null) continue;
 
-                for (var rank = 0; rank < rankedPlayers.Count; rank++)
-                {
-                    var standing = rankedPlayers[rank];
-                    qualifiers.Add(new QualifiedPlayer(
-                        standing.TournamentPlayerId,
-                        group.Id,
-                        group.Sequence,
-                        rank + 1));
+                    winningPlayers.Add(new GroupWinner(group.Id, winner));
                 }
             }
 
-            if (qualifiers.Count < 2)
-                throw new InvalidOperationException("Für die K.-o.-Phase werden mindestens zwei qualifizierte Spieler benötigt.");
-
-            var bracketSize = NextPowerOfTwo(qualifiers.Count);
-            if (bracketSize > 4096)
-                throw new InvalidOperationException("Die erzeugte K.-o.-Runde wäre zu groß.");
-
-            var firstRoundSlots = BuildKnockoutSlots(qualifiers, bracketSize);
-            var nextSequence = Math.Max(
-                await GetNextRoundSequenceAsync(tournamentId),
-                groupStageRounds.Max(r => r.Sequence) + 1);
-
-            var duration = tournament.MatchDurationMinutes;
-            var breakMinutes = tournament.BreakBetweenMatchesMinutes;
-            var firstStart = groupStageRounds
-                .Select(r => r.PlannedEnd)
-                .Where(end => end.HasValue)
-                .Select(end => end!.Value)
-                .DefaultIfEmpty(tournament.StartDate)
-                .Max();
-
-            var rounds = new List<Round>();
-            var roundMatchCount = bracketSize / 2;
-            var roundStart = firstStart;
-
-            for (var roundIndex = 0; roundIndex < Log2(bracketSize); roundIndex++)
-            {
-                var round = new Round
-                {
-                    TournamentId = tournamentId,
-                    Sequence = nextSequence + roundIndex,
-                    Name = GetKnockoutRoundName(roundMatchCount),
-                    PlannedStart = roundStart,
-                    Phase = RoundPhase.Knockout,
-                    Status = RoundStatus.Scheduled
-                };
-
-                for (var matchIndex = 0; matchIndex < roundMatchCount; matchIndex++)
-                {
-                    var matchStart = round.PlannedStart.AddMinutes(matchIndex * (duration + breakMinutes));
-                    var match = new Match
-                    {
-                        Round = round,
-                        Status = MatchStatus.Scheduled,
-                        PlannedStart = matchStart,
-                        PlannedEnd = matchStart.AddMinutes(duration)
-                    };
-
-                    if (roundIndex == 0)
-                    {
-                        var slot = firstRoundSlots[matchIndex];
-                        foreach (var player in slot)
-                        {
-                            match.Participants.Add(new MatchParticipant
-                            {
-                                TournamentPlayerId = player.TournamentPlayerId,
-                                Score = 0,
-                                IsWinner = slot.Count == 1
-                            });
-                        }
-
-                        // A one-player slot is a normal bye. An empty slot is a double-bye
-                        // caused by the power-of-two bracket size; both are administrative
-                        // completed records and never become playable matches.
-                        if (slot.Count <= 1)
-                        {
-                            match.Status = MatchStatus.Completed;
-                            match.ActualEnd = matchStart;
-                        }
-                    }
-
-                    round.Matches.Add(match);
-                }
-
-                round.PlannedEnd = round.PlannedStart.AddMinutes(
-                    Math.Max(0, (roundMatchCount * (duration + breakMinutes)) - breakMinutes));
-
-                rounds.Add(round);
-                roundStart = round.PlannedEnd!.Value.AddMinutes(breakMinutes);
-                roundMatchCount /= 2;
-            }
-
-            await _context.Rounds.AddRangeAsync(rounds);
-            await _context.SaveChangesAsync();
-
-            // A bye winner is already known. Propagate all such winners through the empty
-            // bracket slots; if two bye winners meet, the resulting match remains playable.
-            foreach (var firstRoundMatch in rounds[0].Matches
-                .OrderBy(m => m.PlannedStart)
-                .ThenBy(m => m.Id)
-                .ToList())
-            {
-                if (firstRoundMatch.Status == MatchStatus.Completed)
-                    await AdvanceKnockoutAsync(firstRoundMatch.Id);
-            }
-
-            await _context.SaveChangesAsync();
+            return winningPlayers;
         }
 
-        public async Task AdvanceKnockoutAsync(int matchId)
+        public sealed record GroupWinner(int GroupId, MatchParticipant Player);
+
+        public Task AdvanceKnockoutAsync(int matchId)
         {
-            var match = await _context.Matches
-                .Include(m => m.Round)
-                .Include(m => m.Participants)
-                .FirstOrDefaultAsync(m => m.Id == matchId);
-
-            if (match == null || match.Round.Phase != RoundPhase.Knockout || match.Status != MatchStatus.Completed)
-                return;
-
-            var winner = match.Participants.SingleOrDefault(p => p.IsWinner);
-            if (winner == null)
-                return;
-
-            var nextRound = await _context.Rounds
-                .Where(r => r.TournamentId == match.Round.TournamentId
-                    && r.Phase == RoundPhase.Knockout
-                    && r.Sequence == match.Round.Sequence + 1)
-                .Include(r => r.Matches)
-                    .ThenInclude(m => m.Participants)
-                .FirstOrDefaultAsync();
-
-            if (nextRound == null)
-            {
-                var tournament = await _context.Tournaments.FirstOrDefaultAsync(t => t.Id == match.Round.TournamentId);
-                if (tournament != null)
-                    tournament.Status = TournamentStatus.Completed;
-                return;
-            }
-
-            var currentRoundMatches = await _context.Matches
-                .Where(m => m.RoundId == match.RoundId)
-                .Include(m => m.Participants)
-                .OrderBy(m => m.PlannedStart)
-                .ThenBy(m => m.Id)
-                .ToListAsync();
-
-            var currentIndex = currentRoundMatches.FindIndex(m => m.Id == match.Id);
-            if (currentIndex < 0)
-                return;
-
-            var nextRoundMatches = nextRound.Matches
-                .OrderBy(m => m.PlannedStart)
-                .ThenBy(m => m.Id)
-                .ToList();
-            var nextMatchIndex = currentIndex / 2;
-            if (nextMatchIndex >= nextRoundMatches.Count)
-                throw new InvalidOperationException("Die K.-o.-Baumstruktur ist inkonsistent.");
-
-            var nextMatch = nextRoundMatches[nextMatchIndex];
-            if (nextMatch.Participants.Any(p => p.TournamentPlayerId == winner.TournamentPlayerId))
-                return;
-
-            nextMatch.Participants.Add(new MatchParticipant
-            {
-                TournamentPlayerId = winner.TournamentPlayerId,
-                Score = 0,
-                IsWinner = false
-            });
-
-            // If both source matches are completed, their winners now form the next match.
-            // A completed source can have one participant (bye) or two participants (real match).
-            var siblingIndex = currentIndex % 2 == 0 ? currentIndex + 1 : currentIndex - 1;
-            var sibling = siblingIndex >= 0 && siblingIndex < currentRoundMatches.Count
-                ? currentRoundMatches[siblingIndex]
-                : null;
-
-            if (sibling?.Status == MatchStatus.Completed)
-            {
-                var siblingWinner = sibling.Participants.SingleOrDefault(p => p.IsWinner);
-                if (siblingWinner != null
-                    && nextMatch.Participants.All(p => p.TournamentPlayerId != siblingWinner.TournamentPlayerId))
-                {
-                    nextMatch.Participants.Add(new MatchParticipant
-                    {
-                        TournamentPlayerId = siblingWinner.TournamentPlayerId,
-                        Score = 0,
-                        IsWinner = false
-                    });
-                }
-            }
-
-            if (nextMatch.Participants.Count == 1
-                && sibling?.Status == MatchStatus.Completed)
-            {
-                nextMatch.Status = MatchStatus.Completed;
-                nextMatch.Participants.Single().IsWinner = true;
-                nextMatch.ActualEnd = nextMatch.PlannedStart;
-                await _context.SaveChangesAsync();
-                await AdvanceKnockoutAsync(nextMatch.Id);
-            }
+            throw new NotImplementedException();
         }
+
+        //public async Task GenerateKnockoutAsync(int tournamentId)
+        //{
+        //    var tournament = await _context.Tournaments.FirstOrDefaultAsync(t => t.Id == tournamentId);
+        //    if (tournament == null)
+        //        throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
+
+        //    var groups = await _context.Groups
+        //        .Include(g => g.GroupPlayers)
+        //            .ThenInclude(gp => gp.TournamentPlayer)
+        //        .Where(g => g.TournamentId == tournamentId)
+        //        .OrderBy(g => g.Sequence)
+        //        .ToListAsync();
+
+        //    if (groups.Count == 0)
+        //        throw new InvalidOperationException("Vor der K.-o.-Phase muss die Gruppenphase generiert werden.");
+
+        //    var groupStageRounds = await _context.Rounds
+        //        .Where(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.GroupStage)
+        //        .OrderBy(r => r.Sequence)
+        //        .ToListAsync();
+
+        //    if (groupStageRounds.Count == 0)
+        //        throw new InvalidOperationException("Es wurde keine Gruppenrunde gefunden.");
+
+        //    var groupStageMatches = await _context.Matches
+        //        .Where(m => m.Round.TournamentId == tournamentId && m.Round.Phase == RoundPhase.GroupStage)
+        //        .Include(m => m.Participants)
+        //        .ToListAsync();
+
+        //    if (groupStageMatches.Any(m => m.Status != MatchStatus.Completed))
+        //        throw new InvalidOperationException("Die Gruppenphase ist noch nicht vollständig abgeschlossen.");
+
+        //    if (await _context.Rounds.AnyAsync(r => r.TournamentId == tournamentId && r.Phase == RoundPhase.Knockout))
+        //        throw new InvalidOperationException("Für dieses Turnier wurde bereits eine K.-o.-Phase generiert.");
+
+        //    var qualifiers = new List<QualifiedPlayer>();
+        //    foreach (var group in groups)
+        //    {
+        //        if (group.QualifiersCount < 1)
+        //            throw new InvalidOperationException($"Gruppe {group.Name} hat keine gültige Qualifikantenanzahl.");
+
+        //        if (group.QualifiersCount > group.GroupPlayers.Count)
+        //        {
+        //            throw new InvalidOperationException(
+        //                $"Gruppe {group.Name} hat nur {group.GroupPlayers.Count} Spieler, aber {group.QualifiersCount} Qualifikanten.");
+        //        }
+
+        //        var rankedPlayers = group.GroupPlayers
+        //            .Select(gp => BuildStanding(gp.TournamentPlayerId, group.Id, groupStageMatches))
+        //            .OrderByDescending(s => s.Wins)
+        //            .ThenByDescending(s => s.ScoreDifference)
+        //            .ThenByDescending(s => s.TotalScore)
+        //            .ThenBy(s => s.TournamentPlayerId)
+        //            .Take(group.QualifiersCount)
+        //            .ToList();
+
+        //        for (var rank = 0; rank < rankedPlayers.Count; rank++)
+        //        {
+        //            var standing = rankedPlayers[rank];
+        //            qualifiers.Add(new QualifiedPlayer(
+        //                standing.TournamentPlayerId,
+        //                group.Id,
+        //                group.Sequence,
+        //                rank + 1));
+        //        }
+        //    }
+
+        //    if (qualifiers.Count < 2)
+        //        throw new InvalidOperationException("Für die K.-o.-Phase werden mindestens zwei qualifizierte Spieler benötigt.");
+
+        //    var bracketSize = NextPowerOfTwo(qualifiers.Count);
+        //    if (bracketSize > 4096)
+        //        throw new InvalidOperationException("Die erzeugte K.-o.-Runde wäre zu groß.");
+
+        //    var firstRoundSlots = BuildKnockoutSlots(qualifiers, bracketSize);
+        //    var nextSequence = Math.Max(
+        //        await GetNextRoundSequenceAsync(tournamentId),
+        //        groupStageRounds.Max(r => r.Sequence) + 1);
+
+        //    var duration = tournament.MatchDurationMinutes;
+        //    var breakMinutes = tournament.BreakBetweenMatchesMinutes;
+        //    var firstStart = groupStageRounds
+        //        .Select(r => r.PlannedEnd)
+        //        .Where(end => end.HasValue)
+        //        .Select(end => end!.Value)
+        //        .DefaultIfEmpty(tournament.StartDate)
+        //        .Max();
+
+        //    var rounds = new List<Round>();
+        //    var roundMatchCount = bracketSize / 2;
+        //    var roundStart = firstStart;
+
+        //    for (var roundIndex = 0; roundIndex < Log2(bracketSize); roundIndex++)
+        //    {
+        //        var round = new Round
+        //        {
+        //            TournamentId = tournamentId,
+        //            Sequence = nextSequence + roundIndex,
+        //            Name = GetKnockoutRoundName(roundMatchCount),
+        //            PlannedStart = roundStart,
+        //            Phase = RoundPhase.Knockout,
+        //            Status = RoundStatus.Scheduled
+        //        };
+
+        //        for (var matchIndex = 0; matchIndex < roundMatchCount; matchIndex++)
+        //        {
+        //            var matchStart = round.PlannedStart.AddMinutes(matchIndex * (duration + breakMinutes));
+        //            var match = new Match
+        //            {
+        //                Round = round,
+        //                Status = MatchStatus.Scheduled,
+        //                PlannedStart = matchStart,
+        //                PlannedEnd = matchStart.AddMinutes(duration)
+        //            };
+
+        //            if (roundIndex == 0)
+        //            {
+        //                var slot = firstRoundSlots[matchIndex];
+        //                foreach (var player in slot)
+        //                {
+        //                    match.Participants.Add(new MatchParticipant
+        //                    {
+        //                        TournamentPlayerId = player.TournamentPlayerId,
+        //                        Score = 0,
+        //                        IsWinner = slot.Count == 1
+        //                    });
+        //                }
+
+        //                // A one-player slot is a normal bye. An empty slot is a double-bye
+        //                // caused by the power-of-two bracket size; both are administrative
+        //                // completed records and never become playable matches.
+        //                if (slot.Count <= 1)
+        //                {
+        //                    match.Status = MatchStatus.Completed;
+        //                    match.ActualEnd = matchStart;
+        //                }
+        //            }
+
+        //            round.Matches.Add(match);
+        //        }
+
+        //        round.PlannedEnd = round.PlannedStart.AddMinutes(
+        //            Math.Max(0, (roundMatchCount * (duration + breakMinutes)) - breakMinutes));
+
+        //        rounds.Add(round);
+        //        roundStart = round.PlannedEnd!.Value.AddMinutes(breakMinutes);
+        //        roundMatchCount /= 2;
+        //    }
+
+        //    await _context.Rounds.AddRangeAsync(rounds);
+        //    await _context.SaveChangesAsync();
+
+        //    // A bye winner is already known. Propagate all such winners through the empty
+        //    // bracket slots; if two bye winners meet, the resulting match remains playable.
+        //    foreach (var firstRoundMatch in rounds[0].Matches
+        //        .OrderBy(m => m.PlannedStart)
+        //        .ThenBy(m => m.Id)
+        //        .ToList())
+        //    {
+        //        if (firstRoundMatch.Status == MatchStatus.Completed)
+        //            await AdvanceKnockoutAsync(firstRoundMatch.Id);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //}
+
+        //public async Task AdvanceKnockoutAsync(int matchId)
+        //{
+        //    var match = await _context.Matches
+        //        .Include(m => m.Round)
+        //        .Include(m => m.Participants)
+        //        .FirstOrDefaultAsync(m => m.Id == matchId);
+
+        //    if (match == null || match.Round.Phase != RoundPhase.Knockout || match.Status != MatchStatus.Completed)
+        //        return;
+
+        //    var winner = match.Participants.SingleOrDefault(p => p.IsWinner);
+        //    if (winner == null)
+        //        return;
+
+        //    var nextRound = await _context.Rounds
+        //        .Where(r => r.TournamentId == match.Round.TournamentId
+        //            && r.Phase == RoundPhase.Knockout
+        //            && r.Sequence == match.Round.Sequence + 1)
+        //        .Include(r => r.Matches)
+        //            .ThenInclude(m => m.Participants)
+        //        .FirstOrDefaultAsync();
+
+        //    if (nextRound == null)
+        //    {
+        //        var tournament = await _context.Tournaments.FirstOrDefaultAsync(t => t.Id == match.Round.TournamentId);
+        //        if (tournament != null)
+        //            tournament.Status = TournamentStatus.Completed;
+        //        return;
+        //    }
+
+        //    var currentRoundMatches = await _context.Matches
+        //        .Where(m => m.RoundId == match.RoundId)
+        //        .Include(m => m.Participants)
+        //        .OrderBy(m => m.PlannedStart)
+        //        .ThenBy(m => m.Id)
+        //        .ToListAsync();
+
+        //    var currentIndex = currentRoundMatches.FindIndex(m => m.Id == match.Id);
+        //    if (currentIndex < 0)
+        //        return;
+
+        //    var nextRoundMatches = nextRound.Matches
+        //        .OrderBy(m => m.PlannedStart)
+        //        .ThenBy(m => m.Id)
+        //        .ToList();
+        //    var nextMatchIndex = currentIndex / 2;
+        //    if (nextMatchIndex >= nextRoundMatches.Count)
+        //        throw new InvalidOperationException("Die K.-o.-Baumstruktur ist inkonsistent.");
+
+        //    var nextMatch = nextRoundMatches[nextMatchIndex];
+        //    if (nextMatch.Participants.Any(p => p.TournamentPlayerId == winner.TournamentPlayerId))
+        //        return;
+
+        //    nextMatch.Participants.Add(new MatchParticipant
+        //    {
+        //        TournamentPlayerId = winner.TournamentPlayerId,
+        //        Score = 0,
+        //        IsWinner = false
+        //    });
+
+        //    // If both source matches are completed, their winners now form the next match.
+        //    // A completed source can have one participant (bye) or two participants (real match).
+        //    var siblingIndex = currentIndex % 2 == 0 ? currentIndex + 1 : currentIndex - 1;
+        //    var sibling = siblingIndex >= 0 && siblingIndex < currentRoundMatches.Count
+        //        ? currentRoundMatches[siblingIndex]
+        //        : null;
+
+        //    if (sibling?.Status == MatchStatus.Completed)
+        //    {
+        //        var siblingWinner = sibling.Participants.SingleOrDefault(p => p.IsWinner);
+        //        if (siblingWinner != null
+        //            && nextMatch.Participants.All(p => p.TournamentPlayerId != siblingWinner.TournamentPlayerId))
+        //        {
+        //            nextMatch.Participants.Add(new MatchParticipant
+        //            {
+        //                TournamentPlayerId = siblingWinner.TournamentPlayerId,
+        //                Score = 0,
+        //                IsWinner = false
+        //            });
+        //        }
+        //    }
+
+        //    if (nextMatch.Participants.Count == 1
+        //        && sibling?.Status == MatchStatus.Completed)
+        //    {
+        //        nextMatch.Status = MatchStatus.Completed;
+        //        nextMatch.Participants.Single().IsWinner = true;
+        //        nextMatch.ActualEnd = nextMatch.PlannedStart;
+        //        await _context.SaveChangesAsync();
+        //        await AdvanceKnockoutAsync(nextMatch.Id);
+        //    }
+        //}
 
         private static void ValidateGroupOptions(GenerateGroupsDto options)
         {
@@ -556,128 +619,9 @@ namespace DTC.Api.Services
             ordered.AddRange(byes);
             return ordered;
         }
-
-        private Standing BuildStanding(int tournamentPlayerId, int groupId, List<Match> groupStageMatches)
-        {
-            var participants = groupStageMatches
-                .Where(m => m.GroupId == groupId)
-                .SelectMany(m => m.Participants)
-                .Where(p => p.TournamentPlayerId == tournamentPlayerId)
-                .ToList();
-
-            var ownScore = participants.Sum(p => p.Score);
-            var wins = participants.Count(p => p.IsWinner && p.MatchId > 0);
-            var opponentsScore = groupStageMatches
-                .Where(m => m.GroupId == groupId)
-                .SelectMany(m =>
-                {
-                    var own = m.Participants.FirstOrDefault(p => p.TournamentPlayerId == tournamentPlayerId);
-                    return own == null
-                        ? Enumerable.Empty<int>()
-                        : m.Participants
-                            .Where(p => p.TournamentPlayerId != tournamentPlayerId)
-                            .Select(p => p.Score);
-                })
-                .Sum();
-
-            return new Standing(
-                tournamentPlayerId,
-                wins,
-                ownScore - opponentsScore,
-                ownScore);
-        }
-
-        private static List<List<QualifiedPlayer>> BuildKnockoutSlots(
-            List<QualifiedPlayer> qualifiers,
-            int bracketSize)
-        {
-            var slots = Enumerable.Range(0, bracketSize / 2)
-                .Select(_ => new List<QualifiedPlayer>())
-                .ToList();
-
-            var ordered = qualifiers
-                .OrderBy(q => q.Rank)
-                .ThenBy(q => q.GroupSequence)
-                .ToList();
-
-            // Pair the stronger half against the weaker half. Within the opposing half,
-            // choose another group whenever possible so two players from the same group
-            // do not meet in the first K.-o. round merely because of their group origin.
-            var firstHalfCount = ordered.Count / 2;
-            var firstHalf = ordered.Take(firstHalfCount).ToList();
-            var secondHalf = ordered.Skip(firstHalfCount).ToList();
-            var entries = new List<List<QualifiedPlayer>>();
-
-            foreach (var first in firstHalf)
-            {
-                var opponentIndex = secondHalf.FindIndex(q => q.GroupId != first.GroupId);
-                if (opponentIndex < 0)
-                    opponentIndex = 0;
-
-                var opponent = secondHalf[opponentIndex];
-                entries.Add(new List<QualifiedPlayer> { first, opponent });
-                secondHalf.RemoveAt(opponentIndex);
-            }
-
-            entries.AddRange(secondHalf.Select(player => new List<QualifiedPlayer> { player }));
-
-            // Spread one-player/empty bye slots across the bracket instead of clustering
-            // all byes at the end. The bracket remains a power-of-two tree.
-            var slotIndices = Enumerable.Range(0, slots.Count)
-                .Select(i => i % 2 == 0 ? i / 2 : slots.Count - 1 - (i / 2))
-                .ToList();
-
-            for (var index = 0; index < entries.Count; index++)
-                slots[slotIndices[index]].AddRange(entries[index]);
-
-            return slots;
-        }
-
-        private async Task<int> GetNextRoundSequenceAsync(int tournamentId)
-        {
-            var max = await _context.Rounds
-                .Where(r => r.TournamentId == tournamentId)
-                .Select(r => (int?)r.Sequence)
-                .MaxAsync();
-
-            return (max ?? 0) + 1;
-        }
-
-        private static int NextPowerOfTwo(int value)
-        {
-            var result = 1;
-            while (result < value)
-                result <<= 1;
-            return result;
-        }
-
-        private static int Log2(int value)
-        {
-            var result = 0;
-            while (value > 1)
-            {
-                value >>= 1;
-                result++;
-            }
-            return result;
-        }
-
-        private static string GetKnockoutRoundName(int matchCount)
-        {
-            return matchCount switch
-            {
-                1 => "Finale",
-                2 => "Halbfinale",
-                4 => "Viertelfinale",
-                8 => "Achtelfinale",
-                _ => $"K.-o.-Runde ({matchCount} Matches)"
-            };
-        }
+     
 
         private sealed record MatchCandidate(Group Group, IReadOnlyList<int> PlayerIds, bool IsBye);
 
-        private sealed record QualifiedPlayer(int TournamentPlayerId, int GroupId, int GroupSequence, int Rank);
-
-        private sealed record Standing(int TournamentPlayerId, int Wins, int ScoreDifference, int TotalScore);
     }
 }
