@@ -7,6 +7,7 @@ import {
   deleteTournament,
   generateGroups,
   generateKnockout,
+  getRoundsByTournamentId,
   getTournament,
 } from "../../services/tournamentService";
 import { RoundPhase } from "../../enums/RoundPhase";
@@ -14,6 +15,7 @@ import { TournamentMode } from "../../enums/TournamentMode";
 import { DeleteTournamentModal } from "./DeleteTournamentModal";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { RoundDto } from "../../dtos/rounds/RoundDto";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -86,6 +88,19 @@ export function ManageTournamentPage() {
     void load();
   }, [tournamentId, isValidTournamentId]);
 
+  // const [rounds, setRounds] = useState<RoundDto[]>([]);
+
+  // useEffect(() => {
+  //   if (tournament === null) return;
+
+  //   const loadRounds = async () => {
+  //     const response = await getRoundsByTournamentId(tournament.id);
+  //     setRounds(response);
+  //   };
+
+  //   loadRounds();
+  // }, [tournament]);
+
   if (!isValidTournamentId) {
     return <div>Ungültige Turnier-ID.</div>;
   }
@@ -145,15 +160,13 @@ export function ManageTournamentPage() {
     }
   };
 
-  const knockoutPrepared =
-    tournament?.rounds?.some((round) => round.phase === RoundPhase.Knockout) ??
-    false;
-  const knockoutGenerated =
-    tournament?.rounds
-      ?.filter((round) => round.phase === RoundPhase.Knockout)
-      .some((round) =>
-        round.matches.some((match) => match.participants.length > 0),
-      ) ?? false;
+  const knockoutPrepared = true;
+  // rounds?.some((round) => round.phase === RoundPhase.Knockout) ?? false;
+
+  const knockoutGenerated = false;
+  // rounds
+  //   ?.filter((round) => round.phase === RoundPhase.Knockout)
+  //   .some((round) => round.matches.length > 0) ?? false;
 
   const handleGenerateKnockout = async () => {
     try {
@@ -467,18 +480,19 @@ export function ManageTournamentPage() {
                     ? "Gruppen werden erstellt..."
                     : "Zufällig Gruppen & Matches erstellen"}
                 </button>
-                {knockoutPrepared && tournament?.mode === 1 && (
-                  <button
-                    type="button"
-                    disabled={generating || knockoutGenerated}
-                    onClick={() => void handleGenerateKnockout()}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {knockoutGenerated
-                      ? "K.-o.-Phase bereits generiert"
-                      : "KO-Phase generieren"}
-                  </button>
-                )}
+                {knockoutPrepared &&
+                  tournament?.mode === TournamentMode.GrouStageandKnockout && (
+                    <button
+                      type="button"
+                      disabled={generating || knockoutGenerated}
+                      onClick={() => void handleGenerateKnockout()}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {knockoutGenerated
+                        ? "K.-o.-Phase bereits generiert"
+                        : "KO-Phase generieren"}
+                    </button>
+                  )}
               </div>
             </section>
 
@@ -508,42 +522,6 @@ export function ManageTournamentPage() {
             </button>
           </aside>
         </div>
-
-        {tournament &&
-          tournament.rounds != null &&
-          tournament.rounds.length > 0 && (
-            <section className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-              <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Erstellte Runden & Matches
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Die aktuell vom MatchMaker erzeugten Daten.
-                </p>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {tournament.rounds?.map((round) => (
-                  <div
-                    key={round.id}
-                    className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {round.name ?? `Runde ${round.sequence}`}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {round.matches.length}{" "}
-                        {round.matches.length === 1 ? "Match" : "Matches"}
-                      </p>
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {formatDate(round.plannedStart)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
       </main>
 
       {tournamentToDelete && (
