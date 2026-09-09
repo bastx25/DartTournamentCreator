@@ -194,6 +194,7 @@ namespace DTC.Api.Services
                 throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
 
             ValidateGroupOptions(options);
+            #endregion
 
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
             await _groupRepo.DeleteAllWithNameAsync(MatchStatus.Tiebreaker.ToString());
