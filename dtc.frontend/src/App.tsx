@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
 import HomePage from "./pages/home/HomePage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
@@ -16,7 +16,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route index element={<HomePage />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="tournaments" element={<TournamentPage />} />
         <Route
           path="tournaments/:id/manage"
