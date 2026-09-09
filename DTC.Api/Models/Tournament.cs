@@ -12,11 +12,7 @@ namespace DTC.Api.Models
         public DateTimeOffset StartDate { get; set; }
         public string? Description { get; set; }
 
-        public TournamentMode Mode { get; set; } = TournamentMode.GroupStage;
-        public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
-
-        public int MatchDurationMinutes { get; set; } = 30;
-        public int BreakBetweenMatchesMinutes { get; set; } = 5;
+        public TournamentConfig Config { get; set; } = null!;
 
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; }
             = new List<TournamentPlayer>();
