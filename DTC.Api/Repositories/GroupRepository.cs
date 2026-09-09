@@ -35,7 +35,7 @@ namespace DTC.Api.Repositories
             return await _context.Groups.Where(g => g.TournamentId == tournamentId).OrderBy(g => g.Name).ToListAsync();
         }
 
-        public async Task DeleteAllTiebreakerAsync()
+        public async Task DeleteAllWithNameAsync(string name)
         {
             var existing = await _context.Groups.Where(g => g.Name == "Tiebreaker").ToListAsync();
 

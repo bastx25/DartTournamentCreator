@@ -196,7 +196,7 @@ namespace DTC.Api.Services
             ValidateGroupOptions(options);
 
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
-            await _groupRepo.DeleteAllTiebreakerAsync();
+            await _groupRepo.DeleteAllWithNameAsync(MatchStatus.Tiebreaker.ToString());
 
             var groups = await _groupRepo.GetGroupsByTournamentIdAsync(tournamentId);
 
@@ -212,7 +212,7 @@ namespace DTC.Api.Services
 
             if (tiebreakPlayers.Count > 0)
             {
-                var tiebreakerGroup = await CreateTiebreakerRound(tiebreakPlayers, startTime, matchDuration, breakMinutes);
+                var tiebreakerGroup = await CreateTiebreakerGroup(tiebreakPlayers, startTime, matchDuration, breakMinutes);
                 tiebreakerGroup.TournamentId = tournament.Id;
 
                 await _context.Groups.AddAsync(tiebreakerGroup);
@@ -225,9 +225,9 @@ namespace DTC.Api.Services
             //                    in die KnockoutPlayerListe übernommen
         }
 
-        private async Task<Group> CreateTiebreakerRound(List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        private async Task<Group> CreateTiebreakerGroup(List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
         {
-            var groups = new List<Group> { new Group { Name = "Tiebreaker" } };
+            var groups = new List<Group> { new Group { Name = MatchStatus.Tiebreaker.ToString() } };
                 
             await ScheduleGroupMatches(groups, startTime, matchDuration, breakMinutes);
 

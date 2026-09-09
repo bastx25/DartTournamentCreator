@@ -6,7 +6,7 @@ namespace DTC.Api.Interfaces
 {
     public interface IGroupRepository
     {
-        Task DeleteAllTiebreakerAsync();
+        Task DeleteAllWithNameAsync(string name);
         Task DeleteAllTournamentGroups(int id);
         Task<IEnumerable<Group>> GetGroupsByTournamentIdAsync(int id);
     }
