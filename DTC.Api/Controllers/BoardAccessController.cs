@@ -48,31 +48,14 @@ namespace DTC.Api.Controllers
                 return NotFound();
             }
 
-            // The board shows matches belonging to the latest scheduled/in-progress
-            // tournament at the board's location. This keeps old tournaments out of
-            // the QR view while still retaining their results in the database.
-            var tournament = await _context.Tournaments
-                .AsNoTracking()
-                .Where(t =>
-                    (t.Status == TournamentStatus.Scheduled ||
-                     t.Status == TournamentStatus.InProgress))
-                .OrderByDescending(t => t.StartDate)
-                .FirstOrDefaultAsync();
-
-            if (tournament == null)
-            {
-                return Ok(Array.Empty<BoardMatchDto>());
-            }
 
             var matches = await _context.Matches
                 .AsNoTracking()
-                .Include(m => m.Round)
-                .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
                 .Where(m =>
-                    m.BoardId == boardId &&
-                    m.Round.TournamentId == tournament.Id)
+                    m.BoardId == boardId)
                 .OrderBy(m => m.PlannedStart)
                 .ThenBy(m => m.Id)
                 .ToListAsync();
@@ -80,9 +63,6 @@ namespace DTC.Api.Controllers
             var result = matches.Select(m => new BoardMatchDto
             {
                 MatchId = m.Id,
-                RoundId = m.RoundId ?? -1,
-                RoundName = m.Round?.Name,
-                TournamentName = tournament.Name,
                 PlannedStart = m.PlannedStart,
                 ActualStart = m.ActualStart,
                 Status = m.Status,
@@ -105,6 +85,7 @@ namespace DTC.Api.Controllers
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
                 .FirstOrDefaultAsync(m => m.Id == matchId && m.BoardId == boardId);
 
             if (match == null)
@@ -146,6 +127,7 @@ namespace DTC.Api.Controllers
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
                 .FirstOrDefaultAsync(m => m.Id == matchId && m.BoardId == boardId);
 
             if (match == null)

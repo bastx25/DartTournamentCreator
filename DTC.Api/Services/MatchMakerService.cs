@@ -163,7 +163,8 @@ namespace DTC.Api.Services
                     Status = candidate.IsBye ? MatchStatus.Completed : MatchStatus.Scheduled,
                     PlannedStart = candidate.IsBye ? null : currentStart,
                     PlannedEnd = candidate.IsBye ? null : currentStart.AddMinutes(matchDuration),
-                    ActualEnd = candidate.IsBye ? currentStart : null
+                    ActualEnd = candidate.IsBye ? currentStart : null,
+                    BoardId = 1,
                 };
 
                 foreach (var tournamentPlayerId in candidate.PlayerIds)

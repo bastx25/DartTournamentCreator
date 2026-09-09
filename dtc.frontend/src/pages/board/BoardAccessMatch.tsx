@@ -32,7 +32,9 @@ export function BoardAccessMatch({
   setSelectedMatchId,
 }: BoardAccessMatchProps) {
   function playerLabel(match: BoardMatchDto, index: number) {
-    return match.participants[index]?.player?.displayName ?? "TBD";
+    return (
+      match.participants[index]?.tournamentPlayer?.player?.displayName ?? "TBD"
+    );
   }
 
   function formatScheduledTime(value: string | null) {
@@ -52,7 +54,7 @@ export function BoardAccessMatch({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
-              Spiel {index + 1} · {match.roundName || "Runde"}
+              Spiel {index + 1}
             </p>
             <p className="mt-1 text-sm text-gray-500">
               {match.tournamentName} · {formatScheduledTime(match.plannedStart)}{" "}

@@ -10,9 +10,6 @@ namespace DTC.Api.Mappers
             return new BoardMatchDto
             {
                 MatchId = match.Id,
-                RoundId = match.RoundId ?? -1,
-                RoundName = match.Round?.Name,
-                TournamentName = match.Round.Tournament?.Name ?? string.Empty,
                 PlannedStart = match.PlannedStart,
                 ActualStart = match.ActualStart,
                 Status = match.Status,
