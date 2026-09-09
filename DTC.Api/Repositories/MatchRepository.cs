@@ -19,7 +19,18 @@ namespace DTC.Api.Repositories
             return await _context.Matches
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
                 .Where(m => m.RoundId == roundId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Match>> GetByGroupIdAsync(int groupId)
+        {
+            return await _context.Matches
+                .Include(m => m.Participants)
+                    .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
+                .Where(m => m.GroupId == groupId)
                 .ToListAsync();
         }
 
@@ -53,5 +64,6 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
     }
 }

@@ -24,7 +24,7 @@ export function DashboardGroup({ group }: DashboardGroupProps) {
       <h1>{group.name}</h1>
 
       {matches.map((match, index) => {
-        <DashboardMatch match={match} index={index} />;
+        <DashboardMatch key={match.id} match={match} index={index} />;
       })}
     </>
   );

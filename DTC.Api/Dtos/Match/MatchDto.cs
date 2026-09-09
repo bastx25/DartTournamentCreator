@@ -25,5 +25,7 @@ namespace DTC.Api.Dtos.Match
 
         public DateTimeOffset? ActualEnd { get; set; }
 
+        public ICollection<MatchParticipantDto>? Participants { get; set; }
+
     }
 }

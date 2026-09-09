@@ -10,10 +10,12 @@ namespace DTC.Api.Controllers
     public class RoundController : ControllerBase
     {
         private readonly IRoundRepository _roundRepo;
+        private readonly IMatchRepository _matchRepo;
 
-        public RoundController(IRoundRepository roundRepo)
+        public RoundController(IRoundRepository roundRepo, IMatchRepository matchRepository)
         {
             _roundRepo = roundRepo;
+            _matchRepo = matchRepository;
         }
 
         [HttpGet("tournament/{tournamentId:int}")]
@@ -61,5 +63,20 @@ namespace DTC.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("{id:int}/matches")]
+        public async Task<IActionResult> GetMatchesByRoundId([FromRoute] int id)
+        {
+            try
+            {
+                var matches = await _matchRepo.GetByRoundIdAsync(id);
+                return Ok(matches.Select(m => m.ToMatchDto()));
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

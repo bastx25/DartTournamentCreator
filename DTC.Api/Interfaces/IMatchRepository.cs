@@ -9,5 +9,6 @@ namespace DTC.Api.Interfaces
         Task<Match> CreateAsync(Match match);
         Task<Match> UpdateAsync(Match match);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Match>> GetByGroupIdAsync(int groupId);
     }
 }

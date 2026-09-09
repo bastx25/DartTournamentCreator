@@ -14,6 +14,7 @@ namespace DTC.Api.Mappers
                 Id = matchParticipant.Id,
                 MatchId = matchParticipant.MatchId,
                 TournamentPlayerId = matchParticipant.TournamentPlayer?.Id ?? -1,
+                TournamentPlayer = matchParticipant.TournamentPlayer? .ToTournamentPlayerDto() ?? null,
                 Score = matchParticipant.Score,
                 IsWinner = matchParticipant.IsWinner
             };
