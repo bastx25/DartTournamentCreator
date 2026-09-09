@@ -1,7 +1,9 @@
 using DTC.Api.Data;
 using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Enums;
+using DTC.Api.Interfaces;
 using DTC.Api.Models;
+using DTC.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DTC.Api.Services
@@ -9,17 +11,30 @@ namespace DTC.Api.Services
     public class MatchMakerService : IMatchMakerService
     {
         private readonly DartDbContext _context;
-        private readonly Random _random;
+        private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
+        private readonly IGroupRepository _groupRepo;
+        private readonly Random _random = Random.Shared;
 
-        public MatchMakerService(DartDbContext context, Random? random = null)
+        private readonly IRoundRepository _roundRepo;
+
+        public MatchMakerService(DartDbContext context,
+            ITournamentPlayerRepository tournamentPlayerRepository,
+            IGroupRepository groupRepository,
+            IRoundRepository roundRepository)
         {
             _context = context;
-            _random = random ?? Random.Shared;
+            _tournamentPlayerRepo = tournamentPlayerRepository;
+            _groupRepo = groupRepository;
+            _roundRepo = roundRepository;
         }
 
         public async Task GenerateGroupsAsync(int tournamentId, GenerateGroupsDto options)
         {
             ArgumentNullException.ThrowIfNull(options);
+
+            await _groupRepo.DeleteAllTournamentGroups(tournamentId);
+            await _roundRepo.DeleteAllTournamentRounds(tournamentId);
+            await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds);
 
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)

@@ -13,20 +13,17 @@ namespace DTC.Api.Controllers
     {
         private readonly ITournamentRepository _tournamentRepo;
         private readonly IMatchMakerService _matchMakerService;
-        private readonly ITournamentPlayerRepository _tournamentPlayerRepo;
         private readonly IGroupRepository _groupRepo;
         private readonly IRoundRepository _roundRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
-            ITournamentPlayerRepository tournamentPlayerRepository,
             IGroupRepository groupRepository,
             IRoundRepository roundRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
-            _tournamentPlayerRepo = tournamentPlayerRepository;
             _groupRepo = groupRepository;
             _roundRepo = roundRepository;
         }
@@ -89,7 +86,6 @@ namespace DTC.Api.Controllers
         {
             try
             {
-                await _tournamentPlayerRepo.SetTournamentPlayers(id, dto.PlayerIds);
                 await _matchMakerService.GenerateGroupsAsync(id, dto);
                 return Ok(new { Message = "Gruppenphase wurde generiert." });
             }

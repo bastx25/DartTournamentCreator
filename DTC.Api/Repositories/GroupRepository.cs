@@ -14,6 +14,15 @@ namespace DTC.Api.Repositories
             _context = context;
         }
 
+        public async Task DeleteAllTournamentGroups(int tournamentId)
+        {
+            var existing = await _context.Groups.Where(g => g.TournamentId == tournamentId).ToListAsync();
+
+            _context.Groups.RemoveRange(existing);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Group>> GetGroupsByTournamentId(int tournamentId)
         {
             return await _context.Groups.Where(g => g.TournamentId == tournamentId).ToListAsync();

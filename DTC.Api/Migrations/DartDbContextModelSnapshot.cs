@@ -47,7 +47,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("LocationId", "Number")
                         .IsUnique();
 
-                    b.ToTable("Boards");
+                    b.ToTable("Boards", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Group", b =>
@@ -76,7 +76,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("TournamentId", "Sequence")
                         .IsUnique();
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.GroupPlayer", b =>
@@ -100,7 +100,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("GroupId", "TournamentPlayerId")
                         .IsUnique();
 
-                    b.ToTable("GroupPlayers");
+                    b.ToTable("GroupPlayers", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Location", b =>
@@ -120,7 +120,7 @@ namespace DTC.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Match", b =>
@@ -163,7 +163,7 @@ namespace DTC.Api.Migrations
 
                     b.HasIndex("RoundId");
 
-                    b.ToTable("Matches");
+                    b.ToTable("Matches", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.MatchParticipant", b =>
@@ -193,7 +193,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("MatchId", "TournamentPlayerId")
                         .IsUnique();
 
-                    b.ToTable("MatchParticipants");
+                    b.ToTable("MatchParticipants", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Player", b =>
@@ -217,7 +217,7 @@ namespace DTC.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Round", b =>
@@ -254,7 +254,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("TournamentId", "Sequence")
                         .IsUnique();
 
-                    b.ToTable("Rounds");
+                    b.ToTable("Rounds", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Tournament", b =>
@@ -289,7 +289,7 @@ namespace DTC.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tournaments");
+                    b.ToTable("Tournaments", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.TournamentPlayer", b =>
@@ -313,7 +313,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("TournamentId", "PlayerId")
                         .IsUnique();
 
-                    b.ToTable("TournamentPlayers");
+                    b.ToTable("TournamentPlayers", (string)null);
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Board", b =>

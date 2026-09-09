@@ -141,7 +141,7 @@ namespace DTC.Api.Data
                 entity.HasOne(gp => gp.TournamentPlayer)
                     .WithMany(tp => tp.Groups)
                     .HasForeignKey(gp => gp.TournamentPlayerId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 // Spieler darf nur einmal in derselben Gruppe sein
                 entity.HasIndex(gp => new
@@ -231,7 +231,7 @@ namespace DTC.Api.Data
                 entity.HasOne(mp => mp.TournamentPlayer)
                     .WithMany(tp => tp.MatchParticipants)
                     .HasForeignKey(mp => mp.TournamentPlayerId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 // Derselbe TournamentPlayer darf nicht zweimal
                 // im gleichen Match vorkommen
