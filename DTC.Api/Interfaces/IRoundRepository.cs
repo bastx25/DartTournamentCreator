@@ -10,6 +10,6 @@ namespace DTC.Api.Interfaces
         Task<Round> UpdateAsync(Round round);
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<Round>> GetRoundsByTournamentId(int id);
-        Task DeleteAllTournamentRounds(int id);
+        Task DeleteAllTournamentRoundsAsync(int id);
     }
 }

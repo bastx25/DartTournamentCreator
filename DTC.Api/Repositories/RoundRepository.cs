@@ -64,7 +64,7 @@ namespace DTC.Api.Repositories
             return await _context.Rounds.Where(r => r.TournamentId == tournamentId).ToListAsync();
         }
 
-        public async Task DeleteAllTournamentRounds(int tournamentId)
+        public async Task DeleteAllTournamentRoundsAsync(int tournamentId)
         {
             var existing = await _context.Rounds.Where(r => r.TournamentId == tournamentId).ToListAsync();
 
