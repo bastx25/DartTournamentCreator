@@ -20,7 +20,7 @@ export function DashboardMatch({ match, index }: DashboardMatchProps) {
     const player =
       match.participants?.[matchParticipantIndex]?.tournamentPlayer?.player;
 
-    return player?.displayName ?? "";
+    return player?.displayName ?? "TBD";
   };
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export function DashboardMatch({ match, index }: DashboardMatchProps) {
       <div>
         <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p>
         <p className="mt-1 text-xs text-gray-500">
-          {formatTime(match.actualStart)} Uhr
+          {match.plannedStart ? `${formatTime(match.plannedStart)} Uhr` : ""}
         </p>
       </div>
 

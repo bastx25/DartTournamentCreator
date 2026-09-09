@@ -152,7 +152,7 @@ export function DashboardPage() {
             )}
 
             {rounds.length === 0 && (
-              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
                 </h2>

@@ -4,5 +4,5 @@ const timeFormatter = new Intl.DateTimeFormat("de-DE", {
 });
 
 export function formatTime(value: string | null) {
-  return value != null ? timeFormatter.format(new Date(value)) : "";
+  return value != null ? timeFormatter.format(new Date(value)) : null;
 }

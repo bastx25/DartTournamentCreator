@@ -37,12 +37,15 @@ namespace DTC.Api.Services
 
             await _groupRepo.DeleteAllTournamentGroups(tournamentId);
             await _roundRepo.DeleteAllTournamentRounds(tournamentId);
+
+
             await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds);
 
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)
                 .FirstOrDefaultAsync(t => t.Id == tournamentId);
 
+            #region Validation
             if (tournament == null)
                 throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
 
@@ -89,11 +92,14 @@ namespace DTC.Api.Services
                 || await _context.Rounds.AnyAsync(r => r.TournamentId == tournamentId);
             if (hasGeneratedData)
                 throw new InvalidOperationException("Für dieses Turnier wurden bereits Gruppen oder Runden generiert.");
+            #endregion Validation
 
             // Shuffle first, then distribute round-robin. This gives groups whose sizes differ by at most one.
             var shuffledPlayers = tournamentPlayers.OrderBy(_ => _random.Next()).ToList();
             var groups = new List<Group>(options.GroupCount);
+            
 
+            //Generate Empty Groups
             for (var index = 0; index < options.GroupCount; index++)
             {
                 groups.Add(new Group
@@ -105,6 +111,7 @@ namespace DTC.Api.Services
                 });
             }
 
+            //distríbute shuffled players into groups e.g. 5 Player 2 groups : Group A: 3 Players; GroupB : 2 Players
             for (var index = 0; index < shuffledPlayers.Count; index++)
             {
                 var group = groups[index % groups.Count];
@@ -120,15 +127,6 @@ namespace DTC.Api.Services
 
             ValidateSchedule(startTime, matchDuration, breakMinutes);
 
-            var round = new Round
-            {
-                TournamentId = tournamentId,
-                Sequence = await GetNextRoundSequenceAsync(tournamentId),
-                Name = "Gruppenphase",
-                PlannedStart = startTime,
-                Phase = RoundPhase.GroupStage,
-                Status = RoundStatus.Scheduled
-            };
 
             var scheduledMatches = new List<MatchCandidate>();
 
@@ -149,7 +147,6 @@ namespace DTC.Api.Services
             {
                 var match = new Match
                 {
-                    Round = round,
                     Group = candidate.Group,
                     Status = candidate.IsBye ? MatchStatus.Completed : MatchStatus.Scheduled,
                     PlannedStart = candidate.IsBye ? null : currentStart,
@@ -167,17 +164,13 @@ namespace DTC.Api.Services
                     });
                 }
 
-                round.Matches.Add(match);
+                await _context.Matches.AddAsync(match);
 
                 if (!candidate.IsBye)
                     currentStart = currentStart.AddMinutes(matchDuration + breakMinutes);
             }
 
-            round.PlannedEnd = orderedMatches.Any(m => !m.IsBye)
-                ? currentStart.Subtract(TimeSpan.FromMinutes(breakMinutes))
-                : startTime;
-
-            await _context.Rounds.AddAsync(round);
+            await _context.Groups.AddRangeAsync(groups);
             await _context.SaveChangesAsync();
         }
 
@@ -464,6 +457,12 @@ namespace DTC.Api.Services
                 throw new InvalidOperationException("StartTime ist ungültig.");
         }
 
+        /// <summary>
+        /// Creates an alphabetical group name based on a zero-based index.
+        /// The naming follows a spreadsheet-like pattern: A, B, ..., Z, AA, AB, ...
+        /// </summary>
+        /// <param name="zeroBasedIndex">The zero-based index used to generate the group name.</param>
+        /// <returns>An alphabetical group name corresponding to the specified index.</returns>
         private static string CreateGroupName(int zeroBasedIndex)
         {
             var value = zeroBasedIndex + 1;
