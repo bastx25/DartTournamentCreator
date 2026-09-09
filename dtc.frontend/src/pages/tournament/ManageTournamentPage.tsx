@@ -141,7 +141,7 @@ export function ManageTournamentPage() {
 
       await generateGroups(tournamentId, {
         groupCount,
-        groupSize,
+        playersPerGroup: groupSize,
         qualifiersPerGroup,
         startTime: tournament?.startDate ?? null,
         matchDurationMinutes: matchDurationMinutes,
