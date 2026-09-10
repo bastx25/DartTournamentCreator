@@ -4,6 +4,7 @@ import { TournamentMode } from "../../enums/TournamentMode";
 export const tournamentConfigDtoSchema = z.object({
   id: z.number().int(),
   tournamentId: z.number().int(),
+  versionNr: z.number().int(),
   mode: z.enum(TournamentMode),
   matchDurationMinutes: z.number().int(),
   breakBetweenMatchesMinutes: z.number().int(),
