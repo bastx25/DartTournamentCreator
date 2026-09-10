@@ -9,12 +9,14 @@ import {
   generateKnockout,
   getTConfigsByTournamentId,
   getTournament,
+  getTPlayers,
 } from "../../services/tournamentService";
 import { TournamentMode } from "../../enums/TournamentMode";
 import { DeleteTournamentModal } from "./DeleteTournamentModal";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/player/PlayerDto";
 import type { TournamentConfigDto } from "../../dtos/tournamentConfig/TournamentConfigDto";
+import type { TournamentPlayerDto } from "../../dtos/tournamentPlayer/TournamentPlayerDto";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -37,7 +39,7 @@ export function ManageTournamentPage() {
     useState<TournamentDto | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [players, setPlayers] = useState<PlayerDto[]>([]);
-  const [tplayers, setTPlayers] = useState<PlayerDto[]>([]);
+  const [tplayers, setTPlayers] = useState<TournamentPlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
   const [groupSize, setGroupSize] = useState(5);
@@ -70,11 +72,6 @@ export function ManageTournamentPage() {
         ]);
 
         setTournament(tournamentData);
-        setBreakBetweenMatchesMinutes(
-          selectedTConfig?.breakBetweenMatchesMinutes ?? 0,
-        );
-
-        setMatchDurationMinutes(selectedTConfig?.matchDurationMinutes ?? 15);
         setPlayers(playerData);
         setTPlayers(tPlayerData);
 
@@ -88,7 +85,7 @@ export function ManageTournamentPage() {
     }
 
     void load();
-  }, []);
+  }, [tournamentId, isValidTournamentId]);
 
   const [tconfigs, setConfigs] = useState<TournamentConfigDto[]>([]);
 
@@ -112,6 +109,18 @@ export function ManageTournamentPage() {
 
     selectTConfig();
   }, [tconfigs]);
+
+  useEffect(() => {
+    const configFields = async () => {
+      setBreakBetweenMatchesMinutes(
+        selectedTConfig?.breakBetweenMatchesMinutes ?? 0,
+      );
+
+      setMatchDurationMinutes(selectedTConfig?.matchDurationMinutes ?? 15);
+    };
+
+    configFields();
+  }, [selectedTConfig]);
 
   if (!isValidTournamentId) {
     return <div>Ungültige Turnier-ID.</div>;
@@ -288,7 +297,9 @@ export function ManageTournamentPage() {
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedPlayerIds(players.map((p) => p.id))}
+                  onClick={() =>
+                    setSelectedPlayerIds(tplayers.map((p) => p.playerId))
+                  }
                   className="text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
                   Alle auswählen
