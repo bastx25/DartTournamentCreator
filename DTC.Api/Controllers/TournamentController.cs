@@ -104,6 +104,7 @@ namespace DTC.Api.Controllers
         {
             try
             {
+                await _configRepo.UpdateConfig(id, dto);
                 await _matchMakerService.GenerateKnockoutAsync(id, dto);
                 return Ok(new { Message = "K.-o.-Phase wurde aus den abgeschlossenen Gruppen-/Ausspielrunden generiert." });
             }
