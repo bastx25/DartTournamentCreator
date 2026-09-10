@@ -26,7 +26,7 @@ export function DashboardGroup({ group }: DashboardGroupProps) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-lg font-semibold text-gray-900">
-                Gruppe {group.name}
+                {group.name}
               </h2>
             </div>
           </div>

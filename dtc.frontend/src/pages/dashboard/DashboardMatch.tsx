@@ -39,7 +39,8 @@ export function DashboardMatch({ match, index }: DashboardMatchProps) {
   return (
     <div className="grid gap-4 px-6 py-4 sm:grid-cols-[110px_minmax(0,1fr)_90px_110px] sm:items-center sm:px-8">
       <div>
-        <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p>
+        {/* <p className="text-sm font-semibold text-gray-900">Match {index + 1}</p> */}
+        <p className="text-sm font-semibold text-gray-900">Match {match.id}</p>
         <p className="mt-1 text-xs text-gray-500">
           {match.plannedStart ? `${formatTime(match.plannedStart)} Uhr` : ""}
         </p>
