@@ -13,7 +13,7 @@ namespace DTC.Api.Repositories
         {
             _context = context;   
         }
-        public async Task<IEnumerable<TournamentConfig>> GetConfigsByTournamentId(int tournamentid)
+        public async Task<IEnumerable<TournamentConfig>> GetConfigsAsync(int tournamentid)
         {
             return await _context.TournamentConfigs.Where(c => c.TournamentId == tournamentid).OrderBy(x => x.VersionNr).ToListAsync();
         }

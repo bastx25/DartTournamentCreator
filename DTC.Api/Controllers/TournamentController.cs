@@ -16,12 +16,14 @@ namespace DTC.Api.Controllers
         private readonly IGroupRepository _groupRepo;
         private readonly IRoundRepository _roundRepo;
         private readonly ITournamentConfigRepository _configRepo;
+        private readonly ITournamentPlayerRepository _tplayerRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
             IGroupRepository groupRepository,
             IRoundRepository roundRepository,
             ITournamentConfigRepository tournamentConfigRepository,
+            ITournamentPlayerRepository tplayerRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
@@ -29,6 +31,7 @@ namespace DTC.Api.Controllers
             _groupRepo = groupRepository;
             _roundRepo = roundRepository;
             _configRepo = tournamentConfigRepository;
+            _tplayerRepo = tplayerRepository;
         }
 
         [HttpGet]
@@ -114,11 +117,11 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("{id:int}/groups")]
-        public async Task<IActionResult> GetGroupsByTournamentId([FromRoute] int id)
+        public async Task<IActionResult> GetGroups([FromRoute] int id)
         {
             try
             {
-                var groups = await _groupRepo.GetGroupsByTournamentIdAsync(id);
+                var groups = await _groupRepo.GetGroupsAsync(id);
                 return Ok(groups.Select(g => g.ToGroupDto()));
             }
             catch(Exception ex)
@@ -128,11 +131,11 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("{id:int}/rounds")]
-        public async Task<IActionResult> GetRoundsByTournamentId([FromRoute] int id)
+        public async Task<IActionResult> GetRounds([FromRoute] int id)
         {
             try
             {
-                var rounds = await _roundRepo.GetRoundsByTournamentId(id);
+                var rounds = await _roundRepo.GetRoundsAsync(id);
                 return Ok(rounds.Select(r => r.ToRoundDto()));
             }
             catch (Exception ex)
@@ -142,12 +145,26 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("{id:int}/configs")]
-        public async Task<IActionResult> GetConfigsByTournamentId([FromRoute] int id)
+        public async Task<IActionResult> GetConfigs([FromRoute] int id)
         {
             try
             {
-                var configs = await _configRepo.GetConfigsByTournamentId(tournamentid: id);
+                var configs = await _configRepo.GetConfigsAsync(tournamentid: id);
                 return Ok(configs.Select(c => c.ToTournamentConfigDto()));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id:int}/players")]
+        public async Task<IActionResult> GetTournamentPlayers([FromRoute] int id)
+        {
+            try
+            {
+                var players = await _tplayerRepo.GetPlayersAsync(tournamentid: id);
+                return Ok(players.Select(tp => tp.ToTournamentPlayerDto()));
             }
             catch (Exception ex)
             {

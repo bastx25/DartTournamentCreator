@@ -59,7 +59,7 @@ namespace DTC.Api.Repositories
             return true;
         }
 
-        public async Task<IEnumerable<Round>> GetRoundsByTournamentId(int tournamentId)
+        public async Task<IEnumerable<Round>> GetRoundsAsync(int tournamentId)
         {
             return await _context.Rounds.Where(r => r.TournamentId == tournamentId).ToListAsync();
         }

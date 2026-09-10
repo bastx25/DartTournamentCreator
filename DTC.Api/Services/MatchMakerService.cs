@@ -200,7 +200,7 @@ namespace DTC.Api.Services
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
             await _groupRepo.DeleteAllWithNameAsync(MatchStatus.Tiebreaker.ToString());
 
-            var groups = await _groupRepo.GetGroupsByTournamentIdAsync(tournamentId);
+            var groups = await _groupRepo.GetGroupsAsync(tournamentId);
 
             var groupResults = await GetGroupResults(groups);
 

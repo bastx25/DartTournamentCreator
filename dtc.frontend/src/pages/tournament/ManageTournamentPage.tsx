@@ -75,7 +75,9 @@ export function ManageTournamentPage() {
         setPlayers(playerData);
         setTPlayers(tPlayerData);
 
-        setSelectedPlayerIds(playerData.map((player: PlayerDto) => player.id));
+        setSelectedPlayerIds(
+          tPlayerData.map((p: TournamentPlayerDto) => p.playerId),
+        );
       } catch (err) {
         console.error(err);
         setError("Die Turnierdaten konnten nicht geladen werden.");
@@ -297,9 +299,7 @@ export function ManageTournamentPage() {
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    setSelectedPlayerIds(tplayers.map((p) => p.playerId))
-                  }
+                  onClick={() => setSelectedPlayerIds(players.map((p) => p.id))}
                   className="text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
                   Alle auswählen

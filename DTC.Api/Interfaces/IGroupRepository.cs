@@ -8,6 +8,6 @@ namespace DTC.Api.Interfaces
     {
         Task DeleteAllWithNameAsync(string name);
         Task DeleteAllTournamentGroups(int id);
-        Task<IEnumerable<Group>> GetGroupsByTournamentIdAsync(int id);
+        Task<IEnumerable<Group>> GetGroupsAsync(int id);
     }
 }

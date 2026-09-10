@@ -30,7 +30,7 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Group>> GetGroupsByTournamentIdAsync(int tournamentId)
+        public async Task<IEnumerable<Group>> GetGroupsAsync(int tournamentId)
         {
             return await _context.Groups.Where(g => g.TournamentId == tournamentId).OrderBy(g => g.Name).ToListAsync();
         }

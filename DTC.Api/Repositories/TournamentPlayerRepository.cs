@@ -14,6 +14,11 @@ namespace DTC.Api.Repositories
             _context = context;
         }
 
+        public async Task<IEnumerable<TournamentPlayer>> GetPlayersAsync(int tournamentid)
+        {
+            return await _context.TournamentPlayers.Where(x => x.TournamentId == tournamentid).ToListAsync();
+        }
+
         public async Task SetTournamentPlayers(int tournamentId, List<int>? playerIds)
         {
             var existingPlayers = await _context.TournamentPlayers
