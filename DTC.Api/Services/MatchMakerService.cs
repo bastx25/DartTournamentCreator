@@ -187,6 +187,26 @@ namespace DTC.Api.Services
 
         public async Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options)
         {
+            var qualifiedPlayers = await CheckAndHandleTiebreaks(tournamentId, options);
+
+            var requiredKnockoutPlayers =
+                options.QualifiersPerGroup * options.GroupCount;
+
+            if(qualifiedPlayers.Count() !=  requiredKnockoutPlayers)
+            {
+                throw new InvalidOperationException("Tiebreaks still running");
+            }
+
+            await CreateKnockoutGroups(tournamentId, options,qualifiedPlayers);
+        }
+
+        private async Task CreateKnockoutGroups(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
+        {
+            await CreateTiebreakerGroup(tournamentId, qualifiedPlayers, )
+        }
+
+        private async Task<List<TournamentPlayer>> CheckAndHandleTiebreaks(int tournamentId, GenerateGroupsDto options)
+        {
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)
                 .FirstOrDefaultAsync(t => t.Id == tournamentId);
@@ -309,9 +329,9 @@ namespace DTC.Api.Services
             }
 
             await _context.SaveChangesAsync();
+
+            return allQualifiedPlayers;
         }
-
-
 
         private async Task<(List<TournamentPlayer> Qualifiers, List<TournamentPlayer> TiebreakPlayers)>
         GetQualifiersFromTiebreaker(
