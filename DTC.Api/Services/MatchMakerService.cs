@@ -184,6 +184,7 @@ namespace DTC.Api.Services
             }
         }
 
+
         public async Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options)
         {
             var tournament = await _context.Tournaments
@@ -191,66 +192,125 @@ namespace DTC.Api.Services
                 .FirstOrDefaultAsync(t => t.Id == tournamentId);
 
             #region Validation
+
             if (tournament == null)
                 throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
 
             ValidateGroupOptions(options);
+
             #endregion
 
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
 
             var groups = await _groupRepo.GetGroupsAsync(tournamentId);
-
-            //if (groups.Any(group => group.Matches.Any(m => m.Status != MatchStatus.Completed)))
-            //    throw new InvalidOperationException("Not all groups are finished");
-
             var groupResults = await GetGroupResults(groups);
 
-            var (knockoutPlayers, tiebreakPlayers) =
-                GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
+            // ---------------------------------------------------------
+            // Spieler bestimmen, die direkt für das Knockout qualifiziert
+            // sind bzw. in den Tiebreak kommen.
+            // ---------------------------------------------------------
 
+            List<TournamentPlayer> knockoutPlayers;
+            List<TournamentPlayer> tiebreakPlayers;
 
-            var tiebreakerGroup = groups.LastOrDefault(g => g.Name.Contains(MatchStatus.Tiebreaker.ToString()));
+            if (tournament.TournamentPlayers.Any(x => x.IsQualified))
+            {
+                // Bereits vorhandene Qualifikation verwenden
+                knockoutPlayers = tournament.TournamentPlayers
+                    .Where(x => x.IsQualified)
+                    .ToList();
+
+                tiebreakPlayers = new List<TournamentPlayer>();
+            }
+            else
+            {
+                (knockoutPlayers, tiebreakPlayers) =
+                    GetKnockoutPlayers(
+                        groupResults,
+                        options.QualifiersPerGroup);
+            }
+
+            // ---------------------------------------------------------
+            // Tiebreaker-Gruppe suchen
+            // ---------------------------------------------------------
+
+            var tiebreakerGroup = groups
+                .LastOrDefault(g =>
+                    g.Name.Contains(MatchStatus.Tiebreaker.ToString()));
 
             var tiebreakerGroups = tiebreakerGroup != null
                 ? new List<Group> { tiebreakerGroup }
                 : new List<Group>();
 
+            // ---------------------------------------------------------
+            // Anzahl der noch benötigten Qualifikanten berechnen
+            // ---------------------------------------------------------
 
-            int qualifiersFromTiebreak = options.QualifiersPerGroup * options.GroupCount - knockoutPlayers.Count;
-            var (Qualifiers, TiebreakPlayers) = await GetQualifiersFromTiebreaker(tiebreakerGroups, qualifiersFromTiebreak);
+            var requiredKnockoutPlayers =
+                options.QualifiersPerGroup * options.GroupCount;
 
+            var qualifiersFromTiebreak =
+                requiredKnockoutPlayers - knockoutPlayers.Count;
+
+            // ---------------------------------------------------------
+            // Tiebreaker-Ergebnisse laden
+            // ---------------------------------------------------------
+
+            var (qualifiers, tiebreakPlayersFromGroup) =
+                await GetQualifiersFromTiebreaker(
+                    tiebreakerGroups,
+                    Math.Max(0, qualifiersFromTiebreak));
+
+            // Falls noch keine Tiebreaker-Gruppe existiert,
+            // die zuvor ermittelten Tiebreak-Spieler verwenden.
+            if (!tiebreakerGroups.Any())
+            {
+                tiebreakPlayersFromGroup = tiebreakPlayers;
+            }
+
+            // ---------------------------------------------------------
+            // Qualifizierte Spieler setzen
+            // ---------------------------------------------------------
+
+            var allQualifiedPlayers = knockoutPlayers
+                .Concat(qualifiers)
+                .Distinct()
+                .ToList();
+
+            foreach (var player in tournament.TournamentPlayers)
+            {
+                player.IsQualified = allQualifiedPlayers.Contains(player);
+            }
+
+            // ---------------------------------------------------------
+            // Tiebreaker-Gruppe ggf. erstellen
+            // ---------------------------------------------------------
 
             var startTime = options.StartTime ?? tournament.StartDate;
-            var matchDuration = options.MatchDurationMinutes ?? tournament.Config.MatchDurationMinutes;
-            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.Config.BreakBetweenMatchesMinutes;
+            var matchDuration =
+                options.MatchDurationMinutes ??
+                tournament.Config.MatchDurationMinutes;
 
-            if (TiebreakPlayers.Any())
+            var breakMinutes =
+                options.BreakBetweenMatchesMinutes ??
+                tournament.Config.BreakBetweenMatchesMinutes;
+
+            if (tiebreakPlayersFromGroup.Any())
             {
-                var createdTiebreakerGroup = await CreateTiebreakerGroup(tournament.Id, TiebreakPlayers, DateTime.Now, matchDuration, breakMinutes);
+                var createdTiebreakerGroup =
+                    await CreateTiebreakerGroup(
+                        tournament.Id,
+                        tiebreakPlayersFromGroup,
+                        startTime,
+                        matchDuration,
+                        breakMinutes);
 
                 await _context.Groups.AddAsync(createdTiebreakerGroup);
-                await _context.SaveChangesAsync();
-                throw new InvalidOperationException("Tiebreak is going again");
             }
-
-            knockoutPlayers.AddRange(Qualifiers);
-
-            if (tiebreakPlayers.Count > 0 && options.QualifiersPerGroup * options.GroupCount - knockoutPlayers.Count != 0)
-            {
-                var createdTiebreakerGroup = await CreateTiebreakerGroup(tournament.Id,tiebreakPlayers, startTime, matchDuration, breakMinutes);
-
-                await _context.Groups.AddAsync(createdTiebreakerGroup);
-            }
-
-            
 
             await _context.SaveChangesAsync();
-
-            // knockoutPlayers -> direkt in die KnockoutPlayerListe
-            // tiebreakPlayers -> werden erst nach den Tiebreaker-Matches
-            //                    in die KnockoutPlayerListe übernommen
         }
+
 
 
         private async Task<(List<TournamentPlayer> Qualifiers, List<TournamentPlayer> TiebreakPlayers)>
