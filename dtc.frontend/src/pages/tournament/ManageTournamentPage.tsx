@@ -7,15 +7,12 @@ import {
   deleteTournament,
   generateGroups,
   generateKnockout,
-  getRoundsByTournamentId,
   getTournament,
 } from "../../services/tournamentService";
-import { RoundPhase } from "../../enums/RoundPhase";
 import { TournamentMode } from "../../enums/TournamentMode";
 import { DeleteTournamentModal } from "./DeleteTournamentModal";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/player/PlayerDto";
-import type { RoundDto } from "../../dtos/rounds/RoundDto";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -88,18 +85,18 @@ export function ManageTournamentPage() {
     void load();
   }, [tournamentId, isValidTournamentId]);
 
-  // const [rounds, setRounds] = useState<RoundDto[]>([]);
+  const [tconfig, setConfig] = useState<TournamentConfigDto[]>([]);
 
-  // useEffect(() => {
-  //   if (tournament === null) return;
+  useEffect(() => {
+    if (tournament === null) return;
 
-  //   const loadRounds = async () => {
-  //     const response = await getRoundsByTournamentId(tournament.id);
-  //     setRounds(response);
-  //   };
+    const loadConfig = async () => {
+      const response = await getTConfigByTournamentId(tournament.id);
+      setConfig(response);
+    };
 
-  //   loadRounds();
-  // }, [tournament]);
+    loadConfig();
+  }, [tournament]);
 
   if (!isValidTournamentId) {
     return <div>Ungültige Turnier-ID.</div>;

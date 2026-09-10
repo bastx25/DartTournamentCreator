@@ -47,9 +47,6 @@ namespace DTC.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TournamentDto>> Create([FromBody] CreateTournamentDto dto)
         {
-            if (dto.MatchDurationMinutes < 1 || dto.BreakBetweenMatchesMinutes < 0)
-                return BadRequest("Matchdauer muss mindestens 1 Minute und die Pause darf nicht negativ sein.");
-
             var entity = dto.ToEntityFromCreate();
             var created = await _tournamentRepo.CreateAsync(entity);
 
@@ -61,10 +58,6 @@ namespace DTC.Api.Controllers
         {
             var existing = await _tournamentRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
-            if (dto.MatchDurationMinutes < 1)
-                return BadRequest("Die Matchdauer muss mindestens 1 Minute betragen.");
-            if (dto.BreakBetweenMatchesMinutes < 0)
-                return BadRequest("Die Pause darf nicht negativ sein.");
 
             dto.UpdateTournamentEntity(existing);
             await _tournamentRepo.UpdateAsync(existing);
