@@ -32,6 +32,7 @@ builder.Services.AddScoped<ITournamentConfigRepository, TournamentConfigReposito
 
 //Services
 builder.Services.AddScoped<IMatchMakerService, MatchMakerService>();
+builder.Services.AddScoped<IBoardService, BoardService>();
 
 var app = builder.Build();
 
