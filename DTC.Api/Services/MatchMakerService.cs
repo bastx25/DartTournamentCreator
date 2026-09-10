@@ -209,7 +209,6 @@ namespace DTC.Api.Services
             var (knockoutPlayers, tiebreakPlayers) =
                 GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
 
-            tournament.TournamentPlayers.Where(tp => tp.)
 
             var tiebreakerGroup = groups.LastOrDefault(g => g.Name.Contains(MatchStatus.Tiebreaker.ToString()));
 
