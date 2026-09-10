@@ -22,7 +22,8 @@ namespace DTC.Api.Repositories
 
             _context.TournamentPlayers.RemoveRange(existingPlayers);
             await _context.SaveChangesAsync();
-            
+
+            if(playerIds == null) playerIds = new List<int>();
 
             var newPlayers = await _context.Players
                 .Where(p => playerIds.Contains(p.Id))

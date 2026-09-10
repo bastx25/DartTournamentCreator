@@ -11,17 +11,10 @@ namespace DTC.Api.Dtos.Tournament
 
         public string Name { get; set; } = string.Empty;
 
-        public DateTimeOffset StartDate { get; set; }
-
         public string? Description { get; set; }
-
-        public TournamentMode Mode { get; set; }
 
         public TournamentStatus Status { get; set; }
 
-        public int MatchDurationMinutes { get; set; }
-
-        public int BreakBetweenMatchesMinutes { get; set; }
-
+        public DateTimeOffset StartDate { get; set; }
     }
 }

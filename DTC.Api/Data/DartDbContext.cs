@@ -1,5 +1,6 @@
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace DTC.Api.Data
 {
@@ -32,8 +33,26 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(t => t.Id);
 
+                entity.HasOne(t => t.Config)
+                    .WithOne(c => c.Tournament)
+                    .HasForeignKey<TournamentConfig>(c => c.TournamentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
             });
 
+
+            // =========================================================
+            // TournamentConfig
+            // =========================================================
+
+            modelBuilder.Entity<TournamentConfig>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                // TournamentId muss bei einer 1:1-Beziehung eindeutig sein
+                entity.HasIndex(c => c.TournamentId)
+                    .IsUnique();
+            });
 
             // =========================================================
             // TournamentPlayer

@@ -124,8 +124,8 @@ namespace DTC.Api.Services
             }
 
             var startTime = options.StartTime ?? tournament.StartDate;
-            var matchDuration = options.MatchDurationMinutes ?? tournament.MatchDurationMinutes;
-            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.BreakBetweenMatchesMinutes;
+            var matchDuration = options.MatchDurationMinutes ?? tournament.Config.MatchDurationMinutes;
+            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.Config.BreakBetweenMatchesMinutes;
 
             ValidateSchedule(startTime, matchDuration, breakMinutes);
 
@@ -208,8 +208,8 @@ namespace DTC.Api.Services
                 GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
 
             var startTime = options.StartTime ?? tournament.StartDate;
-            var matchDuration = options.MatchDurationMinutes ?? tournament.MatchDurationMinutes;
-            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.BreakBetweenMatchesMinutes;
+            var matchDuration = options.MatchDurationMinutes ?? tournament.Config.MatchDurationMinutes;
+            var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.Config.BreakBetweenMatchesMinutes;
 
 
             if (tiebreakPlayers.Count > 0)

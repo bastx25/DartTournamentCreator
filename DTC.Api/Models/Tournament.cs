@@ -7,11 +7,10 @@ namespace DTC.Api.Models
     public class Tournament
     {
         public int Id { get; set; }
-
         public string Name { get; set; } = string.Empty;
-        public DateTimeOffset StartDate { get; set; }
         public string? Description { get; set; }
-
+        public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
+        public DateTimeOffset StartDate { get; set; }
         public TournamentConfig Config { get; set; } = null!;
 
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; }

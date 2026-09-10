@@ -82,7 +82,7 @@ namespace DTC.Api.Controllers
         {
             var match = await _context.Matches
                 .Include(m => m.Round)
-                .ThenInclude(r => r.Tournament)
+                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
                         .ThenInclude(tp => tp.Player)
