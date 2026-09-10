@@ -39,7 +39,6 @@ export function ManageTournamentPage() {
     useState<TournamentDto | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [players, setPlayers] = useState<PlayerDto[]>([]);
-  const [tplayers, setTPlayers] = useState<TournamentPlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
   const [groupSize, setGroupSize] = useState(5);
@@ -73,7 +72,6 @@ export function ManageTournamentPage() {
 
         setTournament(tournamentData);
         setPlayers(playerData);
-        setTPlayers(tPlayerData);
 
         setSelectedPlayerIds(
           tPlayerData.map((p: TournamentPlayerDto) => p.playerId),
@@ -119,6 +117,8 @@ export function ManageTournamentPage() {
       );
 
       setMatchDurationMinutes(selectedTConfig?.matchDurationMinutes ?? 15);
+      setGroupCount(selectedTConfig?.groupCount ?? 2);
+      setQualifiersPerGroup(selectedTConfig?.qualifiersPerGroup ?? 2);
     };
 
     configFields();

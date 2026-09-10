@@ -14,6 +14,17 @@ namespace DTC.Api.Repositories
         {
             _context = context;   
         }
+
+        public async Task<TournamentConfig> CreateEmptyConfig(int tournamentId)
+        {
+            var newConfig = new TournamentConfig { TournamentId = tournamentId};
+
+            await _context.TournamentConfigs.AddAsync(newConfig);
+            await _context.SaveChangesAsync();
+
+            return newConfig;
+        }
+
         public async Task<IEnumerable<TournamentConfig>> GetConfigsAsync(int tournamentid)
         {
             return await _context.TournamentConfigs.Where(c => c.TournamentId == tournamentid).OrderBy(x => x.VersionNr).ToListAsync();
@@ -23,7 +34,10 @@ namespace DTC.Api.Repositories
         {
             var config = await _context.TournamentConfigs.FirstOrDefaultAsync(x => x.TournamentId == id);
 
-            if (config == null) return;
+            if (config == null)
+            {
+                config = await CreateEmptyConfig(id);
+            }
 
             config.GroupCount = dto.GroupCount;
             config.PlayersPerGroup = dto.PlayersPerGroup;
