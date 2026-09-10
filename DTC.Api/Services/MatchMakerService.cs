@@ -45,6 +45,7 @@ namespace DTC.Api.Services
 
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)
+                .Include(t => t.Config)
                 .FirstOrDefaultAsync(t => t.Id == tournamentId);
 
             #region Validation

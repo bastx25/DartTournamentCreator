@@ -85,6 +85,7 @@ namespace DTC.Api.Controllers
         {
             try
             {
+                await _configRepo.UpdateConfig(id, dto);
                 await _matchMakerService.GenerateGroupsAsync(id, dto);
                 return Ok(new { Message = "Gruppenphase wurde generiert." });
             }
