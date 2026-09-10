@@ -201,32 +201,50 @@ namespace DTC.Api.Services
 
             var groups = await _groupRepo.GetGroupsAsync(tournamentId);
 
-            if (groups.Any(group => group.Matches.Any(m => m.Status != MatchStatus.Completed)))
-                throw new InvalidOperationException("Not all groups are finished");
+            //if (groups.Any(group => group.Matches.Any(m => m.Status != MatchStatus.Completed)))
+            //    throw new InvalidOperationException("Not all groups are finished");
 
             var groupResults = await GetGroupResults(groups);
 
             var (knockoutPlayers, tiebreakPlayers) =
                 GetKnockoutPlayers(groupResults, options.QualifiersPerGroup);
 
-            var tiebreakerGroups = groups.Where(g => g.Name.Contains(MatchStatus.Tiebreaker.ToString())).ToList();
+            tournament.TournamentPlayers.Where(tp => tp.)
+
+            var tiebreakerGroup = groups.LastOrDefault(g => g.Name.Contains(MatchStatus.Tiebreaker.ToString()));
+
+            var tiebreakerGroups = tiebreakerGroup != null
+                ? new List<Group> { tiebreakerGroup }
+                : new List<Group>();
 
 
             int qualifiersFromTiebreak = options.QualifiersPerGroup * options.GroupCount - knockoutPlayers.Count;
-            var (qualifiedPlayers, tiebreakPlayers2) = GetQualifiersFromTiebreaker(tiebreakerGroups, qualifiersFromTiebreak);
+            var (Qualifiers, TiebreakPlayers) = await GetQualifiersFromTiebreaker(tiebreakerGroups, qualifiersFromTiebreak);
+
 
             var startTime = options.StartTime ?? tournament.StartDate;
             var matchDuration = options.MatchDurationMinutes ?? tournament.Config.MatchDurationMinutes;
             var breakMinutes = options.BreakBetweenMatchesMinutes ?? tournament.Config.BreakBetweenMatchesMinutes;
 
-
-            if (tiebreakPlayers.Count > 0)
+            if (TiebreakPlayers.Any())
             {
-                var createdTiebreakerGroup = await CreateTiebreakerGroup(tiebreakPlayers, startTime, matchDuration, breakMinutes);
-                createdTiebreakerGroup.TournamentId = tournament.Id;
+                var createdTiebreakerGroup = await CreateTiebreakerGroup(tournament.Id, TiebreakPlayers, DateTime.Now, matchDuration, breakMinutes);
+
+                await _context.Groups.AddAsync(createdTiebreakerGroup);
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Tiebreak is going again");
+            }
+
+            knockoutPlayers.AddRange(Qualifiers);
+
+            if (tiebreakPlayers.Count > 0 && options.QualifiersPerGroup * options.GroupCount - knockoutPlayers.Count != 0)
+            {
+                var createdTiebreakerGroup = await CreateTiebreakerGroup(tournament.Id,tiebreakPlayers, startTime, matchDuration, breakMinutes);
 
                 await _context.Groups.AddAsync(createdTiebreakerGroup);
             }
+
+            
 
             await _context.SaveChangesAsync();
 
@@ -235,14 +253,38 @@ namespace DTC.Api.Services
             //                    in die KnockoutPlayerListe übernommen
         }
 
-        private (List<TournamentPlayer>, List<TournamentPlayer>) GetQualifiersFromTiebreaker(List<Group> tiebreakerGroups, int qualifiersFromTiebreak)
+
+        private async Task<(List<TournamentPlayer> Qualifiers, List<TournamentPlayer> TiebreakPlayers)>
+        GetQualifiersFromTiebreaker(
+        List<Group> tiebreakerGroups,
+        int qualifiersFromTiebreak)
         {
-            
+            if (qualifiersFromTiebreak <= 0 || tiebreakerGroups.Count == 0)
+            {
+                return (
+                    new List<TournamentPlayer>(),
+                    new List<TournamentPlayer>());
+            }
+
+            var groupResults = await GetGroupResults(
+                tiebreakerGroups,
+                includeTiebreakers: true);
+
+            return GetKnockoutPlayers(
+                groupResults,
+                qualifiersFromTiebreak);
         }
 
-        private async Task<Group> CreateTiebreakerGroup(List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+
+
+        private async Task<Group> CreateTiebreakerGroup(int tournamentId, List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
         {
-            var groups = new List<Group> { new Group { Name = MatchStatus.Tiebreaker.ToString() } };
+            var groups = new List<Group> { new Group { 
+                TournamentId = tournamentId,
+                Sequence = _context.Groups.Where(x=> x.TournamentId == tournamentId).Max(x => x.Sequence) + 1,
+                Name = MatchStatus.Tiebreaker.ToString() , 
+                GroupPlayers = tiebreakPlayers.Select(x => new GroupPlayer { TournamentPlayerId = x.Id }).ToList(),
+            }};
                 
             await ScheduleGroupMatches(groups);
 
@@ -251,14 +293,19 @@ namespace DTC.Api.Services
             return groups.First();
         }
 
-        private async Task<List<GroupResult>> GetGroupResults(IEnumerable<Group> groups)
+        private async Task<List<GroupResult>> GetGroupResults(
+            IEnumerable<Group> groups,
+            bool includeTiebreakers = false)
         {
             var results = new List<GroupResult>();
 
             foreach (var group in groups)
             {
-                //skip when group is tiebreaker
-                if (group.Name.Contains(MatchStatus.Tiebreaker.ToString())) continue;
+                if (!includeTiebreakers &&
+                    group.Name.Contains(MatchStatus.Tiebreaker.ToString()))
+                {
+                    continue;
+                }
 
                 var matches = await _matchRepo.GetByGroupIdAsync(group.Id);
 
@@ -406,7 +453,7 @@ namespace DTC.Api.Services
                 value /= 26;
             }
 
-            return result;
+            return "Gruppe " + result;
         }
 
 

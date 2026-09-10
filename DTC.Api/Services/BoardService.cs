@@ -16,6 +16,7 @@ namespace DTC.Api.Services
 
         public async Task SetBoards(List<Group> groups, DateTimeOffset startTime, int matchDuration, int breakMinutes)
         {
+            //TODO: MAJOR players also have to be availiable 
             var boards = await GetActiveBoards();
 
             var matches = GetMatchesFromGroups(groups)
