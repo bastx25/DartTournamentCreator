@@ -15,17 +15,20 @@ namespace DTC.Api.Controllers
         private readonly IMatchMakerService _matchMakerService;
         private readonly IGroupRepository _groupRepo;
         private readonly IRoundRepository _roundRepo;
+        private readonly ITournamentConfigRepository _configRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
             IGroupRepository groupRepository,
             IRoundRepository roundRepository,
+            ITournamentConfigRepository tournamentConfigRepository,
             IMatchMakerService matchMakerService)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
             _groupRepo = groupRepository;
             _roundRepo = roundRepository;
+            _configRepo = tournamentConfigRepository;
         }
 
         [HttpGet]
@@ -131,6 +134,20 @@ namespace DTC.Api.Controllers
             {
                 var rounds = await _roundRepo.GetRoundsByTournamentId(id);
                 return Ok(rounds.Select(r => r.ToRoundDto()));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id:int}/configs")]
+        public async Task<IActionResult> GetConfigsByTournamentId([FromRoute] int id)
+        {
+            try
+            {
+                var configs = await _configRepo.GetConfigsByTournamentId(tournamentid: id);
+                return Ok(configs.Select(c => c.ToTournamentConfigDto()));
             }
             catch (Exception ex)
             {

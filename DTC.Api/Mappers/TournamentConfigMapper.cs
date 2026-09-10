@@ -15,6 +15,7 @@ namespace DTC.Api.Mappers
             {
                 Id = config.Id,
                 TournamentId = config.TournamentId,
+                VersionNr = config.VersionNr,
                 Mode = config.Mode,
                 MatchDurationMinutes = config.MatchDurationMinutes,
                 BreakBetweenMatchesMinutes = config.BreakBetweenMatchesMinutes,
@@ -35,6 +36,7 @@ namespace DTC.Api.Mappers
             {
                 // Id wird von der Datenbank generiert.
                 TournamentId = dto.TournamentId,
+                VersionNr = dto.VersionNr,
                 Mode = dto.Mode,
                 MatchDurationMinutes = dto.MatchDurationMinutes,
                 BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes,
@@ -53,6 +55,7 @@ namespace DTC.Api.Mappers
             TournamentConfig config)
         {
             config.TournamentId = dto.TournamentId;
+            config.VersionNr = dto.VersionNr;
             config.Mode = dto.Mode;
             config.MatchDurationMinutes = dto.MatchDurationMinutes;
             config.BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes;

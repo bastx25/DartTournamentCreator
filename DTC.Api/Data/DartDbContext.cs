@@ -273,6 +273,7 @@ namespace DTC.Api.Data
         public DbSet<Player> Players { get; set; } = null!;
         public DbSet<Round> Rounds { get; set; } = null!;
         public DbSet<Tournament> Tournaments { get; set; } = null!;
+        public DbSet<TournamentConfig> TournamentConfigs { get; set; } = null!;
         public DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;
     }
 }

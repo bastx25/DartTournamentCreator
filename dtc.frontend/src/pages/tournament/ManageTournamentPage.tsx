@@ -7,12 +7,14 @@ import {
   deleteTournament,
   generateGroups,
   generateKnockout,
+  getTConfigsByTournamentId,
   getTournament,
 } from "../../services/tournamentService";
 import { TournamentMode } from "../../enums/TournamentMode";
 import { DeleteTournamentModal } from "./DeleteTournamentModal";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { TournamentConfigDto } from "../../dtos/tournamentConfig/TournamentConfigDto";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("de-DE", {
@@ -35,6 +37,7 @@ export function ManageTournamentPage() {
     useState<TournamentDto | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [players, setPlayers] = useState<PlayerDto[]>([]);
+  const [tplayers, setTPlayers] = useState<PlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
   const [groupSize, setGroupSize] = useState(5);
@@ -60,18 +63,20 @@ export function ManageTournamentPage() {
         setLoading(true);
         setError(null);
 
-        const [tournamentData, playerData] = await Promise.all([
+        const [tournamentData, playerData, tPlayerData] = await Promise.all([
           getTournament(tournamentId),
           getPlayers(),
+          getTPlayers(tournamentId),
         ]);
 
         setTournament(tournamentData);
         setBreakBetweenMatchesMinutes(
-          tournamentData.breakBetweenMatchesMinutes ?? 0,
+          selectedTConfig?.breakBetweenMatchesMinutes ?? 0,
         );
 
-        setMatchDurationMinutes(tournamentData.matchDurationMinutes);
+        setMatchDurationMinutes(selectedTConfig?.matchDurationMinutes ?? 15);
         setPlayers(playerData);
+        setTPlayers(tPlayerData);
 
         setSelectedPlayerIds(playerData.map((player: PlayerDto) => player.id));
       } catch (err) {
@@ -83,20 +88,30 @@ export function ManageTournamentPage() {
     }
 
     void load();
-  }, [tournamentId, isValidTournamentId]);
+  }, []);
 
-  const [tconfig, setConfig] = useState<TournamentConfigDto[]>([]);
+  const [tconfigs, setConfigs] = useState<TournamentConfigDto[]>([]);
 
   useEffect(() => {
     if (tournament === null) return;
 
     const loadConfig = async () => {
-      const response = await getTConfigByTournamentId(tournament.id);
-      setConfig(response);
+      const response = await getTConfigsByTournamentId(tournament.id);
+      setConfigs(response);
     };
 
     loadConfig();
   }, [tournament]);
+
+  const [selectedTConfig, setSelectedTConfig] =
+    useState<TournamentConfigDto | null>();
+  useEffect(() => {
+    const selectTConfig = async () => {
+      setSelectedTConfig(tconfigs.length > 0 ? tconfigs[0] : null);
+    };
+
+    selectTConfig();
+  }, [tconfigs]);
 
   if (!isValidTournamentId) {
     return <div>Ungültige Turnier-ID.</div>;
@@ -121,7 +136,7 @@ export function ManageTournamentPage() {
 
     if (
       !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
-      tournament?.mode == TournamentMode.GrouStageandKnockout
+      selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
     ) {
       setError(
         "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
@@ -487,7 +502,8 @@ export function ManageTournamentPage() {
                     : "Zufällig Gruppen & Matches erstellen"}
                 </button>
                 {knockoutPrepared &&
-                  tournament?.mode === TournamentMode.GrouStageandKnockout && (
+                  selectedTConfig?.mode ===
+                    TournamentMode.GrouStageandKnockout && (
                     <button
                       type="button"
                       disabled={generating || knockoutGenerated}

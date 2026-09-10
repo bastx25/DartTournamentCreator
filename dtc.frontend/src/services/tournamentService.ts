@@ -4,6 +4,7 @@ import type { TournamentDto } from "../dtos/tournament/TournamentDto";
 import type { GenerateGroupsDto } from "../dtos/matchMaker/GenerateGroupDto";
 import type { GroupDto } from "../dtos/group/GroupDto";
 import type { RoundDto } from "../dtos/rounds/RoundDto";
+import type { TournamentConfigDto } from "../dtos/tournamentConfig/TournamentConfigDto";
 
 export async function createTournament(
   data: CreateTournamentDto,
@@ -80,6 +81,16 @@ export async function getRoundsByTournamentId(
 ): Promise<RoundDto[]> {
   const response = await axios.get<RoundDto[]>(
     `/api/tournaments/${tournamentId}/rounds`,
+  );
+
+  return response.data ?? [];
+}
+
+export async function getTConfigsByTournamentId(
+  tournamentId: number,
+): Promise<TournamentConfigDto[]> {
+  const response = await axios.get<TournamentConfigDto[]>(
+    `/api/tournaments/${tournamentId}/configs`,
   );
 
   return response.data ?? [];

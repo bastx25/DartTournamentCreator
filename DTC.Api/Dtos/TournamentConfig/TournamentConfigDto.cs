@@ -8,6 +8,8 @@ namespace DTC.Api.Dtos.TournamentConfig
 
         public int TournamentId { get; set; }
 
+        public int VersionNr { get; set; }
+
         public TournamentMode Mode { get; set; }
 
         public int MatchDurationMinutes { get; set; }

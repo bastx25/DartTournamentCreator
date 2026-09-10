@@ -8,6 +8,9 @@ namespace DTC.Api.Dtos.TournamentConfig
         [Required(ErrorMessage = "Die Turnier-ID ist ein Pflichtfeld.")]
         public int TournamentId { get; set; }
 
+        [Required(ErrorMessage = "Die Versionsnummer ist ein Pflichtfeld.")]
+        public int VersionNr { get; set; }
+
         public TournamentMode Mode { get; set; } = TournamentMode.GroupStage;
 
         [Range(1, int.MaxValue, ErrorMessage = "Die Matchdauer muss mindestens 1 Minute betragen.")]

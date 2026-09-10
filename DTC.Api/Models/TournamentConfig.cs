@@ -9,6 +9,7 @@ namespace DTC.Api.Models
         public int Id { get; set; }
         public int TournamentId { get; set; }
         public Tournament Tournament { get; set; } = null!;
+        public int VersionNr { get; set; }
         public TournamentMode Mode { get; set; } = TournamentMode.GroupStage;
         public int MatchDurationMinutes { get; set; } = 30;
         public int BreakBetweenMatchesMinutes { get; set; } = 5;
