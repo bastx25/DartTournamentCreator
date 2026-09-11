@@ -81,7 +81,7 @@ export function DashboardMatch({ match, index }: DashboardMatchProps) {
 
       <div className="sm:text-right">
         <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+          className={`inline-flex braketed-full px-2.5 py-1 text-xs font-medium ${
             match.status === MatchStatus.InProgress
               ? "bg-amber-50 text-amber-700"
               : match.status === MatchStatus.Completed

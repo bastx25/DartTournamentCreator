@@ -2,7 +2,7 @@ import z from "zod";
 import { MatchStatus } from "../../enums/MatchStatus";
 
 export const updateMatchDtoSchema = z.object({
-  roundId: z.number().int().min(1),
+  braketId: z.number().int().min(1),
   groupId: z.number().int().nullable(),
   boardId: z.number().int().nullable(),
   status: z.enum(MatchStatus),

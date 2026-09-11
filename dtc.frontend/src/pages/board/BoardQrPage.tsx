@@ -41,9 +41,9 @@ export function BoardQrPage() {
 
       <div className="min-h-screen bg-gray-50 text-gray-900 print:bg-white">
         <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-          <header className="mb-8 flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between print:hidden">
+          <header className="mb-8 flex flex-col gap-5 braketed-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between print:hidden">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 text-xl shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center braketed-xl bg-red-600 text-xl shadow-sm">
                 🎯
               </div>
               <div>
@@ -58,13 +58,13 @@ export function BoardQrPage() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
             >
               QR drucken
             </button>
           </header>
 
-          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm print:border-0 print:shadow-none">
+          <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm print:border-0 print:shadow-none">
             <div className="border-b border-gray-100 px-6 py-5 text-center sm:px-10">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
                 Board-Zugang
@@ -79,7 +79,7 @@ export function BoardQrPage() {
             </div>
 
             <div className="px-6 py-8 text-center sm:px-10 sm:py-10">
-              <div className="mx-auto w-fit rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+              <div className="mx-auto w-fit braketed-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
                 <img
                   src={qrUrl}
                   alt={`QR-Code für ${boardName}`}
@@ -87,7 +87,7 @@ export function BoardQrPage() {
                 />
               </div>
 
-              <div className="mx-auto mt-7 max-w-xl rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="mx-auto mt-7 max-w-xl braketed-lg border border-gray-200 bg-gray-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
                   Scan-Ziel
                 </p>
@@ -97,7 +97,7 @@ export function BoardQrPage() {
               </div>
 
               <div className="mt-8 grid gap-3 text-left sm:grid-cols-3">
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <div className="braketed-lg border border-gray-200 bg-white p-4">
                   <p className="text-sm font-semibold text-gray-900">
                     1. Scannen
                   </p>
@@ -105,7 +105,7 @@ export function BoardQrPage() {
                     QR-Code mit dem Smartphone öffnen.
                   </p>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <div className="braketed-lg border border-gray-200 bg-white p-4">
                   <p className="text-sm font-semibold text-gray-900">
                     2. Spielen
                   </p>
@@ -113,7 +113,7 @@ export function BoardQrPage() {
                     Das zugehörige Spiel auswählen und starten.
                   </p>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <div className="braketed-lg border border-gray-200 bg-white p-4">
                   <p className="text-sm font-semibold text-gray-900">
                     3. Ergebnis
                   </p>

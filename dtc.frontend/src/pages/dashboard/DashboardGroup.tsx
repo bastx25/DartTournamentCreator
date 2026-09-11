@@ -20,7 +20,7 @@ export function DashboardGroup({ group }: DashboardGroupProps) {
   }, [group]);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

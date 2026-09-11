@@ -89,7 +89,7 @@ export function CreateTournamentPage() {
 
   const inputClass = (field: keyof CreateTournamentDto) =>
     `
-      mt-2 block w-full rounded-lg border bg-white px-3 py-2.5
+      mt-2 block w-full braketed-lg border bg-white px-3 py-2.5
       text-sm text-gray-900 shadow-sm outline-none transition
       placeholder:text-gray-400
       focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
@@ -117,12 +117,12 @@ export function CreateTournamentPage() {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+          <div className="mb-6 braketed-lg border border-red-500/20 bg-red-500/10 p-4">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
           <form onSubmit={handleSubmit}>
             <div className="space-y-6 p-6 sm:p-8">
               {/* Name */}
@@ -231,7 +231,7 @@ export function CreateTournamentPage() {
                   {modeOptions.map((option) => (
                     <label
                       key={option.value}
-                      className={`flex cursor-pointer gap-3 rounded-lg border p-4 transition ${
+                      className={`flex cursor-pointer gap-3 braketed-lg border p-4 transition ${
                         formData.mode === option.value
                           ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500"
                           : "border-gray-200 bg-white hover:bg-gray-50"
@@ -302,7 +302,7 @@ export function CreateTournamentPage() {
                 type="button"
                 disabled={adding}
                 onClick={() => navigate(-1)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                className="braketed-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Abbrechen
               </button>
@@ -310,7 +310,7 @@ export function CreateTournamentPage() {
               <button
                 type="submit"
                 disabled={adding}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {adding && (
                   <svg

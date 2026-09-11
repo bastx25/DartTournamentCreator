@@ -6,7 +6,7 @@ interface PlayerDetailsProps {
 
 export function PlayerDetails({ player }: PlayerDetailsProps) {
   return (
-    <aside className="h-fit rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
+    <aside className="h-fit braketed-xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
       {player ? (
         <>
           <div className="mb-5 border-b border-gray-200 pb-5">

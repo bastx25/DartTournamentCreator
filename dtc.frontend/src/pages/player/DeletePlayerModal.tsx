@@ -22,7 +22,7 @@ export function DeletePlayerModal({
       role="presentation"
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+        className="w-full max-w-md overflow-hidden braketed-2xl bg-white shadow-2xl ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -31,7 +31,7 @@ export function DeletePlayerModal({
       >
         <div className="p-6">
           {/* Icon */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+          <div className="flex h-12 w-12 items-center justify-center braketed-full bg-red-50">
             <svg
               className="h-6 w-6 text-red-600"
               viewBox="0 0 24 24"
@@ -41,13 +41,13 @@ export function DeletePlayerModal({
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="braket"
+                strokeLinejoin="braket"
                 d="M12 9v3.75m-9.303 3.376L10.39 3.746a1.875 1.875 0 013.22 0l7.693 12.38A1.875 1.875 0 0119.693 19H4.307a1.875 1.875 0 01-1.61-2.874z"
               />
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="braket"
+                strokeLinejoin="braket"
                 d="M12 16.5h.008v.008H12V16.5z"
               />
             </svg>
@@ -76,7 +76,7 @@ export function DeletePlayerModal({
             type="button"
             disabled={deleting}
             onClick={onCancel}
-            className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="braketed-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Abbrechen
           </button>
@@ -85,7 +85,7 @@ export function DeletePlayerModal({
             type="button"
             disabled={deleting}
             onClick={onConfirm}
-            className="inline-flex min-w-25 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-w-25 items-center justify-center gap-2 braketed-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {deleting && (
               <svg

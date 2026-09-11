@@ -4,21 +4,21 @@ import { formatDate } from "../../utils/formatDate";
 
 interface DashboardTournamentDetailsProps {
   tournament: TournamentDto;
-  roundsLength: number;
+  braketsLength: number;
   totalMatches: number;
-  activeRoundCount: number;
+  activeBraketCount: number;
 }
 
 export function DashboardTournamentDetails({
   tournament,
-  roundsLength,
+  braketsLength,
   totalMatches,
-  activeRoundCount,
+  activeBraketCount,
 }: DashboardTournamentDetailsProps) {
   return (
     <section
       key={tournament.id}
-      className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+      className="mb-6 overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm"
     >
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -27,7 +27,7 @@ export function DashboardTournamentDetails({
               <h2 className="text-xl font-semibold tracking-tight text-gray-900">
                 {tournament.name}
               </h2>
-              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              <span className="braketed-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
                 {tournamentStatusLabel(tournament.status)}
               </span>
             </div>
@@ -41,7 +41,7 @@ export function DashboardTournamentDetails({
             <div>
               <dt className="text-gray-500">Runden</dt>
               <dd className="mt-1 text-lg font-semibold text-gray-900">
-                {roundsLength}
+                {braketsLength}
               </dd>
             </div>
             <div>
@@ -53,7 +53,7 @@ export function DashboardTournamentDetails({
             <div>
               <dt className="text-gray-500">Laufende Runden</dt>
               <dd className="mt-1 text-lg font-semibold text-gray-900">
-                {activeRoundCount}
+                {activeBraketCount}
               </dd>
             </div>
           </dl>

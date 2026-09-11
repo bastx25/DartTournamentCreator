@@ -11,7 +11,7 @@ export function TournamentList({
   onManageTournament,
 }: TournamentListProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4 sm:px-6">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-gray-900">

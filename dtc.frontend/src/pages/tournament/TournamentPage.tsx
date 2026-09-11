@@ -25,7 +25,7 @@ export function TournamentPage() {
         )}
 
         {error && (
-          <div className="mx-auto max-w-7xl rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+          <div className="mx-auto max-w-7xl braketed-lg border border-red-500/20 bg-red-500/10 p-4">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}

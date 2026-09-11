@@ -4,7 +4,7 @@ import { matchParticipantDtoSchema } from "../matchParticipant/MatchParticipantD
 
 export const matchDtoSchema = z.object({
   id: z.number(),
-  roundId: z.number(),
+  braketId: z.number(),
   groupId: z.number().int().nullable(),
   boardId: z.number().int().nullable(),
   status: z.enum(MatchStatus),

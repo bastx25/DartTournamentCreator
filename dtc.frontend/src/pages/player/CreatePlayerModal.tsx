@@ -61,7 +61,7 @@ export function CreatePlayerModal({
       role="presentation"
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+        className="w-full max-w-md overflow-hidden braketed-2xl bg-white shadow-2xl ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -70,7 +70,7 @@ export function CreatePlayerModal({
         <form onSubmit={handleSubmit}>
           <div className="p-6">
             {/* Icon */}
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
+            <div className="flex h-12 w-12 items-center justify-center braketed-full bg-blue-50">
               <svg
                 className="h-6 w-6 text-blue-600"
                 viewBox="0 0 24 24"
@@ -80,13 +80,13 @@ export function CreatePlayerModal({
                 aria-hidden="true"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="braket"
+                  strokeLinejoin="braket"
                   d="M16.862 3.487a2.121 2.121 0 013 3L7.5 18.849 3 20l1.151-4.5L16.862 3.487z"
                 />
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="braket"
+                  strokeLinejoin="braket"
                   d="M15 5l3 3"
                 />
               </svg>
@@ -120,7 +120,7 @@ export function CreatePlayerModal({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                  className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
                     errors.firstName
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
@@ -149,7 +149,7 @@ export function CreatePlayerModal({
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                  className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
                     errors.lastName
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
@@ -178,7 +178,7 @@ export function CreatePlayerModal({
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                  className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
                     errors.nickname
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
@@ -201,7 +201,7 @@ export function CreatePlayerModal({
               type="button"
               disabled={adding}
               onClick={onCancel}
-              className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="braketed-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Abbrechen
             </button>
@@ -209,7 +209,7 @@ export function CreatePlayerModal({
             <button
               type="submit"
               disabled={adding}
-              className="inline-flex min-w-32 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-w-32 items-center justify-center gap-2 braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {adding && (
                 <svg

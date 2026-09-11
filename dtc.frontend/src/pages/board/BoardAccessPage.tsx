@@ -166,7 +166,7 @@ export function BoardAccessPage() {
     return (
       <main className="min-h-screen bg-gray-50 px-4 py-12 text-gray-900">
         <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center">
-          <div className="rounded-xl border border-gray-200 bg-white px-6 py-5 text-sm text-gray-500 shadow-sm">
+          <div className="braketed-xl border border-gray-200 bg-white px-6 py-5 text-sm text-gray-500 shadow-sm">
             Board wird geladen...
           </div>
         </div>
@@ -182,10 +182,10 @@ export function BoardAccessPage() {
 
       <div className="min-h-screen bg-gray-50 text-gray-900">
         <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-          <header className="mb-8 flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <header className="mb-8 flex flex-col gap-5 braketed-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-600 text-xl shadow-sm">
+                <div className="flex h-11 w-11 items-center justify-center braketed-xl bg-red-600 text-xl shadow-sm">
                   🎯
                 </div>
                 <div>
@@ -213,21 +213,21 @@ export function BoardAccessPage() {
             <button
               type="button"
               onClick={() => void refresh()}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="inline-flex items-center justify-center braketed-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >
               ↻ Aktualisieren
             </button>
           </header>
 
           {error && (
-            <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-700">
+            <div className="mb-6 braketed-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-700">
               {error}
             </div>
           )}
 
           {matches.length === 0 ? (
-            <section className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-2xl">
+            <section className="braketed-xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center braketed-full bg-gray-100 text-2xl">
                 🎯
               </div>
               <h2 className="mt-4 text-lg font-semibold text-gray-900">

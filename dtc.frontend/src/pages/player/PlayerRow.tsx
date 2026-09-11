@@ -25,7 +25,7 @@ export function PlayerRow({
       {/* Player */}
       <div className="flex min-w-0 items-center gap-2">
         {selected && (
-          <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+          <span className="h-2 w-2 shrink-0 braketed-full bg-blue-500" />
         )}
 
         <span
@@ -56,7 +56,7 @@ export function PlayerRow({
             e.stopPropagation();
             onUpdate(player);
           }}
-          className="rounded-md px-1.5 py-1 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+          className="braketed-md px-1.5 py-1 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
           title="Edit player"
         >
           Edit
@@ -68,7 +68,7 @@ export function PlayerRow({
             e.stopPropagation();
             onDelete(player);
           }}
-          className="rounded-md px-1.5 py-1 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="braketed-md px-1.5 py-1 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
           title="Delete player"
         >
           Delete

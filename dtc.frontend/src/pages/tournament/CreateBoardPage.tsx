@@ -60,7 +60,7 @@ export function CreateBoardPage() {
 
   const inputClass = (field: keyof CreateBoardDto) =>
     `
-      mt-2 block w-full rounded-lg border bg-white px-3 py-2.5
+      mt-2 block w-full braketed-lg border bg-white px-3 py-2.5
       text-sm text-gray-900 shadow-sm outline-none
       transition
       placeholder:text-gray-400
@@ -90,7 +90,7 @@ export function CreateBoardPage() {
         </div>
 
         {/* Card */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
           <form onSubmit={handleSubmit}>
             <div className="space-y-6 p-6 sm:p-8">
               {/* Location ID */}
@@ -206,7 +206,7 @@ export function CreateBoardPage() {
               </div>
 
               {/* Active */}
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="braketed-lg border border-gray-200 bg-gray-50 p-4">
                 <label
                   htmlFor="isActive"
                   className="flex cursor-pointer items-center gap-3"
@@ -221,7 +221,7 @@ export function CreateBoardPage() {
                         isActive: event.target.checked,
                       });
                     }}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    className="h-4 w-4 braketed border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                   />
 
                   <div>
@@ -241,7 +241,7 @@ export function CreateBoardPage() {
             <div className="flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">
               <button
                 type="button"
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="braketed-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 onClick={() => window.history.back()}
               >
                 Abbrechen
@@ -250,7 +250,7 @@ export function CreateBoardPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                className="braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? "Board wird erstellt..." : "Board erstellen"}
               </button>

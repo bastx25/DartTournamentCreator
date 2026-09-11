@@ -19,7 +19,7 @@ export function PlayerList({
   onAddPlayer,
 }: PlayerListProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-gray-900">
@@ -37,7 +37,7 @@ export function PlayerList({
             e.stopPropagation();
             onAddPlayer(true);
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-600 text-xl font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          className="flex h-9 w-9 items-center justify-center braketed-lg bg-green-600 text-xl font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           title="Spieler hinzufügen"
         >
           +

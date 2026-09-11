@@ -48,7 +48,7 @@ export function BoardAccessMatch({
   return (
     <section
       key={match.matchId}
-      className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+      className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm"
     >
       <div className="border-b border-gray-100 px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -62,7 +62,7 @@ export function BoardAccessMatch({
             </p>
           </div>
           <span
-            className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusClass(match.status)}`}
+            className={`braketed-full border px-3 py-1 text-xs font-semibold ${statusClass(match.status)}`}
           >
             {matchStatusLabel(match.status)}
           </span>
@@ -79,7 +79,7 @@ export function BoardAccessMatch({
             </p>
             <p className="mt-1 text-xs text-gray-400">Spieler 1</p>
           </div>
-          <div className="rounded-lg bg-gray-50 px-4 py-2 text-2xl font-bold tracking-tight text-gray-900 sm:px-5 sm:text-3xl">
+          <div className="braketed-lg bg-gray-50 px-4 py-2 text-2xl font-bold tracking-tight text-gray-900 sm:px-5 sm:text-3xl">
             {match.participants[0]?.score ?? 0} :{" "}
             {match.participants[1]?.score ?? 0}
           </div>
@@ -98,7 +98,7 @@ export function BoardAccessMatch({
             type="button"
             onClick={() => void handleStart(match)}
             disabled={busyMatchId === match.matchId}
-            className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 w-full braketed-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busyMatchId === match.matchId
               ? "Wird gestartet..."
@@ -110,14 +110,14 @@ export function BoardAccessMatch({
           <button
             type="button"
             onClick={() => setSelectedMatchId(match.matchId)}
-            className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="mt-6 w-full braketed-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
           >
             Spiel beenden & Score eingeben
           </button>
         )}
 
         {match.status === MatchStatus.InProgress && editing && (
-          <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:p-5">
+          <div className="mt-6 braketed-lg border border-gray-200 bg-gray-50 p-4 sm:p-5">
             <div className="mb-4">
               <h3 className="text-base font-semibold text-gray-900">
                 Endergebnis eintragen
@@ -153,7 +153,7 @@ export function BoardAccessMatch({
                           },
                         }))
                       }
-                      className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-2xl font-bold text-gray-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="mt-2 block w-full braketed-lg border border-gray-300 bg-white px-3 py-3 text-2xl font-bold text-gray-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                   </label>
                 );
@@ -163,7 +163,7 @@ export function BoardAccessMatch({
               <button
                 type="button"
                 onClick={() => setSelectedMatchId(null)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
+                className="braketed-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
               >
                 Abbrechen
               </button>
@@ -171,7 +171,7 @@ export function BoardAccessMatch({
                 type="button"
                 onClick={() => void handleFinish(match)}
                 disabled={busyMatchId === match.matchId}
-                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="braketed-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {busyMatchId === match.matchId
                   ? "Speichert..."

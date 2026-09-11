@@ -5,8 +5,8 @@ import type { MatchParticipantDto } from "../dtos/matchParticipant/MatchParticip
 
 export interface BoardMatchDto {
   matchId: number;
-  roundId: number;
-  roundName: string | null;
+  braketId: number;
+  braketName: string | null;
   tournamentName: string;
   plannedStart: string | null;
   actualStart: string | null;

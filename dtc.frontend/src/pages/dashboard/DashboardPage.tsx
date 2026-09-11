@@ -6,13 +6,13 @@ import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
 import {
   getGroupsByTournamentId,
-  getRoundsByTournamentId,
+  getBraketsByTournamentId,
   getTournament,
 } from "../../services/tournamentService";
 import type { GroupDto } from "../../dtos/group/GroupDto";
-import { DashboardRound } from "./DashboardRound";
+import { DashboardBraket } from "./DashboardBraket";
 import { DashboardGroup } from "./DashboardGroup";
-import type { RoundDto } from "../../dtos/rounds/RoundDto";
+import type { BraketDto } from "../../dtos/brakets/BraketDto";
 
 export function DashboardPage() {
   const {
@@ -49,9 +49,9 @@ export function DashboardPage() {
 
   const totalMatches = 3;
 
-  const activeRoundCount = 2;
+  const activeBraketCount = 2;
 
-  const roundsLength = 4;
+  const braketsLength = 4;
 
   const dashboardError = tournamentsError;
 
@@ -77,17 +77,17 @@ export function DashboardPage() {
     loadGroups();
   }, [tournament]);
 
-  const [rounds, setRounds] = useState<RoundDto[]>([]);
+  const [brakets, setBrakets] = useState<BraketDto[]>([]);
 
   useEffect(() => {
     if (tournament === null) return;
 
-    const loadRounds = async () => {
-      const response = await getRoundsByTournamentId(tournament.id);
-      setRounds(response);
+    const loadBrakets = async () => {
+      const response = await getBraketsByTournamentId(tournament.id);
+      setBrakets(response);
     };
 
-    loadRounds();
+    loadBrakets();
   }, [tournament]);
 
   return (
@@ -102,7 +102,7 @@ export function DashboardPage() {
           tournaments={tournaments}
         />
         {dashboardError && (
-          <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+          <div className="mb-6 braketed-lg border border-red-500/20 bg-red-500/10 p-4">
             <p className="text-sm text-red-600">{dashboardError}</p>
           </div>
         )}
@@ -114,7 +114,7 @@ export function DashboardPage() {
           </div>
         )}
         {!tournamentsLoading && tournaments.length === 0 && !dashboardError && (
-          <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+          <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900">
               Keine aktiven Turniere
             </h2>
@@ -127,13 +127,13 @@ export function DashboardPage() {
           <>
             <DashboardTournamentDetails
               tournament={tournament}
-              roundsLength={roundsLength}
+              braketsLength={braketsLength}
               totalMatches={totalMatches}
-              activeRoundCount={activeRoundCount}
+              activeBraketCount={activeBraketCount}
             />
 
             {groups.length === 0 && (
-              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+              <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Gruppen vorhanden
                 </h2>
@@ -151,8 +151,8 @@ export function DashboardPage() {
               </div>
             )}
 
-            {rounds.length === 0 && (
-              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
+            {brakets.length === 0 && (
+              <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
                 </h2>
@@ -163,10 +163,10 @@ export function DashboardPage() {
               </section>
             )}
 
-            {rounds.length > 0 && (
+            {brakets.length > 0 && (
               <div className="space-y-6 mt-8">
-                {rounds.map((round) => {
-                  return <DashboardRound key={round.id} round={round} />;
+                {brakets.map((braket) => {
+                  return <DashboardBraket key={braket.id} braket={braket} />;
                 })}
               </div>
             )}

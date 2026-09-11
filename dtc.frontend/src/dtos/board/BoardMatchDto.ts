@@ -4,8 +4,8 @@ import { matchParticipantDtoSchema } from "../matchParticipant/MatchParticipantD
 
 export const boardMatchDtoSchema = z.object({
   matchId: z.number(),
-  roundId: z.number(),
-  roundName: z.string().nullable(),
+  braketId: z.number(),
+  braketName: z.string().nullable(),
   tournamentName: z.string(),
   plannedStart: z.iso.datetime({ offset: true }).nullable(),
   actualStart: z.iso.datetime({ offset: true }).nullable(),

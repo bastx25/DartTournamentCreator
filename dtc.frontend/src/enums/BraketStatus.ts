@@ -1,14 +1,14 @@
-export enum RoundStatus {
+export enum BraketStatus {
   Scheduled = 1,
   InProgress = 2,
   Completed = 3,
 }
 
-export function roundStatusLabel(status: RoundStatus) {
+export function braketStatusLabel(status: BraketStatus) {
   switch (status) {
-    case RoundStatus.InProgress:
+    case BraketStatus.InProgress:
       return "Läuft";
-    case RoundStatus.Completed:
+    case BraketStatus.Completed:
       return "Abgeschlossen";
     default:
       return "Geplant";

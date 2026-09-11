@@ -184,12 +184,12 @@ export function ManageTournamentPage() {
   };
 
   const knockoutPrepared = true;
-  // rounds?.some((round) => round.phase === RoundPhase.Knockout) ?? false;
+  // brakets?.some((braket) => braket.phase === BraketPhase.Knockout) ?? false;
 
   const knockoutGenerated = false;
-  // rounds
-  //   ?.filter((round) => round.phase === RoundPhase.Knockout)
-  //   .some((round) => round.matches.length > 0) ?? false;
+  // brakets
+  //   ?.filter((braket) => braket.phase === BraketPhase.Knockout)
+  //   .some((braket) => braket.matches.length > 0) ?? false;
 
   const handleGenerateKnockout = async () => {
     try {
@@ -269,7 +269,7 @@ export function ManageTournamentPage() {
 
         {(error || success) && (
           <div
-            className={`mb-6 rounded-lg border p-4 ${
+            className={`mb-6 braketed-lg border p-4 ${
               error
                 ? "border-red-500/20 bg-red-500/10"
                 : "border-green-500/20 bg-green-500/10"
@@ -284,7 +284,7 @@ export function ManageTournamentPage() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
             <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
               <h2 className="text-lg font-semibold text-gray-900">Spieler</h2>
               <p className="mt-1 text-sm text-gray-500">
@@ -326,7 +326,7 @@ export function ManageTournamentPage() {
                       type="checkbox"
                       checked={selected}
                       onChange={() => togglePlayer(player.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 braketed border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-gray-900">
@@ -351,7 +351,7 @@ export function ManageTournamentPage() {
           </section>
 
           <aside className="space-y-6">
-            <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+            <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
               <div className="border-b border-gray-200 px-6 py-5">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Gruppen erstellen
@@ -380,7 +380,7 @@ export function ManageTournamentPage() {
                         Math.max(1, Number(event.target.value) || 1),
                       )
                     }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 block w-full braketed-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                   <p className="mt-2 text-xs text-gray-500">
                     Maximal {groupSize} Spieler pro Gruppe. Die tatsächliche
@@ -406,7 +406,7 @@ export function ManageTournamentPage() {
                         Math.max(1, Number(event.target.value) || 1),
                       )
                     }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 block w-full braketed-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
 
@@ -428,7 +428,7 @@ export function ManageTournamentPage() {
                         Math.max(0, Number(event.target.value) || 0),
                       )
                     }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 block w-full braketed-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
 
                   <p className="mt-2 text-xs text-gray-500">
@@ -454,7 +454,7 @@ export function ManageTournamentPage() {
                         Math.max(0, Number(event.target.value) || 0),
                       )
                     }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 block w-full braketed-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
 
                   <p className="mt-2 text-xs text-gray-500">
@@ -462,7 +462,7 @@ export function ManageTournamentPage() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="braketed-lg border border-blue-100 bg-blue-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
                     Aktuelle Konfiguration
                   </p>
@@ -506,7 +506,7 @@ export function ManageTournamentPage() {
                   type="button"
                   disabled={generating || selectedPlayers < 2}
                   onClick={() => void handleGenerate()}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {generating
                     ? "Gruppen werden erstellt..."
@@ -519,7 +519,7 @@ export function ManageTournamentPage() {
                       type="button"
                       disabled={generating || knockoutGenerated}
                       onClick={() => void handleGenerateKnockout()}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex w-full items-center justify-center gap-2 braketed-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {knockoutGenerated
                         ? "K.-o.-Phase bereits generiert"
@@ -529,7 +529,7 @@ export function ManageTournamentPage() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-dashed border-gray-300 bg-white p-6 shadow-sm">
+            <section className="braketed-xl border border-dashed border-gray-300 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900">
                 Manuelle Gruppenzuteilung
               </h2>
@@ -537,7 +537,7 @@ export function ManageTournamentPage() {
                 Spieler später per Gruppe zuordnen und die Zusammensetzung vor
                 der Match-Erstellung bearbeiten.
               </p>
-              <div className="mt-4 rounded-lg bg-gray-50 p-4 text-xs text-gray-500">
+              <div className="mt-4 braketed-lg bg-gray-50 p-4 text-xs text-gray-500">
                 Dieser Bereich wird im nächsten Schritt mit der manuellen
                 Gruppenzuteilung verbunden.
               </div>
@@ -549,7 +549,7 @@ export function ManageTournamentPage() {
               onClick={() => {
                 setTournamentToDelete(tournament);
               }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 shadow-sm transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 braketed-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 shadow-sm transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Turnier Löschen
             </button>
