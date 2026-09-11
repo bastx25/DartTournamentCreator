@@ -1022,7 +1022,7 @@
     "/api/rounds/tournament/{tournamentId}": {
       "get": {
         "tags": [
-          "Round"
+          "Braket"
         ],
         "parameters": [
           {
@@ -1043,7 +1043,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RoundDto"
+                    "$ref": "#/components/schemas/BraketDto"
                   }
                 }
               },
@@ -1051,7 +1051,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RoundDto"
+                    "$ref": "#/components/schemas/BraketDto"
                   }
                 }
               },
@@ -1059,7 +1059,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RoundDto"
+                    "$ref": "#/components/schemas/BraketDto"
                   }
                 }
               }
@@ -1071,7 +1071,7 @@
     "/api/rounds/{id}": {
       "get": {
         "tags": [
-          "Round"
+          "Braket"
         ],
         "parameters": [
           {
@@ -1090,17 +1090,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               }
             }
@@ -1109,7 +1109,7 @@
       },
       "put": {
         "tags": [
-          "Round"
+          "Braket"
         ],
         "parameters": [
           {
@@ -1126,22 +1126,22 @@
           "content": {
             "application/json-patch+json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRoundDto"
+                "$ref": "#/components/schemas/UpdateBraketDto"
               }
             },
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRoundDto"
+                "$ref": "#/components/schemas/UpdateBraketDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRoundDto"
+                "$ref": "#/components/schemas/UpdateBraketDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRoundDto"
+                "$ref": "#/components/schemas/UpdateBraketDto"
               }
             }
           }
@@ -1154,7 +1154,7 @@
       },
       "delete": {
         "tags": [
-          "Round"
+          "Braket"
         ],
         "parameters": [
           {
@@ -1177,28 +1177,28 @@
     "/api/rounds": {
       "post": {
         "tags": [
-          "Round"
+          "Braket"
         ],
         "requestBody": {
           "content": {
             "application/json-patch+json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateRoundDto"
+                "$ref": "#/components/schemas/CreateBraketDto"
               }
             },
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateRoundDto"
+                "$ref": "#/components/schemas/CreateBraketDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateRoundDto"
+                "$ref": "#/components/schemas/CreateBraketDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateRoundDto"
+                "$ref": "#/components/schemas/CreateBraketDto"
               }
             }
           }
@@ -1209,17 +1209,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoundDto"
+                  "$ref": "#/components/schemas/BraketDto"
                 }
               }
             }
@@ -1619,7 +1619,7 @@
         },
         "additionalProperties": false
       },
-      "CreateRoundDto": {
+      "CreateBraketDto": {
         "required": [
           "locationId",
           "tournamentId"
@@ -1656,7 +1656,7 @@
             "nullable": true
           },
           "status": {
-            "$ref": "#/components/schemas/RoundStatus"
+            "$ref": "#/components/schemas/BraketStatus"
           }
         },
         "additionalProperties": false
@@ -1839,7 +1839,7 @@
         },
         "additionalProperties": false
       },
-      "RoundDto": {
+      "BraketDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -1872,7 +1872,7 @@
             "nullable": true
           },
           "status": {
-            "$ref": "#/components/schemas/RoundStatus"
+            "$ref": "#/components/schemas/BraketStatus"
           },
           "matches": {
             "type": "array",
@@ -1884,7 +1884,7 @@
         },
         "additionalProperties": false
       },
-      "RoundStatus": {
+      "BraketStatus": {
         "enum": [
           1,
           2,
@@ -1921,7 +1921,7 @@
           "rounds": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RoundDto"
+              "$ref": "#/components/schemas/BraketDto"
             },
             "nullable": true
           }
@@ -2053,7 +2053,7 @@
         },
         "additionalProperties": false
       },
-      "UpdateRoundDto": {
+      "UpdateBraketDto": {
         "required": [
           "locationId"
         ],
@@ -2085,7 +2085,7 @@
             "nullable": true
           },
           "status": {
-            "$ref": "#/components/schemas/RoundStatus"
+            "$ref": "#/components/schemas/BraketStatus"
           }
         },
         "additionalProperties": false
@@ -2139,7 +2139,7 @@
       "name": "Player"
     },
     {
-      "name": "Round"
+      "name": "Braket"
     },
     {
       "name": "Tournament"

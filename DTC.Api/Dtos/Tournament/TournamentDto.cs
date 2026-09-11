@@ -1,5 +1,5 @@
 ﻿using DTC.Api.Dtos.Group;
-using DTC.Api.Dtos.Round;
+using DTC.Api.Dtos.Braket;
 using DTC.Api.Dtos.TournamentPlayer;
 using DTC.Api.Enums;
 

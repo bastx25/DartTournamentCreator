@@ -1,9 +1,9 @@
 ﻿using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace DTC.Api.Dtos.Round
+namespace DTC.Api.Dtos.Braket
 {
-    public class CreateRoundDto
+    public class CreateBraketDto
     {
         [Range(1, int.MaxValue, ErrorMessage = "Das Turnier ist ein Pflichtfeld.")]
         public int TournamentId { get; set; }
@@ -19,8 +19,8 @@ namespace DTC.Api.Dtos.Round
 
         public DateTimeOffset? PlannedEnd { get; set; }
 
-        public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
+        public BraketStatus Status { get; set; } = BraketStatus.Scheduled;
 
-        public RoundPhase Phase { get; set; } = RoundPhase.GroupStage;
+        public BraketPhase Phase { get; set; } = BraketPhase.GroupStage;
     }
 }

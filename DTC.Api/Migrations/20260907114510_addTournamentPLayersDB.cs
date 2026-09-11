@@ -104,7 +104,7 @@ namespace DTC.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rounds",
+                name: "Brakets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -119,9 +119,9 @@ namespace DTC.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rounds", x => x.Id);
+                    table.PrimaryKey("PK_Brakets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rounds_Tournaments_TournamentId",
+                        name: "FK_Brakets_Tournaments_TournamentId",
                         column: x => x.TournamentId,
                         principalTable: "Tournaments",
                         principalColumn: "Id",
@@ -160,7 +160,7 @@ namespace DTC.Api.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoundId = table.Column<int>(type: "int", nullable: false),
+                    BraketId = table.Column<int>(type: "int", nullable: false),
                     GroupId = table.Column<int>(type: "int", nullable: true),
                     BoardId = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
@@ -185,9 +185,9 @@ namespace DTC.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Matches_Rounds_RoundId",
-                        column: x => x.RoundId,
-                        principalTable: "Rounds",
+                        name: "FK_Matches_Brakets_BraketId",
+                        column: x => x.BraketId,
+                        principalTable: "Brakets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -280,9 +280,9 @@ namespace DTC.Api.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Matches_RoundId",
+                name: "IX_Matches_BraketId",
                 table: "Matches",
-                column: "RoundId");
+                column: "BraketId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MatchParticipants_MatchId_TournamentPlayerId",
@@ -296,8 +296,8 @@ namespace DTC.Api.Migrations
                 column: "TournamentPlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rounds_TournamentId_Sequence",
-                table: "Rounds",
+                name: "IX_Brakets_TournamentId_Sequence",
+                table: "Brakets",
                 columns: new[] { "TournamentId", "Sequence" },
                 unique: true);
 
@@ -335,7 +335,7 @@ namespace DTC.Api.Migrations
                 name: "Groups");
 
             migrationBuilder.DropTable(
-                name: "Rounds");
+                name: "Brakets");
 
             migrationBuilder.DropTable(
                 name: "Players");

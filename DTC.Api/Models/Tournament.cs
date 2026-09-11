@@ -19,7 +19,7 @@ namespace DTC.Api.Models
         public ICollection<Group> Groups { get; set; }
             = new List<Group>();
 
-        public ICollection<Round> Rounds { get; set; }
-            = new List<Round>();
+        public ICollection<Braket> Brakets { get; set; }
+            = new List<Braket>();
     }
 }

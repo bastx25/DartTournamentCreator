@@ -173,18 +173,18 @@ namespace DTC.Api.Data
 
 
             // =========================================================
-            // Round
+            // Braket
             // =========================================================
 
-            modelBuilder.Entity<Round>(entity =>
+            modelBuilder.Entity<Braket>(entity =>
             {
                 entity.HasKey(r => r.Id);
 
 
 
-                // Tournament -> Rounds
+                // Tournament -> Brakets
                 entity.HasOne(r => r.Tournament)
-                    .WithMany(t => t.Rounds)
+                    .WithMany(t => t.Brakets)
                     .HasForeignKey(r => r.TournamentId)
                     .OnDelete(DeleteBehavior.Cascade);
 
@@ -206,11 +206,11 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(m => m.Id);
 
-                // Round -> Matches
-                // Jedes Match MUSS zu einer Round gehören
-                entity.HasOne(m => m.Round)
+                // Braket -> Matches
+                // Jedes Match MUSS zu einer Braket gehören
+                entity.HasOne(m => m.Braket)
                     .WithMany(r => r.Matches)
-                    .HasForeignKey(m => m.RoundId)
+                    .HasForeignKey(m => m.BraketId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 // Group -> Matches
@@ -271,7 +271,7 @@ namespace DTC.Api.Data
         public DbSet<Match> Matches { get; set; } = null!;
         public DbSet<MatchParticipant> MatchParticipants { get; set; } = null!;
         public DbSet<Player> Players { get; set; } = null!;
-        public DbSet<Round> Rounds { get; set; } = null!;
+        public DbSet<Braket> Brakets { get; set; } = null!;
         public DbSet<Tournament> Tournaments { get; set; } = null!;
         public DbSet<TournamentConfig> TournamentConfigs { get; set; } = null!;
         public DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;

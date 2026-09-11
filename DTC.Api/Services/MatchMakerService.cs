@@ -20,14 +20,14 @@ namespace DTC.Api.Services
         private readonly IGroupRepository _groupRepo;
         private readonly Random _random = Random.Shared;
 
-        private readonly IRoundRepository _roundRepo;
+        private readonly IBraketRepository _roundRepo;
         private readonly IBoardService _boardService;
 
         public MatchMakerService(DartDbContext context,
             ITournamentPlayerRepository tournamentPlayerRepository,
             IMatchRepository matchRepository,
             IGroupRepository groupRepository,
-            IRoundRepository roundRepository,
+            IBraketRepository roundRepository,
             IBoardService boardService)
         {
             _context = context;
@@ -95,7 +95,7 @@ namespace DTC.Api.Services
             }
 
             var hasGeneratedData = await _context.Groups.AnyAsync(g => g.TournamentId == tournamentId)
-                || await _context.Rounds.AnyAsync(r => r.TournamentId == tournamentId);
+                || await _context.Brakets.AnyAsync(r => r.TournamentId == tournamentId);
             if (hasGeneratedData)
                 throw new InvalidOperationException("Für dieses Turnier wurden bereits Gruppen oder Runden generiert.");
             #endregion Validation
@@ -151,7 +151,7 @@ namespace DTC.Api.Services
                     .Select(gp => gp.TournamentPlayerId)
                     .ToList();
 
-                var candidates = CreateRoundRobinCandidates(group, players);
+                var candidates = CreateBraketRobinCandidates(group, players);
                 scheduledMatches.AddRange(candidates);
             }
 
@@ -237,7 +237,7 @@ namespace DTC.Api.Services
 
             #endregion
 
-            await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
+            await _roundRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
             var groups = await _groupRepo.GetGroupsAsync(tournamentId);
 
@@ -555,7 +555,7 @@ namespace DTC.Api.Services
         }
 
 
-        private static List<MatchCandidate> CreateRoundRobinCandidates(
+        private static List<MatchCandidate> CreateBraketRobinCandidates(
     Group group,
     List<int> players)
         {

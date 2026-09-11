@@ -1,6 +1,6 @@
 ﻿namespace DTC.Api.Enums
 {
-    public enum RoundStatus
+    public enum BraketStatus
     {
         Scheduled = 1,
         InProgress = 2,

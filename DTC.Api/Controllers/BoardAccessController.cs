@@ -81,7 +81,7 @@ namespace DTC.Api.Controllers
             [FromRoute] int matchId)
         {
             var match = await _context.Matches
-                .Include(m => m.Round)
+                .Include(m => m.Braket)
                  .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
@@ -123,7 +123,7 @@ namespace DTC.Api.Controllers
             [FromBody] FinishBoardMatchDto dto)
         {
             var match = await _context.Matches
-                .Include(m => m.Round)
+                .Include(m => m.Braket)
                 .ThenInclude(r => r.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)

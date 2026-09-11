@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DTC.Api.Models
 {
-    [Table("Rounds")]
-    public class Round
+    [Table("Brakets")]
+    public class Braket
     {
         public int Id { get; set; }
 
@@ -18,9 +18,9 @@ namespace DTC.Api.Models
         public DateTimeOffset PlannedStart { get; set; }
         public DateTimeOffset? PlannedEnd { get; set; }
 
-        public RoundStatus Status { get; set; } = RoundStatus.Scheduled;
+        public BraketStatus Status { get; set; } = BraketStatus.Scheduled;
 
-        public RoundPhase Phase { get; set; } = RoundPhase.GroupStage;
+        public BraketPhase Phase { get; set; } = BraketPhase.GroupStage;
 
         public ICollection<Match> Matches { get; set; }
             = new List<Match>();

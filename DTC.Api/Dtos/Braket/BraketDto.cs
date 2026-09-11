@@ -1,9 +1,9 @@
 ﻿using DTC.Api.Dtos.Match;
 using DTC.Api.Enums;
 
-namespace DTC.Api.Dtos.Round
+namespace DTC.Api.Dtos.Braket
 {
-    public class RoundDto
+    public class BraketDto
     {
         public int Id { get; set; }
 
@@ -17,9 +17,9 @@ namespace DTC.Api.Dtos.Round
 
         public DateTimeOffset? PlannedEnd { get; set; }
 
-        public RoundStatus Status { get; set; }
+        public BraketStatus Status { get; set; }
 
-        public RoundPhase Phase { get; set; }
+        public BraketPhase Phase { get; set; }
 
     }
 }

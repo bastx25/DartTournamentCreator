@@ -17,7 +17,7 @@ Player
     │   │   │   │
     │   │   │   └── Matches
     │   │   │       ├── Match
-    │   │   │       │   ├── Round
+    │   │   │       │   ├── Braket
     │   │   │       │   ├── Board
     │   │   │       │   └── MatchParticipants
     │   │   │       │       └── TournamentPlayer
@@ -29,7 +29,7 @@ Player
     │   │   │
     │   │   └── ...
     │   │
-    │   └── Rounds
+    │   └── Brakets
     │       │
     │       ├── Gruppenphase Runde 1
     │       │   └── Matches
@@ -76,7 +76,7 @@ Tournament
 TournamentPlayer
 Group
 GroupPlayer
-Round
+Braket
 Match
 MatchParticipant
 Location
@@ -110,7 +110,7 @@ Tournament
   1
   │
   N
-Round
+Braket
   1
   │
   N
@@ -121,10 +121,10 @@ Group
   N
 Match
 
-GroupId ist dabei optional, RoundId hingegen Pflicht:
+GroupId ist dabei optional, BraketId hingegen Pflicht:
 
 Match
-├── RoundId     required
+├── BraketId     required
 ├── GroupId     optional
 ├── BoardId     optional
 └── Participants
@@ -133,7 +133,7 @@ Damit kannst du exakt diese zwei Fälle darstellen:
 
 Gruppenphase:
 
-Round
+Braket
 └── Gruppenphase Runde 1
     └── Match
         ├── Group = Gruppe A
@@ -144,7 +144,7 @@ und:
 
 KO-Phase:
 
-Round
+Braket
 └── Viertelfinale
     └── Match
         ├── Group = null
@@ -178,6 +178,6 @@ Turnier
     └── Finale
         └── Spiel
 
-Ein Punkt ist für mich aber noch wichtig: Round sollte bei deinem Design vermutlich zwei Aufgaben unterscheiden können: Gruppenrunden und KO-Runden. Das hast du mit Phase bereits vorgesehen. Dadurch kannst du beide unter Tournament.Rounds verwalten, ohne zwei verschiedene Match-Typen zu benötigen.
+Ein Punkt ist für mich aber noch wichtig: Braket sollte bei deinem Design vermutlich zwei Aufgaben unterscheiden können: Gruppenrunden und KO-Runden. Das hast du mit Phase bereits vorgesehen. Dadurch kannst du beide unter Tournament.Brakets verwalten, ohne zwei verschiedene Match-Typen zu benötigen.
 
 Die nächste sinnvolle Ergänzung wäre dann MatchParticipantSource, damit z. B. „Viertelfinale → Gewinner Achtelfinale Match 3“ modelliert werden kann.

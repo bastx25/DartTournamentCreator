@@ -7,7 +7,7 @@ namespace DTC.Api.Dtos.Match
     {
         public int Id { get; set; }
 
-        public int? RoundId { get; set; }
+        public int? BraketId { get; set; }
 
         // Nur bei Gruppenspielen gesetzt
         public int? GroupId { get; set; }

@@ -14,13 +14,13 @@ namespace DTC.Api.Repositories
             _context = dartDbContext;
         }
 
-        public async Task<IEnumerable<Match>> GetByRoundIdAsync(int roundId)
+        public async Task<IEnumerable<Match>> GetByBraketIdAsync(int roundId)
         {
             return await _context.Matches
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
                         .ThenInclude(tp => tp.Player)
-                .Where(m => m.RoundId == roundId)
+                .Where(m => m.BraketId == roundId)
                 .ToListAsync();
         }
 
@@ -74,9 +74,9 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteByRoundId(int roundId)
+        public async Task DeleteByBraketId(int roundId)
         {
-            var existing = await _context.Matches.Where(m => m.RoundId == roundId).ToListAsync();
+            var existing = await _context.Matches.Where(m => m.BraketId == roundId).ToListAsync();
 
             _context.Matches.RemoveRange(existing);
 

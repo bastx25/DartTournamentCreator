@@ -5,8 +5,8 @@ namespace DTC.Api.Dtos.Match
 {
     public class UpdateMatchDto
     {
-        [Range(1, int.MaxValue, ErrorMessage = "Die Round ist ein Pflichtfeld.")]
-        public int RoundId { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Die Braket ist ein Pflichtfeld.")]
+        public int BraketId { get; set; }
 
         // Nur bei Gruppenspielen gesetzt
         public int? GroupId { get; set; }

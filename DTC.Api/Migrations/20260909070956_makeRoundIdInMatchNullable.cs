@@ -5,13 +5,13 @@
 namespace DTC.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class makeRoundIdInMatchNullable : Migration
+    public partial class makeBraketIdInMatchNullable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<int>(
-                name: "RoundId",
+                name: "BraketId",
                 table: "Matches",
                 type: "int",
                 nullable: true,
@@ -23,7 +23,7 @@ namespace DTC.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<int>(
-                name: "RoundId",
+                name: "BraketId",
                 table: "Matches",
                 type: "int",
                 nullable: false,

@@ -152,7 +152,7 @@ namespace DTC.Api.Migrations
                     b.Property<DateTimeOffset?>("PlannedStart")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("RoundId")
+                    b.Property<int>("BraketId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -164,7 +164,7 @@ namespace DTC.Api.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("RoundId");
+                    b.HasIndex("BraketId");
 
                     b.ToTable("Matches");
                 });
@@ -223,7 +223,7 @@ namespace DTC.Api.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("DTC.Api.Models.Round", b =>
+            modelBuilder.Entity("DTC.Api.Models.Braket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,7 +257,7 @@ namespace DTC.Api.Migrations
                     b.HasIndex("TournamentId", "Sequence")
                         .IsUnique();
 
-                    b.ToTable("Rounds");
+                    b.ToTable("Brakets");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Tournament", b =>
@@ -372,9 +372,9 @@ namespace DTC.Api.Migrations
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("DTC.Api.Models.Round", "Round")
+                    b.HasOne("DTC.Api.Models.Braket", "Braket")
                         .WithMany("Matches")
-                        .HasForeignKey("RoundId")
+                        .HasForeignKey("BraketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -382,7 +382,7 @@ namespace DTC.Api.Migrations
 
                     b.Navigation("Group");
 
-                    b.Navigation("Round");
+                    b.Navigation("Braket");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.MatchParticipant", b =>
@@ -404,10 +404,10 @@ namespace DTC.Api.Migrations
                     b.Navigation("TournamentPlayer");
                 });
 
-            modelBuilder.Entity("DTC.Api.Models.Round", b =>
+            modelBuilder.Entity("DTC.Api.Models.Braket", b =>
                 {
                     b.HasOne("DTC.Api.Models.Tournament", "Tournament")
-                        .WithMany("Rounds")
+                        .WithMany("Brakets")
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -461,7 +461,7 @@ namespace DTC.Api.Migrations
                     b.Navigation("TournamentPlayers");
                 });
 
-            modelBuilder.Entity("DTC.Api.Models.Round", b =>
+            modelBuilder.Entity("DTC.Api.Models.Braket", b =>
                 {
                     b.Navigation("Matches");
                 });
@@ -470,7 +470,7 @@ namespace DTC.Api.Migrations
                 {
                     b.Navigation("Groups");
 
-                    b.Navigation("Rounds");
+                    b.Navigation("Brakets");
 
                     b.Navigation("TournamentPlayers");
                 });

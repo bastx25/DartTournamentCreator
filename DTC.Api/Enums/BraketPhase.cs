@@ -1,6 +1,6 @@
 namespace DTC.Api.Enums
 {
-    public enum RoundPhase
+    public enum BraketPhase
     {
         GroupStage = 1,
         Knockout = 2

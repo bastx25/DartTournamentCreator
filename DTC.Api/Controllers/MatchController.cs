@@ -20,9 +20,9 @@ namespace DTC.Api.Controllers
         }
 
         [HttpGet("round/{roundId:int}")]
-        public async Task<ActionResult<IEnumerable<MatchDto>>> GetByRoundId([FromRoute] int roundId)
+        public async Task<ActionResult<IEnumerable<MatchDto>>> GetByBraketId([FromRoute] int roundId)
         {
-            var matches = await _matchRepo.GetByRoundIdAsync(roundId);
+            var matches = await _matchRepo.GetByBraketIdAsync(roundId);
             var dtos = matches.Select(m => m.ToMatchDto());
             return Ok(dtos);
         }
