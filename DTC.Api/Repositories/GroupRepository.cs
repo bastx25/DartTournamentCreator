@@ -32,7 +32,7 @@ namespace DTC.Api.Repositories
 
         public async Task<List<Group>> GetGroupsAsync(int tournamentId)
         {
-            return await _context.Groups.Where(g => g.TournamentId == tournamentId).OrderBy(g => g.Name).ToListAsync();
+            return await _context.Groups.Where(g => g.TournamentId == tournamentId).OrderBy(g => g.Sequence).ToListAsync();
         }
 
         public async Task DeleteAllWithNameAsync(string name)

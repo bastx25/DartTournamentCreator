@@ -187,7 +187,7 @@ namespace DTC.Api.Services
 
         public async Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options)
         {
-            var qualifiedPlayers = await CheckAndHandleTiebreaks(tournamentId, options);
+            var qualifiedPlayers = await CheckAndHandleForTiebreaks(tournamentId, options);
 
             var requiredKnockoutPlayers =
                 options.QualifiersPerGroup * options.GroupCount;
@@ -202,10 +202,27 @@ namespace DTC.Api.Services
 
         private async Task CreateKnockoutGroups(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
         {
-            await CreateTiebreakerGroup(tournamentId, qualifiedPlayers, )
+            var koGroup = await CreateTiebreakerGroup(tournamentId, GetKoGroupName(qualifiedPlayers.Count),
+                qualifiedPlayers, options.StartTime ??  DateTimeOffset.Now, 
+                options.MatchDurationMinutes ?? 20, 
+                options.BreakBetweenMatchesMinutes ?? 5);
+
+            await _context.AddAsync(koGroup);
+            await _context.SaveChangesAsync();
         }
 
-        private async Task<List<TournamentPlayer>> CheckAndHandleTiebreaks(int tournamentId, GenerateGroupsDto options)
+        private string GetKoGroupName(int count)
+        {
+            return count switch
+            {
+                2 => "Finale",
+                4 => "Halbfinale",
+                8 => "Viertelfinale",
+                _ => $"{count / 2}. Finale"
+            };
+        }
+
+        private async Task<List<TournamentPlayer>> CheckAndHandleForTiebreaks(int tournamentId, GenerateGroupsDto options)
         {
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)
@@ -223,6 +240,7 @@ namespace DTC.Api.Services
             await _roundRepo.DeleteAllTournamentRoundsAsync(tournamentId);
 
             var groups = await _groupRepo.GetGroupsAsync(tournamentId);
+
             var groupResults = await GetGroupResults(groups);
 
             // ---------------------------------------------------------
@@ -320,6 +338,7 @@ namespace DTC.Api.Services
                 var createdTiebreakerGroup =
                     await CreateTiebreakerGroup(
                         tournament.Id,
+                        MatchStatus.Tiebreaker.ToString(),
                         tiebreakPlayersFromGroup,
                         startTime,
                         matchDuration,
@@ -356,12 +375,12 @@ namespace DTC.Api.Services
 
 
 
-        private async Task<Group> CreateTiebreakerGroup(int tournamentId, List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        private async Task<Group> CreateTiebreakerGroup(int tournamentId, string name ,List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
         {
             var groups = new List<Group> { new Group { 
                 TournamentId = tournamentId,
                 Sequence = _context.Groups.Where(x=> x.TournamentId == tournamentId).Max(x => x.Sequence) + 1,
-                Name = MatchStatus.Tiebreaker.ToString() , 
+                Name = name, 
                 GroupPlayers = tiebreakPlayers.Select(x => new GroupPlayer { TournamentPlayerId = x.Id }).ToList(),
             }};
                 
