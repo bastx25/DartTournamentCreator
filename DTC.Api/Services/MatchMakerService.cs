@@ -209,6 +209,8 @@ namespace DTC.Api.Services
             {
                 brakets = CreateEmptyBrakets(tournamentId, qualifiedPlayers.Count);
 
+                qualifiedPlayers.Shuffle();
+
                 //create Matches
 
                 foreach (var braket in brakets)
@@ -244,6 +246,8 @@ namespace DTC.Api.Services
                             }
                             });
                         }
+
+                        await _boardService.SetBoards(brakets, options.StartTime.Value, options.MatchDurationMinutes.Value, options.BreakBetweenMatchesMinutes.Value);
                     }
                     else
                     {
@@ -265,10 +269,6 @@ namespace DTC.Api.Services
             }
 
             await _context.SaveChangesAsync();
-
-            
-
-
 
         }
 
@@ -456,6 +456,7 @@ namespace DTC.Api.Services
 
         private async Task<Group> CreateTiebreakerGroup(int tournamentId, string name ,List<TournamentPlayer> tiebreakPlayers, DateTimeOffset startTime, int matchDuration, int breakMinutes)
         {
+            //TODO: Map Time and Board to Tiebreakers
             var groups = new List<Group> { new Group { 
                 TournamentId = tournamentId,
                 Sequence = _context.Groups.Where(x=> x.TournamentId == tournamentId).Max(x => x.Sequence) + 1,

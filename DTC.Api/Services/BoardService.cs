@@ -291,14 +291,22 @@ namespace DTC.Api.Services
         {
             var matches = new List<Match>();
 
-            foreach (var group in groups)
+            int maxMatches = groups.Max(g => g.Matches.Count);
+
+            for (int i = 0; i < maxMatches; i++)
             {
-                matches.AddRange(group.Matches);
+                foreach (var group in groups)
+                {
+                    if (i < group.Matches.Count)
+                    {
+                        matches.Add(group.Matches.ElementAt(i));
+                    }
+                }
             }
 
             return matches;
-
         }
+
         private List<Match> GetMatchesFromBrakets(List<Braket> brakets)
         {
             var matches = new List<Match>();

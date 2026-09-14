@@ -186,10 +186,16 @@ namespace DTC.Api.Controllers
                 match.ActualStart = match.ActualEnd;
             }
 
-            if(match.Braket.Phase == BraketPhase.Knockout)
+            try
             {
-                await _matchMakerService.AdvanceWinner(match);
+
+                if (match.Braket?.Phase == BraketPhase.Knockout)
+                {
+                    await _matchMakerService.AdvanceWinner(match);
+                }
             }
+            catch { }
+
 
             await _context.SaveChangesAsync();
 
