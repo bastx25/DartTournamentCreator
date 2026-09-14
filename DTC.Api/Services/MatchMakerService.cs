@@ -197,10 +197,10 @@ namespace DTC.Api.Services
                 throw new InvalidOperationException("Tiebreaks still running");
             }
 
-            await CreateKnockoutGroups(tournamentId, options,qualifiedPlayers);
+            await CreateKnockoutBrakets(tournamentId, options,qualifiedPlayers);
         }
 
-        private async Task CreateKnockoutGroups(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
+        private async Task CreateKnockoutBrakets(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
         {
             var koGroup = await CreateTiebreakerGroup(tournamentId, GetKoGroupName(qualifiedPlayers.Count),
                 qualifiedPlayers, options.StartTime ??  DateTimeOffset.Now, 
