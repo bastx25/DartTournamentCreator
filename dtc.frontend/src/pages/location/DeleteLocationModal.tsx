@@ -57,14 +57,14 @@ export function DeleteLocationModal({
             id="delete-location-title"
             className="mt-4 text-lg font-semibold text-gray-900"
           >
-            Locations löschen?
+            Location löschen?
           </h3>
 
           <p
             id="delete-location-description"
             className="mt-2 text-sm leading-6 text-gray-500"
           >
-            Möchtest du den Locations{" "}
+            Möchtest du die Location{" "}
             <span className="font-semibold text-gray-900">{locationName}</span>{" "}
             wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
@@ -110,7 +110,7 @@ export function DeleteLocationModal({
               </svg>
             )}
 
-            {deleting ? "Löschen..." : "Locations löschen"}
+            {deleting ? "Löschen..." : "Location löschen"}
           </button>
         </div>
       </div>
