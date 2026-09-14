@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Header from "../../components/Header";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
@@ -13,6 +12,7 @@ import type { GroupDto } from "../../dtos/group/GroupDto";
 import { DashboardBraket } from "./DashboardBraket";
 import { DashboardGroup } from "./DashboardGroup";
 import type { BraketDto } from "../../dtos/brakets/BraketDto";
+import HeaderEmpty from "../../components/HeaderEmpty";
 
 export function DashboardPage() {
   const {
@@ -92,7 +92,7 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <HeaderEmpty />
 
       <main className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <DashboardHeader

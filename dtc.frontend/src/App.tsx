@@ -1,16 +1,15 @@
 import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
-import HomePage from "./pages/home/HomePage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { PlayerPage } from "./pages/player/PlayerPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { TournamentPage } from "./pages/tournament/TournamentPage";
 import { CreateBoardPage } from "./pages/tournament/CreateBoardPage";
 import { CreateTournamentPage } from "./pages/tournament/CreateTournamentPage";
-import { CreateLocationPage } from "./pages/location/CreateLocationPage";
 import BoardQrPage from "./pages/board/BoardQrPage";
 import BoardAccessPage from "./pages/board/BoardAccessPage";
 import { ManageTournamentPage } from "./pages/tournament/ManageTournamentPage";
+import { LocationPage } from "./pages/location/LocationPage";
 
 function App() {
   return (
@@ -29,7 +28,7 @@ function App() {
         <Route path="boards/:boardId" element={<BoardAccessPage />} />
         <Route path="boards/:boardId/qr" element={<BoardQrPage />} />
         <Route path="tournaments/create" element={<CreateTournamentPage />} />
-        <Route path="location/create" element={<CreateLocationPage />} />
+        <Route path="locations" element={<LocationPage />} />
       </Routes>
     </>
   );

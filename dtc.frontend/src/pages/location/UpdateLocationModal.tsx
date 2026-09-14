@@ -1,44 +1,46 @@
 import { useState } from "react";
-import {
-  createPlayerDtoSchema,
-  type CreatePlayerDto,
-} from "../../dtos/player/CreatePlayerDto";
 
-interface CreatePlayerModalProps {
-  adding: boolean;
+import type { LocationDto } from "../../dtos/location/LocationDto";
+import {
+  updateLocationDtoSchema,
+  type UpdateLocationDto,
+} from "../../dtos/location/UpdateLocationDto";
+
+interface UpdateLocationModalProps {
+  location: LocationDto;
+  updating: boolean;
   onCancel: () => void;
-  onConfirm: (createdPlayer: CreatePlayerDto) => void;
+  onConfirm: (updatedLocation: LocationDto) => void;
 }
 
-export function CreatePlayerModal({
-  adding,
+export function UpdateLocationModal({
+  location,
+  updating,
   onCancel,
   onConfirm,
-}: CreatePlayerModalProps) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [nickname, setNickname] = useState("");
+}: UpdateLocationModalProps) {
+  const [name, setName] = useState(location.name ?? "");
+  const [address, setAddress] = useState(location.address ?? "");
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CreatePlayerDto, string>>
+    Partial<Record<keyof UpdateLocationDto, string>>
   >({});
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData: CreatePlayerDto = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      nickname: nickname.trim(),
+    const formData: UpdateLocationDto = {
+      name: name.trim(),
+      address: address.trim(),
     };
 
-    const result = createPlayerDtoSchema.safeParse(formData);
+    const result = updateLocationDtoSchema.safeParse(formData);
 
     if (!result.success) {
-      const fieldErrors: Partial<Record<keyof CreatePlayerDto, string>> = {};
+      const fieldErrors: Partial<Record<keyof UpdateLocationDto, string>> = {};
 
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof CreatePlayerDto;
+        const field = issue.path[0] as keyof UpdateLocationDto;
 
         if (!fieldErrors[field]) {
           fieldErrors[field] = issue.message;
@@ -51,13 +53,18 @@ export function CreatePlayerModal({
 
     setErrors({});
 
-    onConfirm(result.data);
+    const updatedLocation: LocationDto = {
+      ...location,
+      ...result.data,
+    };
+
+    onConfirm(updatedLocation);
   };
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      onClick={() => !adding && onCancel()}
+      onClick={() => !updating && onCancel()}
       role="presentation"
     >
       <div
@@ -65,7 +72,7 @@ export function CreatePlayerModal({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="update-player-title"
+        aria-labelledby="update-location-title"
       >
         <form onSubmit={handleSubmit}>
           <div className="p-6">
@@ -93,7 +100,7 @@ export function CreatePlayerModal({
             </div>
 
             <h3
-              id="update-player-title"
+              id="update-location-title"
               className="mt-4 text-lg font-semibold text-gray-900"
             >
               Spieler bearbeiten
@@ -111,27 +118,25 @@ export function CreatePlayerModal({
                   htmlFor="firstName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Vorname
+                  Name
                 </label>
 
                 <input
                   id="firstName"
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  disabled={adding}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={updating}
                   className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.firstName
+                    errors.name
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
                   placeholder="Vorname"
                 />
 
-                {errors.firstName && (
-                  <p className="mt-1.5 text-sm text-red-600">
-                    {errors.firstName}
-                  </p>
+                {errors.name && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
 
@@ -140,55 +145,26 @@ export function CreatePlayerModal({
                   htmlFor="lastName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Nachname
+                  Addresse
                 </label>
 
                 <input
                   id="lastName"
                   type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  disabled={adding}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  disabled={updating}
                   className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.lastName
+                    errors.address
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
                   placeholder="Nachname"
                 />
 
-                {errors.lastName && (
+                {errors.address && (
                   <p className="mt-1.5 text-sm text-red-600">
-                    {errors.lastName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="nickname"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                  Spitzname
-                </label>
-
-                <input
-                  id="nickname"
-                  type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  disabled={adding}
-                  className={`w-full braketed-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.nickname
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                  }`}
-                  placeholder="Spitzname"
-                />
-
-                {errors.nickname && (
-                  <p className="mt-1.5 text-sm text-red-600">
-                    {errors.nickname}
+                    {errors.address}
                   </p>
                 )}
               </div>
@@ -199,7 +175,7 @@ export function CreatePlayerModal({
           <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
             <button
               type="button"
-              disabled={adding}
+              disabled={updating}
               onClick={onCancel}
               className="braketed-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -208,10 +184,10 @@ export function CreatePlayerModal({
 
             <button
               type="submit"
-              disabled={adding}
+              disabled={updating}
               className="inline-flex min-w-32 items-center justify-center gap-2 braketed-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {adding && (
+              {updating && (
                 <svg
                   className="h-4 w-4 animate-spin"
                   viewBox="0 0 24 24"
@@ -234,7 +210,7 @@ export function CreatePlayerModal({
                 </svg>
               )}
 
-              {adding ? "Speichern..." : "Änderungen speichern"}
+              {updating ? "Speichern..." : "Änderungen speichern"}
             </button>
           </div>
         </form>

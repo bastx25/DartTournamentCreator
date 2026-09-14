@@ -1,19 +1,19 @@
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { LocationDto } from "../../dtos/location/LocationDto";
 
-interface DeletePlayerModalProps {
-  player: PlayerDto;
+interface DeleteLocationModalProps {
+  location: LocationDto;
   deleting: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-export function DeletePlayerModal({
-  player,
+export function DeleteLocationModal({
+  location,
   deleting,
   onCancel,
   onConfirm,
-}: DeletePlayerModalProps) {
-  const playerName = player.displayName || `mit der Id ${player.id}`;
+}: DeleteLocationModalProps) {
+  const locationName = location.name;
 
   return (
     <div
@@ -26,8 +26,8 @@ export function DeletePlayerModal({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-player-title"
-        aria-describedby="delete-player-description"
+        aria-labelledby="delete-location-title"
+        aria-describedby="delete-location-description"
       >
         <div className="p-6">
           {/* Icon */}
@@ -54,18 +54,18 @@ export function DeletePlayerModal({
           </div>
 
           <h3
-            id="delete-player-title"
+            id="delete-location-title"
             className="mt-4 text-lg font-semibold text-gray-900"
           >
             Spieler löschen?
           </h3>
 
           <p
-            id="delete-player-description"
+            id="delete-location-description"
             className="mt-2 text-sm leading-6 text-gray-500"
           >
             Möchtest du den Spieler{" "}
-            <span className="font-semibold text-gray-900">{playerName}</span>{" "}
+            <span className="font-semibold text-gray-900">{locationName}</span>{" "}
             wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
         </div>

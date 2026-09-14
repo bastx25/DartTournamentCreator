@@ -46,6 +46,20 @@ export default function Header() {
           >
             Spieler
           </Link>
+
+          <Link
+            to="/locations"
+            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+          >
+            Locations
+          </Link>
+
+          <Link
+            to="/boards"
+            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+          >
+            Boards
+          </Link>
         </nav>
 
         {/* Desktop Actions */}

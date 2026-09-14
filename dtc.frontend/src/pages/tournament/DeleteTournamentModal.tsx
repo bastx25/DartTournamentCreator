@@ -41,13 +41,13 @@ export function DeleteTournamentModal({
               aria-hidden="true"
             >
               <path
-                strokeLinecap="braket"
-                strokeLinejoin="braket"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 d="M12 9v3.75m-9.303 3.376L10.39 3.746a1.875 1.875 0 013.22 0l7.693 12.38A1.875 1.875 0 0119.693 19H4.307a1.875 1.875 0 01-1.61-2.874z"
               />
               <path
-                strokeLinecap="braket"
-                strokeLinejoin="braket"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 d="M12 16.5h.008v.008H12V16.5z"
               />
             </svg>

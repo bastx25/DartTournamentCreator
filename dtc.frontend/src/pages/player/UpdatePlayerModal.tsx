@@ -89,13 +89,13 @@ export function UpdatePlayerModal({
                 aria-hidden="true"
               >
                 <path
-                  strokeLinecap="braket"
-                  strokeLinejoin="braket"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M16.862 3.487a2.121 2.121 0 013 3L7.5 18.849 3 20l1.151-4.5L16.862 3.487z"
                 />
                 <path
-                  strokeLinecap="braket"
-                  strokeLinejoin="braket"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M15 5l3 3"
                 />
               </svg>
