@@ -1,29 +1,31 @@
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
-interface PlayerRowProps {
-  player: PlayerDto;
+interface BoardRowProps {
+  board: BoardDto;
   selected: boolean;
-  onSelect: (player: PlayerDto) => void;
-  onDelete: (player: PlayerDto) => void;
-  onUpdate: (player: PlayerDto) => void;
+  onSelect: (board: BoardDto) => void;
+  onDelete: (board: BoardDto) => void;
+  onUpdate: (board: BoardDto) => void;
+  getBoardLocation: (locationId: number) => string;
 }
 
-export function PlayerRow({
-  player,
+export function BoardRow({
+  board,
   selected,
   onSelect,
   onDelete,
   onUpdate,
-}: PlayerRowProps) {
+  getBoardLocation,
+}: BoardRowProps) {
   return (
     <div
-      onClick={() => onSelect(player)}
-      className={`group grid min-h-11 cursor-pointer grid-cols-[1fr_auto] items-center px-4 transition-colors md:grid-cols-[1fr_1fr_auto] ${
+      onClick={() => onSelect(board)}
+      className={`group grid min-h-11 cursor-pointer grid-cols-[1fr_180px_180px_80px] items-center px-4 transition-colors portrait:max-sm:grid-cols-[1fr_80px] ${
         selected ? "bg-blue-50" : "bg-white hover:bg-gray-50"
       }`}
     >
-      {/* Player */}
-      <div className="flex min-w-0 items-center gap-2">
+      {/* Board */}
+      <div className="flex min-w-0 items-center gap-2 portrait:max-sm:hidden">
         {selected && (
           <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
         )}
@@ -33,15 +35,24 @@ export function PlayerRow({
             selected ? "text-blue-600" : "text-gray-900"
           }`}
         >
-          {player.displayName}
+          {board.number}
         </span>
       </div>
 
-      {/* Nickname - nur Desktop */}
-      <div className="hidden min-w-0 px-4 md:block">
-        {player.nickname ? (
+      {/* Label */}
+      <div className="min-w-0">
+        {board.label ? (
+          <span className="truncate text-sm text-gray-500">{board.label}</span>
+        ) : (
+          <span className="text-sm text-gray-300">—</span>
+        )}
+      </div>
+
+      {/* Location */}
+      <div className="min-w-0 shrink-0 portrait:max-sm:hidden">
+        {board.locationId ? (
           <span className="truncate text-sm text-gray-500">
-            @{player.nickname}
+            {getBoardLocation(board.locationId)}
           </span>
         ) : (
           <span className="text-sm text-gray-300">—</span>
@@ -54,10 +65,10 @@ export function PlayerRow({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onUpdate(player);
+            onUpdate(board);
           }}
           className="rounded-md px-1.5 py-1 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
-          title="Edit player"
+          title="Edit board"
         >
           Edit
         </button>
@@ -66,10 +77,10 @@ export function PlayerRow({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(player);
+            onDelete(board);
           }}
           className="rounded-md px-1.5 py-1 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
-          title="Delete player"
+          title="Delete board"
         >
           Delete
         </button>

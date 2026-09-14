@@ -1,19 +1,19 @@
-import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
-interface DeletetournamentModalProps {
-  tournament: TournamentDto;
+interface DeleteBoardModalProps {
+  board: BoardDto;
   deleting: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-export function DeleteTournamentModal({
-  tournament,
+export function DeleteBoardModal({
+  board,
   deleting,
   onCancel,
   onConfirm,
-}: DeletetournamentModalProps) {
-  const tournamentName = tournament.name;
+}: DeleteBoardModalProps) {
+  const boardName = board.name;
 
   return (
     <div
@@ -26,8 +26,8 @@ export function DeleteTournamentModal({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-tournament-title"
-        aria-describedby="delete-tournament-description"
+        aria-labelledby="delete-board-title"
+        aria-describedby="delete-board-description"
       >
         <div className="p-6">
           {/* Icon */}
@@ -54,20 +54,18 @@ export function DeleteTournamentModal({
           </div>
 
           <h3
-            id="delete-tournament-title"
+            id="delete-board-title"
             className="mt-4 text-lg font-semibold text-gray-900"
           >
-            Turnier löschen?
+            Board löschen?
           </h3>
 
           <p
-            id="delete-tournament-description"
+            id="delete-board-description"
             className="mt-2 text-sm leading-6 text-gray-500"
           >
-            Möchtest du das Turnier{" "}
-            <span className="font-semibold text-gray-900">
-              {tournamentName}
-            </span>{" "}
+            Möchtest du die Board{" "}
+            <span className="font-semibold text-gray-900">{boardName}</span>{" "}
             wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
         </div>
@@ -112,7 +110,7 @@ export function DeleteTournamentModal({
               </svg>
             )}
 
-            {deleting ? "Löschen..." : "Turnier löschen"}
+            {deleting ? "Löschen..." : "Board löschen"}
           </button>
         </div>
       </div>

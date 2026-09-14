@@ -9,7 +9,7 @@ export default function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center braketed-xl shadow-lg">
+          <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
             <span className="text-xl font-black">🎯</span>
           </div>
 
@@ -28,35 +28,35 @@ export default function Header() {
         <nav className="hidden items-center gap-1 md:flex">
           <Link
             to="/dashboard"
-            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+            className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-2 text-sm font-medium transition"
           >
             Dashboard
           </Link>
 
           <Link
             to="/tournaments"
-            className="bg-surface text-text braketed-lg px-4 py-2 text-sm font-medium"
+            className="bg-surface text-text rounded-lg px-4 py-2 text-sm font-medium"
           >
             Turniere
           </Link>
 
           <Link
             to="/players"
-            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+            className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-2 text-sm font-medium transition"
           >
             Spieler
           </Link>
 
           <Link
             to="/locations"
-            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+            className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-2 text-sm font-medium transition"
           >
             Locations
           </Link>
 
           <Link
             to="/boards"
-            className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-2 text-sm font-medium transition"
+            className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-2 text-sm font-medium transition"
           >
             Boards
           </Link>
@@ -66,7 +66,7 @@ export default function Header() {
         <div className="hidden items-center gap-3 md:flex">
           <Link
             to="/settings"
-            className="border-border bg-surface text-text-muted hover:border-text-subtle hover:bg-surface-hover hover:text-text flex items-center gap-2 braketed-lg border px-4 py-2 text-sm font-semibold transition"
+            className="border-border bg-surface text-text-muted hover:border-text-subtle hover:bg-surface-hover hover:text-text flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition"
           >
             <span>⚙️</span>
             Einstellungen
@@ -74,7 +74,7 @@ export default function Header() {
 
           <Link
             to="/tournaments/create"
-            className="bg-primary hover:bg-primary-hover shadow-primary/20 flex items-center gap-2 braketed-lg px-4 py-2 text-sm font-bold text-white shadow-lg transition active:scale-95"
+            className="bg-primary hover:bg-primary-hover shadow-primary/20 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white shadow-lg transition active:scale-95"
           >
             <span className="text-lg">+</span>
             Turnier erstellen
@@ -85,7 +85,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          className="hover:bg-surface text-text flex h-10 w-10 items-center justify-center braketed-lg transition md:hidden"
+          className="hover:bg-surface text-text flex h-10 w-10 items-center justify-center rounded-lg transition md:hidden"
           aria-label="Menü öffnen"
           aria-expanded={menuOpen}
         >
@@ -100,7 +100,7 @@ export default function Header() {
             <Link
               to="/dashboard"
               onClick={() => setMenuOpen(false)}
-              className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-3 text-sm font-medium transition"
+              className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-3 text-sm font-medium transition"
             >
               Dashboard
             </Link>
@@ -108,7 +108,7 @@ export default function Header() {
             <Link
               to="/tournaments"
               onClick={() => setMenuOpen(false)}
-              className="bg-surface text-text braketed-lg px-4 py-3 text-sm font-medium"
+              className="bg-surface text-text rounded-lg px-4 py-3 text-sm font-medium"
             >
               Turniere
             </Link>
@@ -116,7 +116,7 @@ export default function Header() {
             <Link
               to="/players"
               onClick={() => setMenuOpen(false)}
-              className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-3 text-sm font-medium transition"
+              className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-3 text-sm font-medium transition"
             >
               Spieler
             </Link>
@@ -124,7 +124,7 @@ export default function Header() {
             <Link
               to="/settings"
               onClick={() => setMenuOpen(false)}
-              className="text-text-muted hover:bg-surface hover:text-text braketed-lg px-4 py-3 text-sm font-medium transition"
+              className="text-text-muted hover:bg-surface hover:text-text rounded-lg px-4 py-3 text-sm font-medium transition"
             >
               ⚙️ Einstellungen
             </Link>
@@ -132,7 +132,7 @@ export default function Header() {
             <Link
               to="/tournaments/create"
               onClick={() => setMenuOpen(false)}
-              className="bg-primary hover:bg-primary-hover mt-2 braketed-lg px-4 py-3 text-center text-sm font-bold text-white transition"
+              className="bg-primary hover:bg-primary-hover mt-2 rounded-lg px-4 py-3 text-center text-sm font-bold text-white transition"
             >
               + Turnier erstellen
             </Link>

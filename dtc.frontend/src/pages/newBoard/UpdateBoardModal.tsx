@@ -1,48 +1,53 @@
 import { useState } from "react";
 
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
+import type { BoardDto } from "../../dtos/board/BoardDto";
+import type { LocationDto } from "../../dtos/location/LocationDto";
 import {
-  updatePlayerDtoSchema,
-  type UpdatePlayerDto,
-} from "../../dtos/player/UpdatePlayerDto";
+  updateBoardDtoSchema,
+  type UpdateBoardDto,
+} from "../../dtos/board/UpdateBoardDto";
 
-interface UpdatePlayerModalProps {
-  player: PlayerDto;
+interface UpdateBoardModalProps {
+  board: BoardDto;
   updating: boolean;
   onCancel: () => void;
-  onConfirm: (updatedPlayer: PlayerDto) => void;
+  onConfirm: (updatedBoard: BoardDto) => void;
+  locations: LocationDto[];
 }
 
-export function UpdatePlayerModal({
-  player,
+export function UpdateBoardModal({
+  board,
   updating,
   onCancel,
   onConfirm,
-}: UpdatePlayerModalProps) {
-  const [firstName, setFirstName] = useState(player.firstName ?? "");
-  const [lastName, setLastName] = useState(player.lastName ?? "");
-  const [nickname, setNickname] = useState(player.nickname ?? "");
+  locations,
+}: UpdateBoardModalProps) {
+  const [locationId, setLocationId] = useState<number>(board.locationId ?? 0);
+  const [number, setNumber] = useState<number>(board.number ?? 0);
+  const [label, setLabel] = useState(board.label ?? "");
+  const [isActive, setIsActive] = useState<boolean>(board.isActive ?? false);
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof UpdatePlayerDto, string>>
+    Partial<Record<keyof UpdateBoardDto, string>>
   >({});
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData: UpdatePlayerDto = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      nickname: nickname.trim(),
+    const formData: UpdateBoardDto = {
+      locationId,
+      number,
+      label: label.trim(),
+      isActive,
     };
 
-    const result = updatePlayerDtoSchema.safeParse(formData);
+    const result = updateBoardDtoSchema.safeParse(formData);
 
     if (!result.success) {
-      const fieldErrors: Partial<Record<keyof UpdatePlayerDto, string>> = {};
+      const fieldErrors: Partial<Record<keyof UpdateBoardDto, string>> = {};
 
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof UpdatePlayerDto;
+        const field = issue.path[0] as keyof UpdateBoardDto;
 
         if (!fieldErrors[field]) {
           fieldErrors[field] = issue.message;
@@ -55,12 +60,12 @@ export function UpdatePlayerModal({
 
     setErrors({});
 
-    const updatedPlayer: PlayerDto = {
-      ...player,
+    const updatedBoard: BoardDto = {
+      ...board,
       ...result.data,
     };
 
-    onConfirm(updatedPlayer);
+    onConfirm(updatedBoard);
   };
 
   return (
@@ -74,7 +79,7 @@ export function UpdatePlayerModal({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="update-player-title"
+        aria-labelledby="update-board-title"
       >
         <form onSubmit={handleSubmit}>
           <div className="p-6">
@@ -102,105 +107,148 @@ export function UpdatePlayerModal({
             </div>
 
             <h3
-              id="update-player-title"
+              id="update-board-title"
               className="mt-4 text-lg font-semibold text-gray-900"
             >
-              Spieler bearbeiten
+              Board bearbeiten
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Ändere die Daten des Spielers und speichere anschließend die
+              Ändere die Daten des Boards und speichere anschließend die
               Änderungen.
             </p>
 
             {/* Form fields */}
             <div className="mt-6 space-y-4">
+              {/* Location */}
               <div>
                 <label
-                  htmlFor="firstName"
+                  htmlFor="location"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Vorname
+                  Location
                 </label>
 
-                <input
-                  id="firstName"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                <select
+                  id="location"
+                  value={locationId}
+                  onChange={(e) => setLocationId(Number(e.target.value))}
                   disabled={updating}
                   className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.firstName
+                    errors.locationId
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Vorname"
-                />
+                >
+                  <option value={0}>Location auswählen...</option>
 
-                {errors.firstName && (
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name}, {location.address}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.locationId && (
                   <p className="mt-1.5 text-sm text-red-600">
-                    {errors.firstName}
+                    {errors.locationId}
                   </p>
                 )}
               </div>
 
+              {/* Number */}
               <div>
                 <label
-                  htmlFor="lastName"
+                  htmlFor="number"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Nachname
+                  Nummer
                 </label>
 
                 <input
-                  id="lastName"
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  id="number"
+                  type="number"
+                  value={number}
+                  onChange={(e) => setNumber(Number(e.target.value))}
                   disabled={updating}
                   className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.lastName
+                    errors.number
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Nachname"
+                  placeholder="z. B. 1"
                 />
 
-                {errors.lastName && (
-                  <p className="mt-1.5 text-sm text-red-600">
-                    {errors.lastName}
-                  </p>
+                {errors.number && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.number}</p>
                 )}
               </div>
 
+              {/* Label */}
               <div>
                 <label
-                  htmlFor="nickname"
+                  htmlFor="label"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Spitzname
+                  Label
                 </label>
 
                 <input
-                  id="nickname"
+                  id="label"
                   type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
                   disabled={updating}
                   className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.nickname
+                    errors.label
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Spitzname"
+                  placeholder="Label"
                 />
 
-                {errors.nickname && (
-                  <p className="mt-1.5 text-sm text-red-600">
-                    {errors.nickname}
-                  </p>
+                {errors.label && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.label}</p>
                 )}
               </div>
+
+              {/* Is Active */}
+              <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5">
+                <div>
+                  <label
+                    htmlFor="isActive"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Aktiv
+                  </label>
+
+                  <p className="text-xs text-gray-500">
+                    Soll das Board aktiv sein?
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  id="isActive"
+                  disabled={updating}
+                  onClick={() => setIsActive((current) => !current)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    isActive ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                  role="switch"
+                  aria-checked={isActive}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 translate-y-0.5 rounded-full bg-white shadow-sm transition-transform ${
+                      isActive ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {errors.isActive && (
+                <p className="mt-1.5 text-sm text-red-600">{errors.isActive}</p>
+              )}
             </div>
           </div>
 

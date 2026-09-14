@@ -18,7 +18,7 @@ export function DashboardTournamentDetails({
   return (
     <section
       key={tournament.id}
-      className="mb-6 overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm"
+      className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
     >
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -27,7 +27,7 @@ export function DashboardTournamentDetails({
               <h2 className="text-xl font-semibold tracking-tight text-gray-900">
                 {tournament.name}
               </h2>
-              <span className="braketed-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
                 {tournamentStatusLabel(tournament.status)}
               </span>
             </div>

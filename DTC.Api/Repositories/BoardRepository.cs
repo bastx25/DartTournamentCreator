@@ -48,5 +48,14 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<Board>> GetAllAsync()
+        {
+            return await _context.Boards
+                .OrderBy(b => b.LocationId)
+                .ThenBy(b => b.Id)
+                .ToListAsync();
+        }
+
     }
 }

@@ -38,7 +38,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
           </span>
 
           <span
-            className={`shrink-0 braketed-full px-2 py-0.5 text-[11px] font-medium lg:hidden ${tournamentStatusClasses[tournament.status]}`}
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium lg:hidden ${tournamentStatusClasses[tournament.status]}`}
           >
             {tournamentStatusLabels[tournament.status]}
           </span>
@@ -73,7 +73,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
 
       <div className="hidden lg:block">
         <span
-          className={`inline-flex braketed-full px-2.5 py-1 text-xs font-medium ${tournamentStatusClasses[tournament.status]}`}
+          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${tournamentStatusClasses[tournament.status]}`}
         >
           {tournamentStatusLabels[tournament.status]}
         </span>
@@ -87,7 +87,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
         <button
           type="button"
           onClick={() => onManage(tournament)}
-          className="inline-flex h-9 w-9 items-center justify-center braketed-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           title={`Turnier "${tournament.name}" verwalten`}
           aria-label={`Turnier "${tournament.name}" verwalten`}
         >

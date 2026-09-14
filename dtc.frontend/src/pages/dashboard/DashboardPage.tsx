@@ -102,7 +102,7 @@ export function DashboardPage() {
           tournaments={tournaments}
         />
         {dashboardError && (
-          <div className="mb-6 braketed-lg border border-red-500/20 bg-red-500/10 p-4">
+          <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
             <p className="text-sm text-red-600">{dashboardError}</p>
           </div>
         )}
@@ -114,7 +114,7 @@ export function DashboardPage() {
           </div>
         )}
         {!tournamentsLoading && tournaments.length === 0 && !dashboardError && (
-          <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+          <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900">
               Keine aktiven Turniere
             </h2>
@@ -133,7 +133,7 @@ export function DashboardPage() {
             />
 
             {groups.length === 0 && (
-              <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Gruppen vorhanden
                 </h2>
@@ -152,7 +152,7 @@ export function DashboardPage() {
             )}
 
             {brakets.length === 0 && (
-              <section className="braketed-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
+              <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
                 </h2>

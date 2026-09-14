@@ -9,5 +9,6 @@ namespace DTC.Api.Interfaces
         Task<Board> CreateAsync(Board board);
         Task<Board> UpdateAsync(Board board);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Board>> GetAllAsync();
     }
 }

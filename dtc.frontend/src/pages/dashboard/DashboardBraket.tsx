@@ -7,7 +7,6 @@ import type { MatchDto } from "../../dtos/match/MatchDto";
 import type { BraketDto } from "../../dtos/brakets/BraketDto";
 import { getMatchesByBraketId } from "../../services/braketService";
 
-
 interface DashboardBraketProps {
   braket: BraketDto;
 }
@@ -24,7 +23,7 @@ export function DashboardBraket({ braket }: DashboardBraketProps) {
   }, [braket]);
 
   return (
-    <section className="overflow-hidden braketed-xl border border-gray-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -32,7 +31,7 @@ export function DashboardBraket({ braket }: DashboardBraketProps) {
               <h2 className="text-lg font-semibold text-gray-900">
                 {braket.name ?? `Runde ${braket.sequence}`}
               </h2>
-              <span className="braketed-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
                 {braketStatusLabel(braket.status)}
               </span>
             </div>

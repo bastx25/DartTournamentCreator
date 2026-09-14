@@ -16,6 +16,15 @@ namespace DTC.Api.Controllers
             _boardRepo = boardRepo;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<BoardDto>> GetAllAsync()
+        {
+            var boards = await _boardRepo.GetAllAsync();
+            if (boards == null) return NotFound();
+
+            return Ok(boards.Select(b => b.ToBoardDto()));
+        }
+
         [HttpGet("location/{locationId:int}")]
         public async Task<ActionResult<IEnumerable<BoardDto>>> GetByLocation([FromRoute] int locationId)
         {
@@ -36,9 +45,15 @@ namespace DTC.Api.Controllers
         public async Task<ActionResult<BoardDto>> Create([FromBody] CreateBoardDto dto)
         {
             var entity = dto.ToEntityFromCreate();
-            var created = await _boardRepo.CreateAsync(entity);
-
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToBoardDto());
+            try
+            {
+                var created = await _boardRepo.CreateAsync(entity);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToBoardDto());
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id:int}")]

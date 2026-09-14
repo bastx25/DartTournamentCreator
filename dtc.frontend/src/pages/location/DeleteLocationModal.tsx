@@ -22,7 +22,7 @@ export function DeleteLocationModal({
       role="presentation"
     >
       <div
-        className="w-full max-w-md overflow-hidden braketed-2xl bg-white shadow-2xl ring-1 ring-black/5"
+        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -31,7 +31,7 @@ export function DeleteLocationModal({
       >
         <div className="p-6">
           {/* Icon */}
-          <div className="flex h-12 w-12 items-center justify-center braketed-full bg-red-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
             <svg
               className="h-6 w-6 text-red-600"
               viewBox="0 0 24 24"
@@ -76,7 +76,7 @@ export function DeleteLocationModal({
             type="button"
             disabled={deleting}
             onClick={onCancel}
-            className="braketed-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Abbrechen
           </button>
@@ -85,7 +85,7 @@ export function DeleteLocationModal({
             type="button"
             disabled={deleting}
             onClick={onConfirm}
-            className="inline-flex min-w-25 items-center justify-center gap-2 braketed-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-w-25 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {deleting && (
               <svg

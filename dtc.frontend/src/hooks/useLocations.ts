@@ -45,7 +45,7 @@ export function useLocations() {
         }
       } catch (error) {
         console.error(error);
-        setError("Die Spieler konnten nicht geladen werden.");
+        setError("Die Locations konnten nicht geladen werden.");
       } finally {
         setLoading(false);
       }
@@ -74,10 +74,8 @@ export function useLocations() {
 
       setLocationToDelete(null);
     } catch (error) {
-      console.error("Fehler beim Löschen des Spielers:", error);
-      setError(
-        "Der Spieler konnte nicht gelöscht werden. Ist der Spieler eventuell noch in einem Turnier?",
-      );
+      console.error("Fehler beim Löschen der Location:", error);
+      setError("Die Location konnte nicht gelöscht werden.");
     } finally {
       setDeleting(false);
     }
@@ -109,8 +107,8 @@ export function useLocations() {
 
       setLocationToUpdate(null);
     } catch (error) {
-      console.error("Fehler beim Aktualisieren des Spielers:", error);
-      setError("Der Spieler konnte nicht aktualisiert werden.");
+      console.error("Fehler beim Aktualisieren der Location:", error);
+      setError("Die Location konnte nicht aktualisiert werden.");
     } finally {
       setUpdating(false);
     }
@@ -130,8 +128,8 @@ export function useLocations() {
 
       setSelectedLocation(newLocation);
     } catch (error) {
-      console.error("Fehler beim Aktualisieren des Spielers:", error);
-      setError("Der Spieler konnte nicht hinzugefügt werden.");
+      console.error("Fehler beim Hinzufügen der Location:", error);
+      setError("Die Location konnte nicht hinzugefügt werden.");
     } finally {
       setAddLocation(false);
       setAdding(false);

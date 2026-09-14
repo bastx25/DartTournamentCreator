@@ -1,31 +1,37 @@
-import type { LocationDto } from "../../dtos/location/LocationDto";
+import type { BoardDto } from "../../dtos/board/BoardDto";
 
-interface LocationDetailsProps {
-  location: LocationDto | null;
+interface BoardDetailsProps {
+  board: BoardDto | null;
+  getBoardLocation: (boardId: number) => string;
 }
 
-export function LocationDetails({ location }: LocationDetailsProps) {
+export function BoardDetails({ board, getBoardLocation }: BoardDetailsProps) {
   return (
     <aside className="h-fit rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
-      {location ? (
+      {board ? (
         <>
           <div className="mb-5 border-b border-gray-200 pb-5">
             <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-400">
-              Location Details
+              Board Details
             </p>
 
             <h2 className="text-xl font-semibold text-gray-900">
-              {location.name}
+              Board {board.label}
             </h2>
           </div>
 
           <div className="space-y-4">
-            <Detail label="Name" value={location.name} />
-            <Detail label="Addresse" value={location.address ?? ""} />
+            <Detail label="Nummer" value={board.number.toString() ?? ""} />
+            <Detail label="Label" value={board.label ?? ""} />
+            <Detail
+              label="Addresse"
+              value={getBoardLocation(board.locationId)}
+            />
+            <Detail label="Ist Aktiv" value={board.isActive ? "Ja" : "Nein"} />
           </div>
         </>
       ) : (
-        <p className="text-sm text-gray-500">Wähle eine Location aus.</p>
+        <p className="text-sm text-gray-500">Wähle eine Board aus.</p>
       )}
     </aside>
   );
