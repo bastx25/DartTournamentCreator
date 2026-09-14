@@ -1,4 +1,5 @@
 ﻿using DTC.Api.Dtos.MatchMaker;
+using DTC.Api.Models;
 
 namespace DTC.Api.Services
 {
@@ -7,5 +8,6 @@ namespace DTC.Api.Services
         Task GenerateGroupsAsync(int tournamentId, GenerateGroupsDto options);
         Task GenerateKnockoutAsync(int tournamentId, GenerateGroupsDto options);
         Task AdvanceKnockoutAsync(int matchId);
+        Task AdvanceWinner(Match match);
     }
 }

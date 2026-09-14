@@ -1,7 +1,9 @@
 using DTC.Api.Data;
 using DTC.Api.Dtos.Board;
 using DTC.Api.Enums;
+using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using DTC.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +16,12 @@ namespace DTC.Api.Controllers
     public class BoardAccessController : ControllerBase
     {
         private readonly DartDbContext _context;
+        private readonly IMatchMakerService _matchMakerService;
 
-        public BoardAccessController(DartDbContext context)
+        public BoardAccessController(DartDbContext context, IMatchMakerService matchMakerService)
         {
             _context = context;
+            _matchMakerService = matchMakerService;
         }
 
         [HttpGet("boards/{boardId:int}")]
@@ -180,6 +184,11 @@ namespace DTC.Api.Controllers
             if (match.ActualStart == null)
             {
                 match.ActualStart = match.ActualEnd;
+            }
+
+            if(match.Braket.Phase == BraketPhase.Knockout)
+            {
+                await _matchMakerService.AdvanceWinner(match);
             }
 
             await _context.SaveChangesAsync();

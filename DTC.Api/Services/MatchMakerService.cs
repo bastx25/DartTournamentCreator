@@ -224,6 +224,7 @@ namespace DTC.Api.Services
                             matches.Add(new Match
                             {
                                 BraketId = braket.Id,
+                                BoardId = 1,
                                 Participants = new List<MatchParticipant>
                             {
                                 new MatchParticipant
@@ -251,6 +252,7 @@ namespace DTC.Api.Services
                             matches.Add(new Match
                             {
                                 BraketId = braket.Id,
+                                BoardId = 1
                             });
                         }
                     }
@@ -695,7 +697,49 @@ namespace DTC.Api.Services
             ordered.AddRange(byes);
             return ordered;
         }
-     
+
+        public async Task AdvanceWinner(Match match)
+        {
+            if (match.Braket.Phase != BraketPhase.Knockout)
+            {
+                return;
+            }
+
+            var winner = match.Participants.First(p => p.IsWinner);
+
+            var brakets = await _context.Brakets.Where(b => b.TournamentId ==  match.Braket.TournamentId).Include(b => b.Matches).ThenInclude(m => m.Participants).ToListAsync();
+
+            var curBraket = brakets.First(b => b.Id == match.BraketId);
+
+            var nextBraket = brakets.OrderByDescending(b => b.Sequence).FirstOrDefault(b => b.Sequence < curBraket.Sequence);
+
+            if (nextBraket == null) return;
+
+            var matchIndex = curBraket.Matches
+                .ToList()
+                .FindIndex(m => m.Id == match.Id);
+
+            var nextMatch = nextBraket.Matches.ElementAt(matchIndex / 2);
+
+            var emptySlot = nextMatch.Participants
+                .FirstOrDefault(p => p == null);
+
+            if (emptySlot == null)
+            {
+                nextMatch.Participants.Add(new MatchParticipant
+                {
+                    Match = nextMatch,
+                    MatchId = nextMatch.Id,
+                    TournamentPlayer = winner.TournamentPlayer,
+                    TournamentPlayerId = winner.TournamentPlayerId,
+                    Score = 0,
+                    IsWinner = false
+                });
+
+            }
+
+            await _context.SaveChangesAsync();
+        }
 
         private sealed record MatchCandidate(Group Group, IReadOnlyList<int> PlayerIds, bool IsBye);
 
