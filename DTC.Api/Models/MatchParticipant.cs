@@ -13,8 +13,6 @@ namespace DTC.Api.Models
         public int TournamentPlayerId { get; set; }
         public TournamentPlayer TournamentPlayer { get; set; } = null!;
 
-        public Availability? Availability { get; set; }
-
         public int Score { get; set; }
 
         public bool IsWinner { get; set; }

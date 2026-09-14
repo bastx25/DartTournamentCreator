@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+﻿using DTC.Api.Dtos.TournamentConfig;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection.Metadata.Ecma335;
 
@@ -12,8 +13,8 @@ namespace DTC.Api.Models
         public DateTimeOffset Start { get; set; }
         public DateTimeOffset End { get; set; }
 
-        public int MatchParticipantId { get; set; }
-        public MatchParticipant MatchParticipant { get; set; } = null!;
+        public int TournamentPlayerId { get; set; }
+        public TournamentPlayer TournamentPlayer { get; set; } = null!;
 
     }
 }

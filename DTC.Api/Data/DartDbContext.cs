@@ -1,6 +1,7 @@
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DTC.Api.Data
 {
@@ -73,6 +74,10 @@ namespace DTC.Api.Data
                     .WithMany(p => p.TournamentPlayers)
                     .HasForeignKey(tp => tp.PlayerId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(tp => tp.Availability)
+                     .WithOne(av => av.TournamentPlayer)
+                     .OnDelete(DeleteBehavior.Cascade);
 
                 // Ein Player darf nur einmal im gleichen Turnier registriert sein
                 entity.HasIndex(tp => new
@@ -252,9 +257,6 @@ namespace DTC.Api.Data
                     .HasForeignKey(mp => mp.TournamentPlayerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(mp => mp.Availability)
-                      .WithOne(av => av.MatchParticipant)
-                      .OnDelete(DeleteBehavior.Cascade);
 
                 // Derselbe TournamentPlayer darf nicht zweimal
                 // im gleichen Match vorkommen
@@ -279,7 +281,7 @@ namespace DTC.Api.Data
 
         }
 
-
+        public DbSet<Availability> Availabilities { get; set; } = null!;
         public DbSet<Board> Boards { get; set; } = null!;
         public DbSet<Group> Groups { get; set; } = null!;
         public DbSet<GroupPlayer> GroupPlayers { get; set; } = null!;
