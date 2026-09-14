@@ -1,10 +1,11 @@
-﻿using DTC.Api.Models;
+﻿using DTC.Api.Dtos.MatchMaker;
+using DTC.Api.Models;
 
 namespace DTC.Api.Interfaces
 {
     public interface ITournamentPlayerRepository
     {
         Task<IEnumerable<TournamentPlayer>> GetPlayersAsync(int tournamentid);
-        Task SetTournamentPlayers(int id, List<int>? playerIds);
+        Task SetTournamentPlayers(int id, List<int>? playerIds, GenerateGroupsDto options);
     }
 }

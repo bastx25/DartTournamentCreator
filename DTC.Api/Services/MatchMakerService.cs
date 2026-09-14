@@ -45,7 +45,7 @@ namespace DTC.Api.Services
             await _groupRepo.DeleteAllTournamentGroups(tournamentId);
             await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
-            await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds);
+            await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds, options);
 
             var tournament = await _context.Tournaments
                 .Include(t => t.TournamentPlayers)

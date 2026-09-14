@@ -1,4 +1,5 @@
 ﻿using DTC.Api.Data;
+using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,32 +20,48 @@ namespace DTC.Api.Repositories
             return await _context.TournamentPlayers.Where(x => x.TournamentId == tournamentid).ToListAsync();
         }
 
-        public async Task SetTournamentPlayers(int tournamentId, List<int>? playerIds)
-        {
-            var existingPlayers = await _context.TournamentPlayers
-                .Where(p => p.TournamentId == tournamentId)
-                .ToListAsync();
 
-            _context.TournamentPlayers.RemoveRange(existingPlayers);
-            await _context.SaveChangesAsync();
-
-            if(playerIds == null) playerIds = new List<int>();
-
-            var newPlayers = await _context.Players
-                .Where(p => playerIds.Contains(p.Id))
-                .ToListAsync();
-
-            foreach (var player in newPlayers)
-            {
-                await _context.TournamentPlayers.AddAsync(new TournamentPlayer
+        public async Task SetTournamentPlayers(
+            int tournamentId,
+            List<int>? playerIds,
+            GenerateGroupsDto options
+            )
                 {
-                    TournamentId = tournamentId,
-                    PlayerId = player.Id
-                });
-            }
+                    var existingPlayers = await _context.TournamentPlayers
+                        .Where(p => p.TournamentId == tournamentId)
+                        .ToListAsync();
 
-            await _context.SaveChangesAsync();
-        }
+                    _context.TournamentPlayers.RemoveRange(existingPlayers);
+                    await _context.SaveChangesAsync();
+
+                    playerIds ??= new List<int>();
+
+                    var newPlayers = await _context.Players
+                        .Where(p => playerIds.Contains(p.Id))
+                        .ToListAsync();
+
+                    foreach (var player in newPlayers)
+                    {
+                        var tournamentPlayer = new TournamentPlayer
+                        {
+                            TournamentId = tournamentId,
+                            PlayerId = player.Id,
+                            Availabilities = new List<Availability>
+                            {
+                                new Availability
+                                {
+                                    Start = options.StartTime.Value,
+                                    End = options.StartTime.Value.AddHours(24)
+                                }
+                            }   
+                        };
+
+                        await _context.TournamentPlayers.AddAsync(tournamentPlayer);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
 
     }
 }
