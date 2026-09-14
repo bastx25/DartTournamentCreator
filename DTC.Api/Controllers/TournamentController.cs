@@ -76,8 +76,6 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            await _groupRepo.DeleteAllTournamentGroups(id);
-            await _braketRepo.DeleteAllTournamentBraketsAsync(id);
             var success = await _tournamentRepo.DeleteAsync(id);
             if (!success) return NotFound();
 

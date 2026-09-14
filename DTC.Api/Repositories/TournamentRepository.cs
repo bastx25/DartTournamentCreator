@@ -8,10 +8,14 @@ namespace DTC.Api.Repositories
     public class TournamentRepository : ITournamentRepository
     {
         private readonly DartDbContext _context;
+        private readonly IGroupRepository _groupRepo;
+        private readonly IBraketRepository _braketRepo;
 
-        public TournamentRepository(DartDbContext context)
+        public TournamentRepository(DartDbContext context, IGroupRepository groupRepository, IBraketRepository braketRepository)
         {
             _context = context;
+            _groupRepo = groupRepository;
+            _braketRepo = braketRepository;
         }
 
         public async Task<IEnumerable<Tournament>> GetAllAsync()
@@ -42,6 +46,9 @@ namespace DTC.Api.Repositories
         {
             var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null) return false;
+
+            await _groupRepo.DeleteAllTournamentGroups(id);
+            await _braketRepo.DeleteAllTournamentBraketsAsync(id);
 
             _context.Tournaments.Remove(tournament);
             await _context.SaveChangesAsync();
