@@ -75,7 +75,7 @@ namespace DTC.Api.Data
                     .HasForeignKey(tp => tp.PlayerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(tp => tp.Availability)
+                entity.HasMany(tp => tp.Availabilities)
                      .WithOne(av => av.TournamentPlayer)
                      .OnDelete(DeleteBehavior.Cascade);
 

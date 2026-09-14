@@ -16,7 +16,7 @@ namespace DTC.Api.Models
 
         public bool IsQualified { get; set; }
 
-        public Availability? Availability { get; set; }
+        public ICollection<Availability>? Availabilities { get; set; }
 
         public ICollection<GroupPlayer> Groups { get; set; }
             = new List<GroupPlayer>();
