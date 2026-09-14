@@ -56,6 +56,8 @@ namespace DTC.Api.Controllers
             var entity = dto.ToEntityFromCreate();
             var created = await _tournamentRepo.CreateAsync(entity);
 
+            await _configRepo.CreateNewTConfig(tournamentId: created.Id, dto);
+
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToTournamentDto());
         }
 
@@ -74,6 +76,8 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            await _groupRepo.DeleteAllTournamentGroups(id);
+            await _braketRepo.DeleteAllTournamentBraketsAsync(id);
             var success = await _tournamentRepo.DeleteAsync(id);
             if (!success) return NotFound();
 

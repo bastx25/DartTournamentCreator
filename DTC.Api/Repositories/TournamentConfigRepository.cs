@@ -1,5 +1,6 @@
 ﻿using DTC.Api.Data;
 using DTC.Api.Dtos.MatchMaker;
+using DTC.Api.Dtos.Tournament;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,21 @@ namespace DTC.Api.Repositories
             await _context.SaveChangesAsync();
 
             return newConfig;
+        }
+
+        public async Task<TournamentConfig> CreateNewTConfig(int tournamentId, CreateTournamentDto dto)
+        {
+            var config = new TournamentConfig
+            {
+                TournamentId = tournamentId,
+                Mode = dto.Mode,
+            };
+
+            await _context.TournamentConfigs.AddAsync(config);
+
+            await _context.SaveChangesAsync();
+
+            return config;
         }
 
         public async Task<IEnumerable<TournamentConfig>> GetConfigsAsync(int tournamentid)

@@ -12,6 +12,7 @@ namespace DTC.Api.Dtos.Tournament
         [StringLength(1000, ErrorMessage = "Die Beschreibung darf maximal 1000 Zeichen lang sein.")]
         public string? Description { get; set; }
 
+        public TournamentMode Mode { get; set; } = TournamentMode.GrouStageandKnockout;
         public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
 
         [Required(ErrorMessage = "Das Startdatum ist ein Pflichtfeld.")]
