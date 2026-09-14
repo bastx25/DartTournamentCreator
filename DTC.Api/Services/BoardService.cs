@@ -138,12 +138,15 @@ namespace DTC.Api.Services
                 boardAvailability[selectedBoard.Id] =
                     selectedEnd.Value.AddMinutes(breakMinutes);
 
+                // Beide Spieler inklusive Pause für weitere Matches blockieren
+                var endWithBreak = selectedEnd.Value.AddMinutes(breakMinutes);
+
                 // Beide Spieler für diesen Zeitraum blockieren
                 playerBusySlots[player1Id].Add(
-                    (selectedStart.Value, selectedEnd.Value));
+                    (selectedStart.Value, endWithBreak));
 
                 playerBusySlots[player2Id].Add(
-                    (selectedStart.Value, selectedEnd.Value));
+                    (selectedStart.Value, endWithBreak));
             }
         }
 
@@ -248,6 +251,42 @@ namespace DTC.Api.Services
             return await _context.Boards.Where(b => b.IsActive).OrderBy(x => x.Id).ToListAsync();
         }
 
+        public async Task SetBoards(List<Braket> brakets, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        {
+            //TODO: MAJOR players also have to be availiable 
+            var boards = await GetActiveBoards();
+
+            var matches = GetMatchesFromBrakets(brakets)
+                .Where(m => m.Status != MatchStatus.Completed)
+                .OrderBy(m => m.Id)
+                .ToList();
+
+            if (!boards.Any())
+                throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
+
+            var boardAvailability = boards.ToDictionary(
+                board => board.Id,
+                board => startTime
+            );
+
+            foreach (var match in matches)
+            {
+                // Board, das am frühesten verfügbar ist
+                var availableBoard = boards
+                    .OrderBy(board => boardAvailability[board.Id])
+                    .First();
+
+                var matchStart = boardAvailability[availableBoard.Id];
+
+                match.BoardId = availableBoard.Id;
+                match.PlannedStart = matchStart;
+                match.PlannedEnd = matchStart.AddMinutes(matchDuration);
+
+                boardAvailability[availableBoard.Id] =
+                    match.PlannedEnd.Value.AddMinutes(breakMinutes);
+            }
+        }
+
         private List<Match> GetMatchesFromGroups(List<Group> groups)
         {
             var matches = new List<Match>();
@@ -255,6 +294,18 @@ namespace DTC.Api.Services
             foreach (var group in groups)
             {
                 matches.AddRange(group.Matches);
+            }
+
+            return matches;
+
+        }
+        private List<Match> GetMatchesFromBrakets(List<Braket> brakets)
+        {
+            var matches = new List<Match>();
+
+            foreach (var braket in brakets)
+            {
+                matches.AddRange(braket.Matches);
             }
 
             return matches;

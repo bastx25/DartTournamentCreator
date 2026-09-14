@@ -6,5 +6,6 @@ namespace DTC.Api.Services
     {
         Task<List<Board>> GetActiveBoards();
         Task SetBoards(List<Group> groups, DateTimeOffset startTime, int matchDuration, int breakMinutes);
+        Task SetBoards(List<Braket> brakets, DateTimeOffset startTime, int matchDuration, int breakMinutes);
     }
 }
