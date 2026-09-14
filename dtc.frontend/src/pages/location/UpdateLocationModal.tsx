@@ -103,11 +103,11 @@ export function UpdateLocationModal({
               id="update-location-title"
               className="mt-4 text-lg font-semibold text-gray-900"
             >
-              Spieler bearbeiten
+              Locations bearbeiten
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Ändere die Daten des Spielers und speichere anschließend die
+              Ändere die Daten des Locationss und speichere anschließend die
               Änderungen.
             </p>
 

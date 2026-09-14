@@ -27,7 +27,7 @@ export function LocationList({
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            {locations.length} Spieler verfügbar
+            {locations.length} Locations verfügbar
           </p>
         </div>
 
@@ -38,7 +38,7 @@ export function LocationList({
             onAddLocation(true);
           }}
           className="flex h-9 w-9 items-center justify-center braketed-lg bg-green-600 text-xl font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          title="Spieler hinzufügen"
+          title="Locations hinzufügen"
         >
           +
         </button>

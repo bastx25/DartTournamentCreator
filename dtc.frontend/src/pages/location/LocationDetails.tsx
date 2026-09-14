@@ -20,12 +20,12 @@ export function LocationDetails({ location }: LocationDetailsProps) {
           </div>
 
           <div className="space-y-4">
-            <Detail label="First Name" value={location.name} />
-            <Detail label="Last Name" value={location.address ?? ""} />
+            <Detail label="Name" value={location.name} />
+            <Detail label="Addresse" value={location.address ?? ""} />
           </div>
         </>
       ) : (
-        <p className="text-sm text-gray-500">Wähle einen Spieler aus.</p>
+        <p className="text-sm text-gray-500">Wähle eine Location aus.</p>
       )}
     </aside>
   );
