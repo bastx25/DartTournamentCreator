@@ -48,9 +48,9 @@ namespace DTC.Api.Controllers
             if (existing == null) return NotFound();
 
             dto.UpdateLocationEntity(existing);
-            await _locationRepo.UpdateAsync(existing);
+            var location = await _locationRepo.UpdateAsync(existing);
 
-            return NoContent();
+            return Ok(location.ToLocationDto());
         }
 
         [HttpDelete("{id:int}")]
