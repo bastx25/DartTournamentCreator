@@ -252,6 +252,10 @@ namespace DTC.Api.Data
                     .HasForeignKey(mp => mp.TournamentPlayerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(mp => mp.Availability)
+                      .WithOne(av => av.MatchParticipant)
+                      .OnDelete(DeleteBehavior.Cascade);
+
                 // Derselbe TournamentPlayer darf nicht zweimal
                 // im gleichen Match vorkommen
                 entity.HasIndex(mp => new
@@ -261,6 +265,18 @@ namespace DTC.Api.Data
                 })
                 .IsUnique();
             });
+
+            // =========================================================
+            // Availability
+            // =========================================================
+
+            modelBuilder.Entity<Availability>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+            });
+
+
         }
 
 

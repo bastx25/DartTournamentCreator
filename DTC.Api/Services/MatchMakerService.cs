@@ -735,7 +735,6 @@ namespace DTC.Api.Services
                     Score = 0,
                     IsWinner = false
                 });
-
             }
 
             await _context.SaveChangesAsync();
