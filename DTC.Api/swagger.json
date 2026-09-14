@@ -408,14 +408,14 @@
         }
       }
     },
-    "/api/matches/round/{roundId}": {
+    "/api/matches/braket/{braketId}": {
       "get": {
         "tags": [
           "Match"
         ],
         "parameters": [
           {
-            "name": "roundId",
+            "name": "braketId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1019,7 +1019,7 @@
         }
       }
     },
-    "/api/rounds/tournament/{tournamentId}": {
+    "/api/brakets/tournament/{tournamentId}": {
       "get": {
         "tags": [
           "Braket"
@@ -1068,7 +1068,7 @@
         }
       }
     },
-    "/api/rounds/{id}": {
+    "/api/brakets/{id}": {
       "get": {
         "tags": [
           "Braket"
@@ -1174,7 +1174,7 @@
         }
       }
     },
-    "/api/rounds": {
+    "/api/brakets": {
       "post": {
         "tags": [
           "Braket"
@@ -1547,11 +1547,11 @@
       },
       "CreateMatchDto": {
         "required": [
-          "roundId"
+          "braketId"
         ],
         "type": "object",
         "properties": {
-          "roundId": {
+          "braketId": {
             "type": "integer",
             "format": "int32"
           },
@@ -1742,7 +1742,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "roundId": {
+          "braketId": {
             "type": "integer",
             "format": "int32"
           },
@@ -1918,7 +1918,7 @@
           "status": {
             "$ref": "#/components/schemas/TournamentStatus"
           },
-          "rounds": {
+          "brakets": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BraketDto"

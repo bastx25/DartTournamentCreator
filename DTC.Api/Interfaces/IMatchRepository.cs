@@ -4,7 +4,7 @@ namespace DTC.Api.Interfaces
 {
     public interface IMatchRepository
     {
-        Task<IEnumerable<Match>> GetByBraketIdAsync(int roundId);
+        Task<IEnumerable<Match>> GetByBraketIdAsync(int braketId);
         Task<Match?> GetByIdAsync(int id);
         Task<Match> CreateAsync(Match match);
         Task<Match> UpdateAsync(Match match);

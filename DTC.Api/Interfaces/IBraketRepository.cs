@@ -6,8 +6,8 @@ namespace DTC.Api.Interfaces
     {
         Task<IEnumerable<Braket>> GetByTournamentIdAsync(int tournamentId);
         Task<Braket?> GetByIdAsync(int id);
-        Task<Braket> CreateAsync(Braket round);
-        Task<Braket> UpdateAsync(Braket round);
+        Task<Braket> CreateAsync(Braket braket);
+        Task<Braket> UpdateAsync(Braket braket);
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<Braket>> GetBraketsAsync(int id);
         Task DeleteAllTournamentBraketsAsync(int id);

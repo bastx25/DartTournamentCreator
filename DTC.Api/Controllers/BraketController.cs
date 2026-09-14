@@ -5,40 +5,40 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
-    [Route("api/rounds")]
+    [Route("api/brakets")]
     [ApiController]
     public class BraketController : ControllerBase
     {
-        private readonly IBraketRepository _roundRepo;
+        private readonly IBraketRepository _braketRepo;
         private readonly IMatchRepository _matchRepo;
 
-        public BraketController(IBraketRepository roundRepo, IMatchRepository matchRepository)
+        public BraketController(IBraketRepository braketRepo, IMatchRepository matchRepository)
         {
-            _roundRepo = roundRepo;
+            _braketRepo = braketRepo;
             _matchRepo = matchRepository;
         }
 
         [HttpGet("tournament/{tournamentId:int}")]
         public async Task<ActionResult<IEnumerable<BraketDto>>> GetByTournament([FromRoute] int tournamentId)
         {
-            var rounds = await _roundRepo.GetByTournamentIdAsync(tournamentId);
-            return Ok(rounds.Select(r => r.ToBraketDto()));
+            var brakets = await _braketRepo.GetByTournamentIdAsync(tournamentId);
+            return Ok(brakets.Select(r => r.ToBraketDto()));
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<BraketDto>> GetById([FromRoute] int id)
         {
-            var round = await _roundRepo.GetByIdAsync(id);
-            if (round == null) return NotFound();
+            var braket = await _braketRepo.GetByIdAsync(id);
+            if (braket == null) return NotFound();
 
-            return Ok(round.ToBraketDto());
+            return Ok(braket.ToBraketDto());
         }
 
         [HttpPost]
         public async Task<ActionResult<BraketDto>> Create([FromBody] CreateBraketDto dto)
         {
             var entity = dto.ToEntityFromCreate();
-            var created = await _roundRepo.CreateAsync(entity);
+            var created = await _braketRepo.CreateAsync(entity);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToBraketDto());
         }
@@ -46,11 +46,11 @@ namespace DTC.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateBraketDto dto)
         {
-            var existing = await _roundRepo.GetByIdAsync(id);
+            var existing = await _braketRepo.GetByIdAsync(id);
             if (existing == null) return NotFound();
 
             dto.UpdateBraketEntity(existing);
-            await _roundRepo.UpdateAsync(existing);
+            await _braketRepo.UpdateAsync(existing);
 
             return NoContent();
         }
@@ -58,7 +58,7 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var success = await _roundRepo.DeleteAsync(id);
+            var success = await _braketRepo.DeleteAsync(id);
             if (!success) return NotFound();
 
             return NoContent();

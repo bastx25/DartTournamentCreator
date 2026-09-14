@@ -36,25 +36,25 @@ namespace DTC.Api.Repositories
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public async Task<Braket> CreateAsync(Braket round)
+        public async Task<Braket> CreateAsync(Braket braket)
         {
-            await _context.Brakets.AddAsync(round);
+            await _context.Brakets.AddAsync(braket);
             await _context.SaveChangesAsync();
-            return round;
+            return braket;
         }
 
-        public async Task<Braket> UpdateAsync(Braket round)
+        public async Task<Braket> UpdateAsync(Braket braket)
         {
             await _context.SaveChangesAsync();
-            return round;
+            return braket;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var round = await _context.Brakets.FindAsync(id);
-            if (round == null) return false;
+            var braket = await _context.Brakets.FindAsync(id);
+            if (braket == null) return false;
 
-            _context.Brakets.Remove(round);
+            _context.Brakets.Remove(braket);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -68,9 +68,9 @@ namespace DTC.Api.Repositories
         {
             var existing = await _context.Brakets.Where(r => r.TournamentId == tournamentId).ToListAsync();
 
-            foreach (var round in existing)
+            foreach (var braket in existing)
             {
-                await _matchRepo.DeleteByBraketId(round.Id);
+                await _matchRepo.DeleteByBraketId(braket.Id);
             }
 
             _context.Brakets.RemoveRange(existing);

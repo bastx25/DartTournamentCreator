@@ -6,18 +6,18 @@ namespace DTC.Api.Mappers
     public static class BraketMapper
     {
         // Entity -> DTO
-        public static BraketDto ToBraketDto(this Braket round)
+        public static BraketDto ToBraketDto(this Braket braket)
         {
             return new BraketDto
             {
-                Id = round.Id,
-                TournamentId = round.TournamentId,
-                Sequence = round.Sequence,
-                Name = round.Name,
-                PlannedStart = round.PlannedStart,
-                PlannedEnd = round.PlannedEnd,
-                Status = round.Status,
-                Phase = round.Phase,
+                Id = braket.Id,
+                TournamentId = braket.TournamentId,
+                Sequence = braket.Sequence,
+                Name = braket.Name,
+                PlannedStart = braket.PlannedStart,
+                PlannedEnd = braket.PlannedEnd,
+                Status = braket.Status,
+                Phase = braket.Phase,
             };
         }
 
@@ -42,15 +42,15 @@ namespace DTC.Api.Mappers
         // Update DTO -> vorhandene Entity aktualisieren
         public static void UpdateBraketEntity(
             this UpdateBraketDto dto,
-            Braket round)
+            Braket braket)
         {
-            round.TournamentId = dto.TournamentId;
-            round.Sequence = dto.Sequence;
-            round.Name = dto.Name?.Trim();
-            round.PlannedStart = dto.PlannedStart;
-            round.PlannedEnd = dto.PlannedEnd;
-            round.Status = dto.Status;
-            round.Phase = dto.Phase;
+            braket.TournamentId = dto.TournamentId;
+            braket.Sequence = dto.Sequence;
+            braket.Name = dto.Name?.Trim();
+            braket.PlannedStart = dto.PlannedStart;
+            braket.PlannedEnd = dto.PlannedEnd;
+            braket.Status = dto.Status;
+            braket.Phase = dto.Phase;
         }
     }
 }

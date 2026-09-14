@@ -19,10 +19,10 @@ namespace DTC.Api.Controllers
             _matchMakerService = matchMakerService;
         }
 
-        [HttpGet("round/{roundId:int}")]
-        public async Task<ActionResult<IEnumerable<MatchDto>>> GetByBraketId([FromRoute] int roundId)
+        [HttpGet("braket/{braketId:int}")]
+        public async Task<ActionResult<IEnumerable<MatchDto>>> GetByBraketId([FromRoute] int braketId)
         {
-            var matches = await _matchRepo.GetByBraketIdAsync(roundId);
+            var matches = await _matchRepo.GetByBraketIdAsync(braketId);
             var dtos = matches.Select(m => m.ToMatchDto());
             return Ok(dtos);
         }

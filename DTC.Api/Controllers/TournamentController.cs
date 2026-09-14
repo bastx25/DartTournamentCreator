@@ -14,14 +14,14 @@ namespace DTC.Api.Controllers
         private readonly ITournamentRepository _tournamentRepo;
         private readonly IMatchMakerService _matchMakerService;
         private readonly IGroupRepository _groupRepo;
-        private readonly IBraketRepository _roundRepo;
+        private readonly IBraketRepository _braketRepo;
         private readonly ITournamentConfigRepository _configRepo;
         private readonly ITournamentPlayerRepository _tplayerRepo;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
             IGroupRepository groupRepository,
-            IBraketRepository roundRepository,
+            IBraketRepository braketRepository,
             ITournamentConfigRepository tournamentConfigRepository,
             ITournamentPlayerRepository tplayerRepository,
             IMatchMakerService matchMakerService)
@@ -29,7 +29,7 @@ namespace DTC.Api.Controllers
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
             _groupRepo = groupRepository;
-            _roundRepo = roundRepository;
+            _braketRepo = braketRepository;
             _configRepo = tournamentConfigRepository;
             _tplayerRepo = tplayerRepository;
         }
@@ -132,13 +132,13 @@ namespace DTC.Api.Controllers
             }
         }
 
-        [HttpGet("{id:int}/rounds")]
+        [HttpGet("{id:int}/brakets")]
         public async Task<IActionResult> GetBrakets([FromRoute] int id)
         {
             try
             {
-                var rounds = await _roundRepo.GetBraketsAsync(id);
-                return Ok(rounds.Select(r => r.ToBraketDto()));
+                var brakets = await _braketRepo.GetBraketsAsync(id);
+                return Ok(brakets.Select(r => r.ToBraketDto()));
             }
             catch (Exception ex)
             {

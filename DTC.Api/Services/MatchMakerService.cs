@@ -20,21 +20,21 @@ namespace DTC.Api.Services
         private readonly IGroupRepository _groupRepo;
         private readonly Random _random = Random.Shared;
 
-        private readonly IBraketRepository _roundRepo;
+        private readonly IBraketRepository _braketRepo;
         private readonly IBoardService _boardService;
 
         public MatchMakerService(DartDbContext context,
             ITournamentPlayerRepository tournamentPlayerRepository,
             IMatchRepository matchRepository,
             IGroupRepository groupRepository,
-            IBraketRepository roundRepository,
+            IBraketRepository braketRepository,
             IBoardService boardService)
         {
             _context = context;
             _tournamentPlayerRepo = tournamentPlayerRepository;
             _matchRepo = matchRepository;
             _groupRepo = groupRepository;
-            _roundRepo = roundRepository;
+            _braketRepo = braketRepository;
             _boardService = boardService;
         }
 
@@ -43,6 +43,7 @@ namespace DTC.Api.Services
             ArgumentNullException.ThrowIfNull(options);
 
             await _groupRepo.DeleteAllTournamentGroups(tournamentId);
+            await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
             await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, options.PlayerIds);
 
@@ -100,7 +101,7 @@ namespace DTC.Api.Services
                 throw new InvalidOperationException("Für dieses Turnier wurden bereits Gruppen oder Runden generiert.");
             #endregion Validation
 
-            // Shuffle first, then distribute round-robin. This gives groups whose sizes differ by at most one.
+            // Shuffle first, then distribute braket-robin. This gives groups whose sizes differ by at most one.
             var shuffledPlayers = tournamentPlayers.OrderBy(_ => _random.Next()).ToList();
             var groups = new List<Group>(options.GroupCount);
             
@@ -202,13 +203,89 @@ namespace DTC.Api.Services
 
         private async Task CreateKnockoutBrakets(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
         {
-            var koGroup = await CreateTiebreakerGroup(tournamentId, GetKoGroupName(qualifiedPlayers.Count),
-                qualifiedPlayers, options.StartTime ??  DateTimeOffset.Now, 
-                options.MatchDurationMinutes ?? 20, 
-                options.BreakBetweenMatchesMinutes ?? 5);
+            var brakets = await _context.Brakets.Where(b => b.TournamentId ==  tournamentId).ToListAsync();
 
-            await _context.AddAsync(koGroup);
+            if(!brakets.Any())
+            {
+                brakets = CreateEmptyBrakets(tournamentId, qualifiedPlayers.Count);
+
+                //create Matches
+
+                foreach (var braket in brakets)
+                {
+                    var matches = new List<Match>();
+
+                    if (braket.Sequence == brakets[0].Sequence)
+                    {
+
+                        for (int i = 0; i < qualifiedPlayers.Count; i += 2)
+                        {
+                        
+                            matches.Add(new Match
+                            {
+                                BraketId = braket.Id,
+                                Participants = new List<MatchParticipant>
+                            {
+                                new MatchParticipant
+                                {
+                                    TournamentPlayerId = qualifiedPlayers[i].Id,
+                                    TournamentPlayer = qualifiedPlayers[i],
+                                    Score = 0,
+                                    IsWinner = false
+                                },
+                                new MatchParticipant
+                                {
+                                    TournamentPlayerId = qualifiedPlayers[i + 1].Id,
+                                    TournamentPlayer = qualifiedPlayers[i + 1],
+                                    Score = 0,
+                                    IsWinner = false
+                                }
+                            }
+                            });
+                        }
+                    }
+                    else
+                    {
+                        for( int i = 0; i < braket.Sequence; i ++)
+                        {
+                            matches.Add(new Match
+                            {
+                                BraketId = braket.Id,
+                            });
+                        }
+                    }
+
+
+                    braket.Matches = matches;
+                }
+
+                await _context.Brakets.AddRangeAsync(brakets);
+            }
+
             await _context.SaveChangesAsync();
+
+            
+
+
+
+        }
+
+        private List<Braket> CreateEmptyBrakets(int tournamentId, int count)
+        {
+            var brakets = new List<Braket>();
+
+            for (int i = count; i >= 2; i /= 2)
+            {
+                brakets.Add(new Braket
+                {
+                    TournamentId = tournamentId,
+                    Sequence = i/2,
+                    Name = GetKoGroupName(i),
+                    Phase = BraketPhase.Knockout
+                });
+            }
+
+            return brakets;
         }
 
         private string GetKoGroupName(int count)
@@ -219,7 +296,7 @@ namespace DTC.Api.Services
                 4 => "Halbfinale",
                 8 => "Viertelfinale",
                 _ => $"{count / 2}. Finale"
-            };
+            };   
         }
 
         private async Task<List<TournamentPlayer>> CheckAndHandleForTiebreaks(int tournamentId, GenerateGroupsDto options)
@@ -237,7 +314,7 @@ namespace DTC.Api.Services
 
             #endregion
 
-            await _roundRepo.DeleteAllTournamentBraketsAsync(tournamentId);
+            await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
             var groups = await _groupRepo.GetGroupsAsync(tournamentId);
 
