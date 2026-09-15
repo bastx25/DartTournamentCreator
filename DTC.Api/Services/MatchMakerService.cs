@@ -193,12 +193,22 @@ namespace DTC.Api.Services
             var requiredKnockoutPlayers =
                 options.QualifiersPerGroup * options.GroupCount;
 
+            if(!IsPowerOfTwo(requiredKnockoutPlayers))
+            {
+                throw new InvalidOperationException("Cannot generate Knockout rounds due to insufficient player count. Need Lucky Lossers");
+            }
+
             if(qualifiedPlayers.Count() !=  requiredKnockoutPlayers)
             {
                 throw new InvalidOperationException("Tiebreaks still running");
             }
 
             await CreateKnockoutBrakets(tournamentId, options,qualifiedPlayers);
+        }
+
+        private bool IsPowerOfTwo(int value)
+        {
+            return value > 0 && (value & (value - 1)) == 0;
         }
 
         private async Task CreateKnockoutBrakets(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
@@ -247,7 +257,7 @@ namespace DTC.Api.Services
                             });
                         }
 
-                        await _boardService.SetBoards(brakets, options.StartTime.Value, options.MatchDurationMinutes.Value, options.BreakBetweenMatchesMinutes.Value);
+                        
                     }
                     else
                     {
@@ -263,7 +273,9 @@ namespace DTC.Api.Services
 
 
                     braket.Matches = matches;
+                   
                 }
+                await _boardService.SetBoards(brakets, options.StartTime.Value, options.MatchDurationMinutes.Value, options.BreakBetweenMatchesMinutes.Value);
 
                 await _context.Brakets.AddRangeAsync(brakets);
             }
@@ -318,7 +330,13 @@ namespace DTC.Api.Services
 
             await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
-            var groups = await _groupRepo.GetGroupsAsync(tournamentId);
+            //var groups = await _groupRepo.GetGroupsAsync(tournamentId);
+            var groups = await _context.Groups.Where(g => g.TournamentId == tournamentId).Include(g => g.Matches).ToListAsync();
+
+            var groupPhaseEnd = groups
+                    .SelectMany(g => g.Matches)
+                    .Select(m => m.PlannedEnd)
+                    .Max();
 
             var groupResults = await GetGroupResults(groups);
 
@@ -403,7 +421,7 @@ namespace DTC.Api.Services
             // Tiebreaker-Gruppe ggf. erstellen
             // ---------------------------------------------------------
 
-            var startTime = options.StartTime ?? tournament.StartDate;
+            
             var matchDuration =
                 options.MatchDurationMinutes ??
                 tournament.Config.MatchDurationMinutes;
@@ -411,6 +429,9 @@ namespace DTC.Api.Services
             var breakMinutes =
                 options.BreakBetweenMatchesMinutes ??
                 tournament.Config.BreakBetweenMatchesMinutes;
+
+            options.StartTime = groupPhaseEnd?.AddMinutes(breakMinutes);
+            var startTime = options.StartTime ?? tournament.StartDate;
 
             if (tiebreakPlayersFromGroup.Any())
             {
@@ -425,6 +446,8 @@ namespace DTC.Api.Services
 
                 await _context.Groups.AddAsync(createdTiebreakerGroup);
             }
+
+            options.StartTime = startTime.AddMinutes(matchDuration).AddMinutes(breakMinutes);
 
             await _context.SaveChangesAsync();
 

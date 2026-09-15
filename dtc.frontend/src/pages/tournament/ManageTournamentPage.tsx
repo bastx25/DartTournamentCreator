@@ -49,6 +49,7 @@ export function ManageTournamentPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [breakBetweenMatchesMinutes, setBreakBetweenMatchesMinutes] =
     useState(0);
+  const [koPhaseStartTime, setKoPhaseStartTime] = useState("");
   const [matchDurationMinutes, setMatchDurationMinutes] = useState(0);
 
   const isValidTournamentId =
@@ -145,15 +146,15 @@ export function ManageTournamentPage() {
       return;
     }
 
-    if (
-      !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
-      selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
-    ) {
-      setError(
-        "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
-      );
-      return;
-    }
+    // if (
+    //   !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
+    //   selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
+    // ) {
+    //   setError(
+    //     "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
+    //   );
+    //   return;
+    // }
 
     try {
       setGenerating(true);
@@ -200,7 +201,7 @@ export function ManageTournamentPage() {
         groupCount,
         playersPerGroup: groupSize,
         qualifiersPerGroup,
-        startTime: tournament?.startDate ?? null,
+        startTime: koPhaseStartTime,
         matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
@@ -390,28 +391,6 @@ export function ManageTournamentPage() {
 
                 <div>
                   <label
-                    htmlFor="qualifiersPerGroup"
-                    className="block text-sm font-medium text-gray-900"
-                  >
-                    Weiterkommer pro Gruppe
-                  </label>
-                  <input
-                    id="qualifiersPerGroup"
-                    type="number"
-                    min={1}
-                    max={Math.max(1, groupSize)}
-                    value={qualifiersPerGroup}
-                    onChange={(event) =>
-                      setQualifiersPerGroup(
-                        Math.max(1, Number(event.target.value) || 1),
-                      )
-                    }
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-
-                <div>
-                  <label
                     htmlFor="breakBetweenMatchesMinutes"
                     className="block text-sm font-medium text-gray-900"
                   >
@@ -512,6 +491,49 @@ export function ManageTournamentPage() {
                     ? "Gruppen werden erstellt..."
                     : "Zufällig Gruppen & Matches erstellen"}
                 </button>
+
+                <div>
+                  <label
+                    htmlFor="qualifiersPerGroup"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Weiterkommer pro Gruppe
+                  </label>
+                  <input
+                    id="qualifiersPerGroup"
+                    type="number"
+                    min={1}
+                    max={Math.max(1, groupSize)}
+                    value={qualifiersPerGroup}
+                    onChange={(event) =>
+                      setQualifiersPerGroup(
+                        Math.max(1, Number(event.target.value) || 1),
+                      )
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div>
+                  {" "}
+                  <label
+                    htmlFor="koPhaseStartTime"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    {" "}
+                    Startzeit der KO-Phase{" "}
+                  </label>
+                  <input
+                    id="koPhaseStartTime"
+                    type="time"
+                    value={koPhaseStartTime}
+                    onChange={(event) =>
+                      setKoPhaseStartTime(event.target.value)
+                    }
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
                 {knockoutPrepared &&
                   selectedTConfig?.mode ===
                     TournamentMode.GrouStageandKnockout && (

@@ -251,41 +251,61 @@ namespace DTC.Api.Services
             return await _context.Boards.Where(b => b.IsActive).OrderBy(x => x.Id).ToListAsync();
         }
 
-        public async Task SetBoards(List<Braket> brakets, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        public async Task SetBoards(
+    List<Braket> brakets,
+    DateTimeOffset startTime,
+    int matchDuration,
+    int breakMinutes)
         {
-            //TODO: MAJOR players also have to be availiable 
+            // TODO: MAJOR players also have to be available
             var boards = await GetActiveBoards();
-
-            var matches = GetMatchesFromBrakets(brakets)
-                .Where(m => m.Status != MatchStatus.Completed)
-                .OrderBy(m => m.Id)
-                .ToList();
 
             if (!boards.Any())
                 throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
 
-            var boardAvailability = boards.ToDictionary(
-                board => board.Id,
-                board => startTime
-            );
+            var braketStartTime = startTime;
 
-            foreach (var match in matches)
+            foreach (var braket in brakets)
             {
-                // Board, das am frühesten verfügbar ist
-                var availableBoard = boards
-                    .OrderBy(board => boardAvailability[board.Id])
-                    .First();
+                var matches = braket.Matches
+                    .Where(m => m.Status != MatchStatus.Completed)
+                    .OrderBy(m => m.Id)
+                    .ToList();
 
-                var matchStart = boardAvailability[availableBoard.Id];
+                if (!matches.Any())
+                    continue;
 
-                match.BoardId = availableBoard.Id;
-                match.PlannedStart = matchStart;
-                match.PlannedEnd = matchStart.AddMinutes(matchDuration);
+                // Alle Boards sind zu Beginn des Brakets gleichzeitig verfügbar.
+                var boardAvailability = boards.ToDictionary(
+                    board => board.Id,
+                    board => braketStartTime
+                );
 
-                boardAvailability[availableBoard.Id] =
-                    match.PlannedEnd.Value.AddMinutes(breakMinutes);
+                foreach (var match in matches)
+                {
+                    // Board auswählen, das als nächstes verfügbar ist.
+                    var availableBoard = boards
+                        .OrderBy(board => boardAvailability[board.Id])
+                        .First();
+
+                    var matchStart = boardAvailability[availableBoard.Id];
+
+                    match.BoardId = availableBoard.Id;
+                    match.PlannedStart = matchStart;
+                    match.PlannedEnd = matchStart.AddMinutes(matchDuration);
+
+                    // Board ist nach Match + Pause wieder verfügbar.
+                    boardAvailability[availableBoard.Id] =
+                        match.PlannedEnd.Value.AddMinutes(breakMinutes);
+                }
+
+                // Das nächste Braket darf erst starten, wenn das letzte
+                // Match des aktuellen Brakets beendet ist.
+                braketStartTime = matches
+                    .Max(m => m.PlannedEnd!.Value);
             }
         }
+
 
         private List<Match> GetMatchesFromGroups(List<Group> groups)
         {
@@ -305,19 +325,6 @@ namespace DTC.Api.Services
             }
 
             return matches;
-        }
-
-        private List<Match> GetMatchesFromBrakets(List<Braket> brakets)
-        {
-            var matches = new List<Match>();
-
-            foreach (var braket in brakets)
-            {
-                matches.AddRange(braket.Matches);
-            }
-
-            return matches;
-
         }
     }
 }
