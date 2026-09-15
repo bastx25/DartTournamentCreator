@@ -10,6 +10,7 @@ import BoardAccessPage from "./pages/board/BoardAccessPage";
 import { ManageTournamentPage } from "./pages/tournament/ManageTournamentPage";
 import { LocationPage } from "./pages/location/LocationPage";
 import { BoardPage } from "./pages/newBoard/BoardPage";
+import { ManageTournamentPlayers } from "./pages/tournament/ManageTournamentPlayers";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
         <Route
           path="tournaments/:id/manage"
           element={<ManageTournamentPage />}
+        />
+        <Route
+          path="tournaments/:id/players"
+          element={<ManageTournamentPlayers />}
         />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="players" element={<PlayerPage />} />
