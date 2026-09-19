@@ -263,13 +263,63 @@ namespace DTC.Api.Services
             if (!boards.Any())
                 throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
 
-            foreach(var braket in brakets)
+            // Brackets nach Sequence sortieren, um die Runden chronologisch abzuarbeiten
+            var orderedBrakets = brakets.OrderByDescending(b => b.Sequence).ToList();
+
+            DateTimeOffset currentBracketStart = startTime;
+
+            foreach (var braket in orderedBrakets)
             {
-                var matches = braket.Matches
-                    .Where(m => m.Status == MatchStatus.Completed)
-                    .ToList()
+                var matchesToSchedule = braket.Matches
+                    .Where(m => m.Status != MatchStatus.Completed)
+                    .ToList();
 
+                if (!matchesToSchedule.Any())
+                    continue;
 
+                // Startzeit der aktuellen Runde (Bracket) festlegen
+                braket.PlannedStart = currentBracketStart;
+
+                // Jedes Bracket startet wieder bei Board 1.
+                // Wir tracken die nächste freie Zeit pro Board für die aktuelle Runde.
+                var boardAvailability = boards.ToDictionary(
+                    board => board.Id,
+                    board => currentBracketStart
+                );
+
+                DateTimeOffset maxMatchEndInBracket = currentBracketStart;
+
+                foreach (var match in matchesToSchedule)
+                {
+                    // Board wählen, das am frühesten frei ist.
+                    // Bei Zeitgleichheit wird nach Board.Id sortiert (Board 1 bevorzugt).
+                    var selectedBoard = boards
+                        .OrderBy(b => boardAvailability[b.Id])
+                        .ThenBy(b => b.Id)
+                        .First();
+
+                    var matchStart = boardAvailability[selectedBoard.Id];
+                    var matchEnd = matchStart.AddMinutes(matchDuration);
+
+                    // Match Daten zuweisen
+                    match.BoardId = selectedBoard.Id;
+                    match.PlannedStart = matchStart;
+                    match.PlannedEnd = matchEnd;
+
+                    // Verfügbarkeit des Boards für das nächste Match in diesem Bracket aktualisieren (inkl. Pause)
+                    boardAvailability[selectedBoard.Id] = matchEnd.AddMinutes(breakMinutes);
+
+                    if (matchEnd > maxMatchEndInBracket)
+                    {
+                        maxMatchEndInBracket = matchEnd;
+                    }
+                }
+
+                // Endzeit der aktuellen Runde ist das Ende des am längsten dauernden Matches
+                braket.PlannedEnd = maxMatchEndInBracket;
+
+                // Die nächste Runde beginnt erst, wenn die vorherige Runde komplett abgeschlossen ist (zzgl. Pause)
+                currentBracketStart = maxMatchEndInBracket.AddMinutes(breakMinutes);
             }
         }
 
