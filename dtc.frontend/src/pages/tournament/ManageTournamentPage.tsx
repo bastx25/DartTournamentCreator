@@ -50,6 +50,7 @@ export function ManageTournamentPage() {
   const [breakBetweenMatchesMinutes, setBreakBetweenMatchesMinutes] =
     useState(0);
   const [matchDurationMinutes, setMatchDurationMinutes] = useState(0);
+  const [startDateInput, setStartDateInput] = useState("");
 
   const isValidTournamentId =
     Number.isInteger(tournamentId) && tournamentId > 0;
@@ -166,7 +167,7 @@ export function ManageTournamentPage() {
         groupCount,
         playersPerGroup: groupSize,
         qualifiersPerGroup,
-        startTime: tournament?.startDate ?? null,
+        startTime: tournament?.startDate ?? new Date().toISOString(),
         matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
@@ -200,7 +201,7 @@ export function ManageTournamentPage() {
         groupCount,
         playersPerGroup: groupSize,
         qualifiersPerGroup,
-        startTime: new Date().toISOString(),
+        startTime: startDateInput,
         matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
@@ -512,6 +513,28 @@ export function ManageTournamentPage() {
                     ? "Gruppen werden erstellt..."
                     : "Zufällig Gruppen & Matches erstellen"}
                 </button>
+
+                {/* Start date */}
+                <div>
+                  <label
+                    htmlFor="startDate"
+                    className="block text-sm font-medium text-gray-900"
+                  >
+                    Startdatum und -zeit
+                  </label>
+
+                  <input
+                    id="startDate"
+                    type="datetime-local"
+                    value={startDateInput}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setStartDateInput(value);
+                    }}
+                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
                 {knockoutPrepared &&
                   selectedTConfig?.mode ===
                     TournamentMode.GrouStageandKnockout && (
