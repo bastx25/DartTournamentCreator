@@ -145,15 +145,15 @@ export function ManageTournamentPage() {
       return;
     }
 
-    if (
-      !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
-      selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
-    ) {
-      setError(
-        "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
-      );
-      return;
-    }
+    // if (
+    //   !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
+    //   selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
+    // ) {
+    //   setError(
+    //     "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
+    //   );
+    //   return;
+    // }
 
     try {
       setGenerating(true);
@@ -200,7 +200,7 @@ export function ManageTournamentPage() {
         groupCount,
         playersPerGroup: groupSize,
         qualifiersPerGroup,
-        startTime: tournament?.startDate ?? null,
+        startTime: new Date().toISOString(),
         matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,

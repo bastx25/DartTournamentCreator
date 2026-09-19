@@ -1,6 +1,7 @@
 ﻿using DTC.Api.Data;
 using DTC.Api.Enums;
 using DTC.Api.Models;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
 namespace DTC.Api.Services
@@ -251,39 +252,24 @@ namespace DTC.Api.Services
             return await _context.Boards.Where(b => b.IsActive).OrderBy(x => x.Id).ToListAsync();
         }
 
-        public async Task SetBoards(List<Braket> brakets, DateTimeOffset startTime, int matchDuration, int breakMinutes)
+        public async Task SetBoards(
+    List<Braket> brakets,
+    DateTimeOffset startTime,
+    int matchDuration,
+    int breakMinutes)
         {
-            //TODO: MAJOR players also have to be availiable 
             var boards = await GetActiveBoards();
-
-            var matches = GetMatchesFromBrakets(brakets)
-                .Where(m => m.Status != MatchStatus.Completed)
-                .OrderBy(m => m.Id)
-                .ToList();
 
             if (!boards.Any())
                 throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
 
-            var boardAvailability = boards.ToDictionary(
-                board => board.Id,
-                board => startTime
-            );
-
-            foreach (var match in matches)
+            foreach(var braket in brakets)
             {
-                // Board, das am frühesten verfügbar ist
-                var availableBoard = boards
-                    .OrderBy(board => boardAvailability[board.Id])
-                    .First();
+                var matches = braket.Matches
+                    .Where(m => m.Status == MatchStatus.Completed)
+                    .ToList()
 
-                var matchStart = boardAvailability[availableBoard.Id];
 
-                match.BoardId = availableBoard.Id;
-                match.PlannedStart = matchStart;
-                match.PlannedEnd = matchStart.AddMinutes(matchDuration);
-
-                boardAvailability[availableBoard.Id] =
-                    match.PlannedEnd.Value.AddMinutes(breakMinutes);
             }
         }
 
