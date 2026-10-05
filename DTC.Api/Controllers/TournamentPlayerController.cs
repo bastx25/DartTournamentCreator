@@ -32,5 +32,28 @@ namespace DTC.Api.Controllers
 
             return Ok(updatedPlayer.ToTournamentPlayerDto());
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdatePlayer([FromBody] TournamentPlayerDto[] playerDto)
+        {
+            foreach(var player in playerDto)
+            {
+                var existingPlayer = await _tPlayerRepo.GetByIdAsync(player.Id);
+                if (existingPlayer == null)
+                {
+                    return NotFound();
+                }
+
+                existingPlayer.Id = player.Id;
+                existingPlayer.TournamentId = player.TournamentId;
+                existingPlayer.IsQualified = player.IsQualified;
+                existingPlayer.PlayerId = player.PlayerId;
+
+        var updatedPlayer = await _tPlayerRepo.UpdateAsync(existingPlayer);
+            }
+
+            return Ok();
+        }
+
     }
 }

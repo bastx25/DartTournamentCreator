@@ -41,6 +41,7 @@ namespace DTC.Api.Mappers
         {
             tournamentPlayer.TournamentId = dto.TournamentId;
             tournamentPlayer.PlayerId = dto.PlayerId;
+            tournamentPlayer.IsQualified = dto.IsQualified;
         }
     }
 }

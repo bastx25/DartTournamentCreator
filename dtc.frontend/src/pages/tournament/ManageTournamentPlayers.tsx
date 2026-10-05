@@ -3,15 +3,12 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import { getTournament, getTPlayers } from "../../services/tournamentService";
 import type { TournamentPlayerDto } from "../../dtos/tournamentPlayer/TournamentPlayerDto";
-import { getPlayers } from "../../services/playerService";
 import type { TournamentDto } from "../../dtos/tournament/TournamentDto";
-import type { PlayerDto } from "../../dtos/player/PlayerDto";
 import { updateTPlayers } from "../../services/tournamentPlayerService";
 
 export function ManageTournamentPlayers() {
   const { id } = useParams();
   const tournamentId = Number(id);
-  const [players, setPlayers] = useState<PlayerDto[]>([]);
   const [tplayers, setTPlayers] = useState<TournamentPlayerDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [tournament, setTournament] = useState<TournamentDto | null>(null);
@@ -21,11 +18,11 @@ export function ManageTournamentPlayers() {
   const isValidTournamentId =
     Number.isInteger(tournamentId) && tournamentId > 0;
 
-  const togglePlayer = (playerId: number) => {
+  const togglePlayer = (tPlayerId: number) => {
     setSelectedPlayerIds((current) =>
-      current.includes(playerId)
-        ? current.filter((id) => id !== playerId)
-        : [...current, playerId],
+      current.includes(tPlayerId)
+        ? current.filter((id) => id !== tPlayerId)
+        : [...current, tPlayerId],
     );
   };
 
@@ -36,20 +33,16 @@ export function ManageTournamentPlayers() {
 
     async function load() {
       try {
-        const [tournamentData, playerData, tPlayerData] = await Promise.all([
+        const [tournamentData, tPlayerData] = await Promise.all([
           getTournament(tournamentId),
-          getPlayers(),
           getTPlayers(tournamentId),
         ]);
 
         setTournament(tournamentData);
-        setPlayers(playerData);
         setTPlayers(tPlayerData);
 
         setSelectedPlayerIds(
-          tPlayerData
-            .filter((p: TournamentPlayerDto) => p.isQualified)
-            .map((p: TournamentPlayerDto) => p.playerId),
+          tPlayerData.filter((p) => p.isQualified).map((p) => p.id),
         );
       } catch (err) {
         console.error(err);
@@ -61,13 +54,14 @@ export function ManageTournamentPlayers() {
 
   const handleSaveQualified = async () => {
     try {
-      tplayers.forEach((p: TournamentPlayerDto) => {
-        if (selectedPlayerIds.includes(p.id)) {
-          p.isQualified = true;
-        }
-      });
+      const updatedTPlayers = tplayers.map((p) => ({
+        ...p,
+        isQualified: selectedPlayerIds.includes(p.id),
+      }));
 
-      await updateTPlayers(tplayers);
+      await updateTPlayers(updatedTPlayers);
+
+      setTPlayers(updatedTPlayers);
     } catch (error) {
       console.error(error);
     }
@@ -101,12 +95,12 @@ export function ManageTournamentPlayers() {
 
           <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-6 py-3 sm:px-8">
             <span className="text-sm font-medium text-gray-700">
-              {selectedPlayers} von {players.length} ausgewählt
+              {selectedPlayers} von {tplayers.length} ausgewählt
             </span>
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setSelectedPlayerIds(players.map((p) => p.id))}
+                onClick={() => setSelectedPlayerIds(tplayers.map((p) => p.id))}
                 className="text-xs font-medium text-blue-600 hover:text-blue-700"
               >
                 Alle auswählen
@@ -122,7 +116,7 @@ export function ManageTournamentPlayers() {
           </div>
 
           <div className="divide-y divide-gray-100">
-            {players.map((player) => {
+            {tplayers.map((player) => {
               const selected = selectedPlayerIds.includes(player.id);
 
               return (
@@ -139,12 +133,12 @@ export function ManageTournamentPlayers() {
 
                   <span className="min-w-0">
                     <span className="block text-sm font-medium text-gray-900">
-                      {player.displayName}
+                      {player.player?.displayName}
                     </span>
 
-                    {player.nickname && (
+                    {player.player?.nickname && (
                       <span className="block text-xs text-gray-500">
-                        {player.nickname}
+                        {player.player?.nickname}
                       </span>
                     )}
                   </span>
@@ -152,7 +146,7 @@ export function ManageTournamentPlayers() {
               );
             })}
 
-            {players.length === 0 && (
+            {tplayers.length === 0 && (
               <div className="px-8 py-10 text-center text-sm text-gray-500">
                 Es sind keine Spieler vorhanden.
               </div>

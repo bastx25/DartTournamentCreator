@@ -22,7 +22,7 @@ namespace DTC.Api.Repositories
 
         public async Task<IEnumerable<TournamentPlayer>> GetPlayersAsync(int tournamentid)
         {
-            return await _context.TournamentPlayers.Where(x => x.TournamentId == tournamentid).ToListAsync();
+            return await _context.TournamentPlayers.Where(x => x.TournamentId == tournamentid).Include(tp => tp.Player).ToListAsync();
         }
 
 

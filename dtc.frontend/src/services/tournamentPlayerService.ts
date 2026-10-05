@@ -7,7 +7,7 @@ export async function updateTPlayer(
   data: UpdateTournamentPlayerDto,
 ) {
   const response = await axios.put<UpdateTournamentPlayerDto>(
-    `/api/players/${id}`,
+    `/api/tournamentplayers/${id}`,
     data,
     {
       headers: {
@@ -19,8 +19,30 @@ export async function updateTPlayer(
   return response.data;
 }
 
+// export async function updateTPlayers(tplayers: TournamentPlayerDto[]) {
+//   await Promise.all(
+//     tplayers.map((tplayer) => {
+//       const data: UpdateTournamentPlayerDto = {
+//         tournamentId: tplayer.tournamentId,
+//         playerId: tplayer.playerId,
+//         isQualified: tplayer.isQualified,
+//       };
+
+//       return updateTPlayer(tplayer.id, data);
+//     }),
+//   );
+// }
+
 export async function updateTPlayers(tplayers: TournamentPlayerDto[]) {
-  tplayers.map((tplayer: TournamentPlayerDto) => {
-    console.log(tplayer.id);
-  });
+  const response = await axios.put<TournamentPlayerDto>(
+    `/api/tournamentplayers`,
+    tplayers,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  return response.data;
 }
