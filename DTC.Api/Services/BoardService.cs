@@ -1,6 +1,7 @@
 ﻿using DTC.Api.Data;
 using DTC.Api.Enums;
 using DTC.Api.Models;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
 namespace DTC.Api.Services
@@ -257,52 +258,68 @@ namespace DTC.Api.Services
     int matchDuration,
     int breakMinutes)
         {
-            // TODO: MAJOR players also have to be available
             var boards = await GetActiveBoards();
 
             if (!boards.Any())
                 throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
 
-            var braketStartTime = startTime;
+            // Brackets nach Sequence sortieren, um die Runden chronologisch abzuarbeiten
+            var orderedBrakets = brakets.OrderByDescending(b => b.Sequence).ToList();
 
-            foreach (var braket in brakets)
+            DateTimeOffset currentBracketStart = startTime;
+
+            foreach (var braket in orderedBrakets)
             {
-                var matches = braket.Matches
+                var matchesToSchedule = braket.Matches
                     .Where(m => m.Status != MatchStatus.Completed)
-                    .OrderBy(m => m.Id)
                     .ToList();
 
-                if (!matches.Any())
+                if (!matchesToSchedule.Any())
                     continue;
 
-                // Alle Boards sind zu Beginn des Brakets gleichzeitig verfügbar.
+                // Startzeit der aktuellen Runde (Bracket) festlegen
+                braket.PlannedStart = currentBracketStart;
+
+                // Jedes Bracket startet wieder bei Board 1.
+                // Wir tracken die nächste freie Zeit pro Board für die aktuelle Runde.
                 var boardAvailability = boards.ToDictionary(
                     board => board.Id,
-                    board => braketStartTime
+                    board => currentBracketStart
                 );
 
-                foreach (var match in matches)
+                DateTimeOffset maxMatchEndInBracket = currentBracketStart;
+
+                foreach (var match in matchesToSchedule)
                 {
-                    // Board auswählen, das als nächstes verfügbar ist.
-                    var availableBoard = boards
-                        .OrderBy(board => boardAvailability[board.Id])
+                    // Board wählen, das am frühesten frei ist.
+                    // Bei Zeitgleichheit wird nach Board.Id sortiert (Board 1 bevorzugt).
+                    var selectedBoard = boards
+                        .OrderBy(b => boardAvailability[b.Id])
+                        .ThenBy(b => b.Id)
                         .First();
 
-                    var matchStart = boardAvailability[availableBoard.Id];
+                    var matchStart = boardAvailability[selectedBoard.Id];
+                    var matchEnd = matchStart.AddMinutes(matchDuration);
 
-                    match.BoardId = availableBoard.Id;
+                    // Match Daten zuweisen
+                    match.BoardId = selectedBoard.Id;
                     match.PlannedStart = matchStart;
-                    match.PlannedEnd = matchStart.AddMinutes(matchDuration);
+                    match.PlannedEnd = matchEnd;
 
-                    // Board ist nach Match + Pause wieder verfügbar.
-                    boardAvailability[availableBoard.Id] =
-                        match.PlannedEnd.Value.AddMinutes(breakMinutes);
+                    // Verfügbarkeit des Boards für das nächste Match in diesem Bracket aktualisieren (inkl. Pause)
+                    boardAvailability[selectedBoard.Id] = matchEnd.AddMinutes(breakMinutes);
+
+                    if (matchEnd > maxMatchEndInBracket)
+                    {
+                        maxMatchEndInBracket = matchEnd;
+                    }
                 }
 
-                // Das nächste Braket darf erst starten, wenn das letzte
-                // Match des aktuellen Brakets beendet ist.
-                braketStartTime = matches
-                    .Max(m => m.PlannedEnd!.Value);
+                // Endzeit der aktuellen Runde ist das Ende des am längsten dauernden Matches
+                braket.PlannedEnd = maxMatchEndInBracket;
+
+                // Die nächste Runde beginnt erst, wenn die vorherige Runde komplett abgeschlossen ist (zzgl. Pause)
+                currentBracketStart = maxMatchEndInBracket.AddMinutes(breakMinutes);
             }
         }
 

@@ -190,26 +190,27 @@ namespace DTC.Api.Services
         {
             var qualifiedPlayers = await CheckAndHandleForTiebreaks(tournamentId, options);
 
-            var requiredKnockoutPlayers =
-                options.QualifiersPerGroup * options.GroupCount;
+            //var requiredKnockoutPlayers =
+            //options.QualifiersPerGroup * options.GroupCount;
 
-            if(!IsPowerOfTwo(requiredKnockoutPlayers))
-            {
-                throw new InvalidOperationException("Cannot generate Knockout rounds due to insufficient player count. Need Lucky Lossers");
-            }
+            //if(qualifiedPlayers.Count() !=  requiredKnockoutPlayers)
+            //{
+            //    throw new InvalidOperationException("Tiebreaks still running");
+            //}
 
-            if(qualifiedPlayers.Count() !=  requiredKnockoutPlayers)
+            if (!IsPowerOf2(qualifiedPlayers.Count))
             {
-                throw new InvalidOperationException("Tiebreaks still running");
+                throw new InvalidOperationException("Player Count not suitable for Knockout");
             }
 
             await CreateKnockoutBrakets(tournamentId, options,qualifiedPlayers);
         }
 
-        private bool IsPowerOfTwo(int value)
+        private bool IsPowerOf2(int count)
         {
-            return value > 0 && (value & (value - 1)) == 0;
+            return count > 0 && (count & (count - 1)) == 0;
         }
+
 
         private async Task CreateKnockoutBrakets(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
         {
@@ -273,10 +274,9 @@ namespace DTC.Api.Services
 
 
                     braket.Matches = matches;
-                   
+                    
                 }
                 await _boardService.SetBoards(brakets, options.StartTime.Value, options.MatchDurationMinutes.Value, options.BreakBetweenMatchesMinutes.Value);
-
                 await _context.Brakets.AddRangeAsync(brakets);
             }
 

@@ -51,6 +51,7 @@ export function ManageTournamentPage() {
     useState(0);
   const [koPhaseStartTime, setKoPhaseStartTime] = useState("");
   const [matchDurationMinutes, setMatchDurationMinutes] = useState(0);
+  const [startDateInput, setStartDateInput] = useState("");
 
   const isValidTournamentId =
     Number.isInteger(tournamentId) && tournamentId > 0;
@@ -167,7 +168,7 @@ export function ManageTournamentPage() {
         groupCount,
         playersPerGroup: groupSize,
         qualifiersPerGroup,
-        startTime: tournament?.startDate ?? null,
+        startTime: tournament?.startDate ?? new Date().toISOString(),
         matchDurationMinutes: matchDurationMinutes,
         breakBetweenMatchesMinutes: breakBetweenMatchesMinutes,
         playerIds: selectedPlayerIds,
