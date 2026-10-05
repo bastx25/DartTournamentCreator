@@ -8,6 +8,8 @@ namespace DTC.Api.Dtos.TournamentPlayer
 
         public int TournamentId { get; set; }
 
+        public bool IsQualified { get; set; }
+
         public int PlayerId { get; set; }
         public PlayerDto? Player { get; set; }
     }

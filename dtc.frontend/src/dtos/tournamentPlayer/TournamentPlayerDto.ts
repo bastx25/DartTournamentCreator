@@ -4,6 +4,7 @@ import { playerDtoSchema } from "../player/PlayerDto";
 export const tournamentPlayerDtoSchema = z.object({
   id: z.number().int(),
   tournamentId: z.number().int(),
+  isQualified: z.boolean(),
   playerId: z.number().int(),
   player: playerDtoSchema.nullable(),
 });

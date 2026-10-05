@@ -15,6 +15,11 @@ namespace DTC.Api.Repositories
             _context = context;
         }
 
+        public async Task<TournamentPlayer?> GetByIdAsync(int id)
+        {
+            return await _context.TournamentPlayers.FindAsync(id);
+        }
+
         public async Task<IEnumerable<TournamentPlayer>> GetPlayersAsync(int tournamentid)
         {
             return await _context.TournamentPlayers.Where(x => x.TournamentId == tournamentid).ToListAsync();
@@ -62,6 +67,11 @@ namespace DTC.Api.Repositories
                     await _context.SaveChangesAsync();
                 }
 
+        public async Task<TournamentPlayer> UpdateAsync(TournamentPlayer player)
+        {
+            await _context.SaveChangesAsync();
 
+            return player;
+        }
     }
 }

@@ -9,5 +9,7 @@ namespace DTC.Api.Dtos.TournamentPlayer
 
         [Range(1, int.MaxValue, ErrorMessage = "Der Spieler ist ein Pflichtfeld.")]
         public int PlayerId { get; set; }
+
+        public bool IsQualified { get; set; }
     }
 }

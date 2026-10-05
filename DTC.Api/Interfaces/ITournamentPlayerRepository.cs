@@ -5,7 +5,9 @@ namespace DTC.Api.Interfaces
 {
     public interface ITournamentPlayerRepository
     {
+        Task<TournamentPlayer?> GetByIdAsync(int id);
         Task<IEnumerable<TournamentPlayer>> GetPlayersAsync(int tournamentid);
         Task SetTournamentPlayers(int id, List<int>? playerIds, GenerateGroupsDto options);
+        Task<TournamentPlayer> UpdateAsync(TournamentPlayer existingPlayer);
     }
 }

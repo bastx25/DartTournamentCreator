@@ -3,6 +3,7 @@ import z from "zod";
 export const updateTournamentPlayerDtoSchema = z.object({
   tournamentId: z.number().int().min(1),
   playerId: z.number().int().min(1),
+  isQualified: z.boolean,
 });
 
 export type UpdateTournamentPlayerDto = z.infer<
