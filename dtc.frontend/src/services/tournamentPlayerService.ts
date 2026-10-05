@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { UpdateTournamentPlayerDto } from "../dtos/tournamentPlayer/UpdateTournamentPlayerDto";
+import type { TournamentPlayerDto } from "../dtos/tournamentPlayer/TournamentPlayerDto";
 
 export async function updateTPlayer(
   id: number,
@@ -16,4 +17,10 @@ export async function updateTPlayer(
   );
 
   return response.data;
+}
+
+export async function updateTPlayers(tplayers: TournamentPlayerDto[]) {
+  tplayers.map((tplayer: TournamentPlayerDto) => {
+    console.log(tplayer.id);
+  });
 }
