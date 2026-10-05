@@ -84,6 +84,8 @@ namespace DTC.Api.Controllers
             [FromRoute] int boardId,
             [FromRoute] int matchId)
         {
+
+            //TODO: Set Braket on Running
             var match = await _context.Matches
                 .Include(m => m.Braket)
                  .ThenInclude(r => r.Tournament)
