@@ -9,10 +9,11 @@ export default defineConfig({
     port: 49622,
     proxy: {
       "/api": {
-        target: "https://localhost:7142",
+        target: "http://localhost:5132",
         changeOrigin: true,
         secure: false,
       },
     },
+    allowedHosts: ["dartdashboard.landjugend-lasberg.at"],
   },
 });
