@@ -142,6 +142,108 @@ namespace DTC.Api.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task SaveManualGroupsAsync(int tournamentId, ManualGroupSetupDto dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+
+            if (dto.Groups == null || dto.Groups.Count == 0)
+                throw new InvalidOperationException("Es muss mindestens eine Gruppe angegeben werden.");
+
+            var allPlayerIds = dto.Groups.SelectMany(g => g.PlayerIds).ToList();
+
+            if (allPlayerIds.Count == 0)
+                throw new InvalidOperationException("Es wurden keine Spieler den Gruppen zugeordnet.");
+
+            if (allPlayerIds.Count != allPlayerIds.Distinct().Count())
+                throw new InvalidOperationException("Ein Spieler darf nur genau einer Gruppe zugeordnet sein.");
+
+            foreach (var groupDto in dto.Groups)
+            {
+                if (string.IsNullOrWhiteSpace(groupDto.Name))
+                    throw new InvalidOperationException("Jede Gruppe muss einen Namen haben.");
+
+                if (groupDto.PlayerIds.Count < 2)
+                    throw new InvalidOperationException($"Gruppe '{groupDto.Name}' muss mindestens 2 Spieler enthalten, um Spiele erstellen zu können.");
+            }
+
+            var groupNames = dto.Groups.Select(g => g.Name.Trim()).ToList();
+            if (groupNames.Count != groupNames.Distinct(StringComparer.OrdinalIgnoreCase).Count())
+                throw new InvalidOperationException("Die Gruppennamen müssen innerhalb des Turniers eindeutig sein.");
+
+            await _groupRepo.DeleteAllTournamentGroups(tournamentId);
+            await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
+
+            var genOptions = new GenerateGroupsDto
+            {
+                StartTime = dto.StartTime,
+                MatchDurationMinutes = dto.MatchDurationMinutes,
+                BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes,
+                GroupCount = dto.Groups.Count,
+                QualifiersPerGroup = dto.Groups.Max(g => g.QualifiersCount),
+                PlayerIds = allPlayerIds
+            };
+
+            await _tournamentPlayerRepo.SetTournamentPlayers(tournamentId, allPlayerIds, genOptions);
+
+            var tournament = await _context.Tournaments
+                .Include(t => t.TournamentPlayers)
+                .Include(t => t.Config)
+                .FirstOrDefaultAsync(t => t.Id == tournamentId);
+
+            if (tournament == null)
+                throw new KeyNotFoundException($"Turnier {tournamentId} wurde nicht gefunden.");
+
+            var tournamentPlayersMap = tournament.TournamentPlayers.ToDictionary(tp => tp.PlayerId, tp => tp);
+
+            var groups = new List<Group>(dto.Groups.Count);
+
+            for (var index = 0; index < dto.Groups.Count; index++)
+            {
+                var groupItem = dto.Groups[index];
+                var group = new Group
+                {
+                    TournamentId = tournamentId,
+                    Sequence = index + 1,
+                    Name = groupItem.Name.Trim(),
+                    QualifiersCount = groupItem.QualifiersCount
+                };
+
+                foreach (var playerId in groupItem.PlayerIds)
+                {
+                    if (tournamentPlayersMap.TryGetValue(playerId, out var tp))
+                    {
+                        group.GroupPlayers.Add(new GroupPlayer
+                        {
+                            TournamentPlayerId = tp.Id
+                        });
+                    }
+                }
+
+                groups.Add(group);
+            }
+
+            var startTime = dto.StartTime ?? tournament.StartDate;
+            var matchDuration = dto.MatchDurationMinutes ?? tournament.Config?.MatchDurationMinutes ?? 30;
+            var breakMinutes = dto.BreakBetweenMatchesMinutes ?? tournament.Config?.BreakBetweenMatchesMinutes ?? 5;
+
+            ValidateSchedule(startTime, matchDuration, breakMinutes);
+
+            await ScheduleGroupMatches(groups);
+            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes);
+
+            if (tournament.Config != null)
+            {
+                tournament.Config.GroupCount = groups.Count;
+                tournament.Config.QualifiersPerGroup = groups.Max(g => g.QualifiersCount);
+                tournament.Config.MatchDurationMinutes = matchDuration;
+                tournament.Config.BreakBetweenMatchesMinutes = breakMinutes;
+                tournament.Config.KnockoutDrawMode = dto.KnockoutDrawMode;
+            }
+
+            await _context.Groups.AddRangeAsync(groups);
+            await _context.SaveChangesAsync();
+        }
+
         private async Task ScheduleGroupMatches(List<Group> groups)
         {
             var scheduledMatches = new List<MatchCandidate>();
@@ -190,98 +292,207 @@ namespace DTC.Api.Services
         {
             var qualifiedPlayers = await CheckAndHandleForTiebreaks(tournamentId, options);
 
-            //var requiredKnockoutPlayers =
-            //options.QualifiersPerGroup * options.GroupCount;
+            // Prüfen, ob noch unvollständige Tiebreaker existieren
+            var hasUnfinishedTiebreakers = await _context.Groups
+                .AnyAsync(g => g.TournamentId == tournamentId
+                    && g.Name.Contains(MatchStatus.Tiebreaker.ToString())
+                    && g.Matches.Any(m => m.Status != MatchStatus.Completed));
 
-            //if(qualifiedPlayers.Count() !=  requiredKnockoutPlayers)
-            //{
-            //    throw new InvalidOperationException("Tiebreaks still running");
-            //}
-
-            if (!IsPowerOf2(qualifiedPlayers.Count))
+            if (hasUnfinishedTiebreakers)
             {
-                throw new InvalidOperationException("Player Count not suitable for Knockout");
+                throw new InvalidOperationException("Tiebreak-Spiele sind noch nicht abgeschlossen.");
             }
 
-            await CreateKnockoutBrakets(tournamentId, options,qualifiedPlayers);
+            if (qualifiedPlayers.Count < 2)
+            {
+                throw new InvalidOperationException("Nicht genügend qualifizierte Spieler für die K.-o.-Phase vorhanden (mindestens 2 erforderlich).");
+            }
+
+            await CreateKnockoutBrakets(tournamentId, options, qualifiedPlayers);
         }
 
-        private bool IsPowerOf2(int count)
+        private static bool IsPowerOf2(int count)
         {
             return count > 0 && (count & (count - 1)) == 0;
         }
 
-
         private async Task CreateKnockoutBrakets(int tournamentId, GenerateGroupsDto options, List<TournamentPlayer> qualifiedPlayers)
         {
-            var brakets = await _context.Brakets.Where(b => b.TournamentId ==  tournamentId).ToListAsync();
+            await _braketRepo.DeleteAllTournamentBraketsAsync(tournamentId);
 
-            if(!brakets.Any())
+            // Nächste Zweierpotenz berechnen (mindestens 2)
+            int bracketSize = 2;
+            while (bracketSize < qualifiedPlayers.Count)
             {
-                brakets = CreateEmptyBrakets(tournamentId, qualifiedPlayers.Count);
-
-                qualifiedPlayers.Shuffle();
-
-                //create Matches
-
-                foreach (var braket in brakets)
-                {
-                    var matches = new List<Match>();
-
-                    if (braket.Sequence == brakets[0].Sequence)
-                    {
-
-                        for (int i = 0; i < qualifiedPlayers.Count; i += 2)
-                        {
-                        
-                            matches.Add(new Match
-                            {
-                                BraketId = braket.Id,
-                                BoardId = 1,
-                                Participants = new List<MatchParticipant>
-                            {
-                                new MatchParticipant
-                                {
-                                    TournamentPlayerId = qualifiedPlayers[i].Id,
-                                    TournamentPlayer = qualifiedPlayers[i],
-                                    Score = 0,
-                                    IsWinner = false
-                                },
-                                new MatchParticipant
-                                {
-                                    TournamentPlayerId = qualifiedPlayers[i + 1].Id,
-                                    TournamentPlayer = qualifiedPlayers[i + 1],
-                                    Score = 0,
-                                    IsWinner = false
-                                }
-                            }
-                            });
-                        }
-
-                        
-                    }
-                    else
-                    {
-                        for( int i = 0; i < braket.Sequence; i ++)
-                        {
-                            matches.Add(new Match
-                            {
-                                BraketId = braket.Id,
-                                BoardId = 1
-                            });
-                        }
-                    }
-
-
-                    braket.Matches = matches;
-                    
-                }
-                await _boardService.SetBoards(brakets, options.StartTime.Value, options.MatchDurationMinutes.Value, options.BreakBetweenMatchesMinutes.Value);
-                await _context.Brakets.AddRangeAsync(brakets);
+                bracketSize *= 2;
             }
 
+            var brakets = CreateEmptyBrakets(tournamentId, bracketSize);
+
+            // Spieler sortieren je nach gewähltem KnockoutDrawMode:
+            List<TournamentPlayer> orderedPlayers;
+
+            if (options.KnockoutDrawMode == KnockoutDrawMode.RankedSeeding)
+            {
+                // Ergebnisse und Gruppenplatzierungen aller Gruppen laden
+                var groups = await _context.Groups
+                    .Where(g => g.TournamentId == tournamentId)
+                    .Include(g => g.Matches)
+                    .ToListAsync();
+
+                var groupResults = await GetGroupResults(groups);
+                var playerStatsMap = groupResults
+                    .SelectMany(g => g.Players)
+                    .ToDictionary(p => p.Player.Id, p => p);
+
+                // Gruppenübergreifende Rangliste:
+                // 1. Gruppenrang (Gruppenerste vor Gruppenzweiten usw.)
+                // 2. Siegquote (WinRate, fair bei unterschiedlicher Gruppengröße)
+                // 3. Absolute Siege
+                // 4. Leg-Differenz pro Match
+                // 5. Absolute Leg-Differenz
+                // 6. Gewonnene Legs
+                // 7. Stabile Spieler-ID
+                orderedPlayers = qualifiedPlayers
+                    .Select(p => playerStatsMap.TryGetValue(p.Id, out var s) ? s : new GroupPlayerResult(p, 0))
+                    .OrderBy(s => s.GroupRank > 0 ? s.GroupRank : 999)
+                    .ThenByDescending(s => s.WinRate)
+                    .ThenByDescending(s => s.Wins)
+                    .ThenByDescending(s => s.LegDiffPerMatch)
+                    .ThenByDescending(s => s.LegDiff)
+                    .ThenByDescending(s => s.LegsWon)
+                    .ThenBy(s => s.Player.Id)
+                    .Select(s => s.Player)
+                    .ToList();
+            }
+            else
+            {
+                // Zufällige Auslosung (Random)
+                orderedPlayers = qualifiedPlayers.OrderBy(_ => _random.Next()).ToList();
+            }
+
+            var pairings = GenerateBracketSeedPairings(bracketSize);
+            var firstBraket = brakets[0];
+            var firstRoundMatches = new List<Match>();
+            var byeMatches = new List<Match>();
+
+            for (int i = 0; i < pairings.Count; i++)
+            {
+                var (s1, s2) = pairings[i];
+                var p1 = s1 <= orderedPlayers.Count ? orderedPlayers[s1 - 1] : null;
+                var p2 = s2 <= orderedPlayers.Count ? orderedPlayers[s2 - 1] : null;
+
+                if (p1 != null && p2 != null)
+                {
+                    firstRoundMatches.Add(new Match
+                    {
+                        BraketId = firstBraket.Id,
+                        Braket = firstBraket,
+                        BoardId = 1,
+                        Status = MatchStatus.Scheduled,
+                        Participants = new List<MatchParticipant>
+                        {
+                            new MatchParticipant
+                            {
+                                TournamentPlayerId = p1.Id,
+                                TournamentPlayer = p1,
+                                Score = 0,
+                                IsWinner = false
+                            },
+                            new MatchParticipant
+                            {
+                                TournamentPlayerId = p2.Id,
+                                TournamentPlayer = p2,
+                                Score = 0,
+                                IsWinner = false
+                            }
+                        }
+                    });
+                }
+                else if (p1 != null || p2 != null)
+                {
+                    var byePlayer = p1 ?? p2!;
+                    var byeMatch = new Match
+                    {
+                        BraketId = firstBraket.Id,
+                        Braket = firstBraket,
+                        BoardId = 1,
+                        Status = MatchStatus.Completed,
+                        Participants = new List<MatchParticipant>
+                        {
+                            new MatchParticipant
+                            {
+                                TournamentPlayerId = byePlayer.Id,
+                                TournamentPlayer = byePlayer,
+                                Score = 0,
+                                IsWinner = true
+                            }
+                        }
+                    };
+                    firstRoundMatches.Add(byeMatch);
+                    byeMatches.Add(byeMatch);
+                }
+            }
+            firstBraket.Matches = firstRoundMatches;
+
+            // Weitere K.-o.-Runden mit leeren Matches initialisieren
+            for (int b = 1; b < brakets.Count; b++)
+            {
+                var braket = brakets[b];
+                var matches = new List<Match>();
+                for (int i = 0; i < braket.Sequence; i++)
+                {
+                    matches.Add(new Match
+                    {
+                        BraketId = braket.Id,
+                        Braket = braket,
+                        BoardId = 1,
+                        Status = MatchStatus.Scheduled
+                    });
+                }
+                braket.Matches = matches;
+            }
+
+            await _boardService.SetBoards(
+                brakets,
+                options.StartTime ?? DateTimeOffset.UtcNow,
+                options.MatchDurationMinutes ?? 30,
+                options.BreakBetweenMatchesMinutes ?? 5);
+
+            await _context.Brakets.AddRangeAsync(brakets);
             await _context.SaveChangesAsync();
 
+            // Freilose (Byes) automatisch in die nächste Runde vorrücken
+            foreach (var byeMatch in byeMatches)
+            {
+                await AdvanceWinner(byeMatch);
+            }
+        }
+
+        public static List<(int Seed1, int Seed2)> GenerateBracketSeedPairings(int bracketSize)
+        {
+            if (bracketSize < 2) return new List<(int, int)>();
+
+            var round = new List<int> { 1, 2 };
+
+            while (round.Count < bracketSize)
+            {
+                int nextSize = round.Count * 2;
+                var nextRound = new List<int>(nextSize);
+                for (int i = 0; i < round.Count; i++)
+                {
+                    nextRound.Add(round[i]);
+                    nextRound.Add(nextSize + 1 - round[i]);
+                }
+                round = nextRound;
+            }
+
+            var pairings = new List<(int Seed1, int Seed2)>();
+            for (int i = 0; i < round.Count; i += 2)
+            {
+                pairings.Add((round[i], round[i + 1]));
+            }
+            return pairings;
         }
 
         private List<Braket> CreateEmptyBrakets(int tournamentId, int count)
@@ -508,51 +719,133 @@ namespace DTC.Api.Services
                     continue;
                 }
 
-                var matches = await _matchRepo.GetByGroupIdAsync(group.Id);
+                var matches = (await _matchRepo.GetByGroupIdAsync(group.Id)).ToList();
 
-                var playerWins = matches
-                    .SelectMany(match => match.Participants)
-                    .Where(participant => participant.IsWinner)
-                    .GroupBy(participant => participant.TournamentPlayer.Id)
-                    .Select(g => new GroupPlayerResult(
-                        g.First().TournamentPlayer,
-                        g.Count()))
+                // Alle Spieler der Gruppe ermitteln
+                var groupPlayers = await _context.GroupPlayers
+                    .Where(gp => gp.GroupId == group.Id)
+                    .Include(gp => gp.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
+                    .Select(gp => gp.TournamentPlayer)
+                    .ToListAsync();
+
+                // Falls noch keine GroupPlayers explizit gespeichert sind, aus Match-Teilnehmern ermitteln
+                if (!groupPlayers.Any())
+                {
+                    groupPlayers = matches
+                        .SelectMany(m => m.Participants)
+                        .Where(p => p.TournamentPlayer != null)
+                        .Select(p => p.TournamentPlayer)
+                        .GroupBy(tp => tp.Id)
+                        .Select(g => g.First())
+                        .ToList();
+                }
+
+                var playerStats = new List<GroupPlayerResult>();
+
+                foreach (var player in groupPlayers)
+                {
+                    var playerMatches = matches
+                        .Where(m => m.Participants.Any(p => p.TournamentPlayerId == player.Id))
+                        .ToList();
+
+                    int wins = 0;
+                    int legsWon = 0;
+                    int legsLost = 0;
+                    int matchesPlayed = 0;
+
+                    foreach (var match in playerMatches)
+                    {
+                        var myPart = match.Participants.FirstOrDefault(p => p.TournamentPlayerId == player.Id);
+                        var oppPart = match.Participants.FirstOrDefault(p => p.TournamentPlayerId != player.Id);
+
+                        if (myPart == null) continue;
+
+                        if (match.Status == MatchStatus.Completed || myPart.Score > 0 || (oppPart?.Score ?? 0) > 0 || myPart.IsWinner)
+                        {
+                            matchesPlayed++;
+                        }
+
+                        if (myPart.IsWinner)
+                        {
+                            wins++;
+                        }
+
+                        legsWon += myPart.Score;
+                        if (oppPart != null)
+                        {
+                            legsLost += oppPart.Score;
+                        }
+                    }
+
+                    playerStats.Add(new GroupPlayerResult(
+                        player,
+                        wins,
+                        legsWon,
+                        legsLost,
+                        matchesPlayed,
+                        group.Id));
+                }
+
+                // Sortierung innerhalb der Gruppe:
+                // 1. Siege
+                // 2. Leg-Differenz
+                // 3. Gewonnene Legs
+                // 4. Stabile Spieler-ID
+                var sortedStats = playerStats
                     .OrderByDescending(x => x.Wins)
+                    .ThenByDescending(x => x.LegDiff)
+                    .ThenByDescending(x => x.LegsWon)
+                    .ThenBy(x => x.Player.Id)
+                    .Select((p, idx) => p with { GroupRank = idx + 1 })
                     .ToList();
 
-                results.Add(new GroupResult(
-                    group.Id,
-                    playerWins));
+                results.Add(new GroupResult(group.Id, sortedStats));
             }
 
             return results;
         }
 
         public sealed record GroupResult(
-    int GroupId,
-    List<GroupPlayerResult> Players);
+            int GroupId,
+            List<GroupPlayerResult> Players);
 
         public sealed record GroupPlayerResult(
             TournamentPlayer Player,
-            int Wins);
+            int Wins,
+            int LegsWon = 0,
+            int LegsLost = 0,
+            int MatchesPlayed = 0,
+            int GroupId = 0,
+            int GroupRank = 0)
+        {
+            public int LegDiff => LegsWon - LegsLost;
+            public double WinRate => MatchesPlayed > 0 ? (double)Wins / MatchesPlayed : 0;
+            public double LegDiffPerMatch => MatchesPlayed > 0 ? (double)LegDiff / MatchesPlayed : 0;
+        }
 
+        private static bool IsStrictlyBetter(GroupPlayerResult a, GroupPlayerResult b)
+        {
+            if (a.Wins != b.Wins) return a.Wins > b.Wins;
+            if (a.LegDiff != b.LegDiff) return a.LegDiff > b.LegDiff;
+            return a.LegsWon > b.LegsWon;
+        }
 
-
+        private static bool IsEqualScore(GroupPlayerResult a, GroupPlayerResult b)
+        {
+            return a.Wins == b.Wins && a.LegDiff == b.LegDiff && a.LegsWon == b.LegsWon;
+        }
 
         private (List<TournamentPlayer> KnockoutPlayers, List<TournamentPlayer> TiebreakPlayers) GetKnockoutPlayers(
-        IEnumerable<GroupResult> groups,
-        int qualifiersPerGroup)
+            IEnumerable<GroupResult> groups,
+            int qualifiersPerGroup)
         {
             var knockoutPlayers = new List<TournamentPlayer>();
             var tiebreakPlayers = new List<TournamentPlayer>();
 
             foreach (var group in groups)
             {
-
-                var players = group.Players
-                    .OrderByDescending(x => x.Wins)
-                    .ToList();
-
+                var players = group.Players;
                 if (players.Count == 0)
                     continue;
 
@@ -566,24 +859,22 @@ namespace DTC.Api.Services
                 {
                     knockoutPlayers.AddRange(
                         qualifiedCandidates.Select(x => x.Player));
-
                     continue;
                 }
 
-                var cutoffWins = qualifiedCandidates.Last().Wins;
+                var cutoffPlayer = qualifiedCandidates.Last();
 
-                // Spieler mit mehr Siegen als der Cutoff sind fix qualifiziert
+                // Spieler mit strikt besseren Werten sind fix qualifiziert
                 var fixedQualified = players
-                    .Where(x => x.Wins > cutoffWins)
+                    .Where(x => IsStrictlyBetter(x, cutoffPlayer))
                     .ToList();
 
                 knockoutPlayers.AddRange(
                     fixedQualified.Select(x => x.Player));
 
-                // Spieler mit exakt den Cutoff-Siegen kämpfen um die
-                // verbleibenden Qualifikationsplätze
+                // Spieler mit exakt gleichen Werten kämpfen um die verbleibenden Qualifikationsplätze
                 var tiedPlayers = players
-                    .Where(x => x.Wins == cutoffWins)
+                    .Where(x => IsEqualScore(x, cutoffPlayer))
                     .ToList();
 
                 var remainingSlots =
@@ -607,9 +898,20 @@ namespace DTC.Api.Services
 
         public sealed record GroupWinner(int GroupId, MatchParticipant Player);
 
-        public Task AdvanceKnockoutAsync(int matchId)
+        public async Task AdvanceKnockoutAsync(int matchId)
         {
-            throw new NotImplementedException();
+            var match = await _context.Matches
+                .Include(m => m.Braket)
+                    .ThenInclude(r => r!.Tournament)
+                .Include(m => m.Participants)
+                    .ThenInclude(p => p.TournamentPlayer)
+                        .ThenInclude(tp => tp.Player)
+                .FirstOrDefaultAsync(m => m.Id == matchId);
+
+            if (match != null && match.Status == MatchStatus.Completed && match.Participants.Any(p => p.IsWinner))
+            {
+                await AdvanceWinner(match);
+            }
         }
 
         private static void ValidateGroupOptions(GenerateGroupsDto options)
@@ -724,31 +1026,47 @@ namespace DTC.Api.Services
 
         public async Task AdvanceWinner(Match match)
         {
-            if (match.Braket.Phase != BraketPhase.Knockout)
+            var braket = match.Braket ?? await _context.Brakets.FirstOrDefaultAsync(b => b.Id == match.BraketId);
+            if (braket == null || braket.Phase != BraketPhase.Knockout)
             {
                 return;
             }
 
-            var winner = match.Participants.First(p => p.IsWinner);
+            var winner = match.Participants.FirstOrDefault(p => p.IsWinner);
+            if (winner == null) return;
 
-            var brakets = await _context.Brakets.Where(b => b.TournamentId ==  match.Braket.TournamentId).Include(b => b.Matches).ThenInclude(m => m.Participants).ToListAsync();
+            var brakets = await _context.Brakets
+                .Where(b => b.TournamentId == braket.TournamentId)
+                .Include(b => b.Matches)
+                    .ThenInclude(m => m.Participants)
+                .ToListAsync();
 
-            var curBraket = brakets.First(b => b.Id == match.BraketId);
+            var curBraket = brakets.FirstOrDefault(b => b.Id == braket.Id);
+            if (curBraket == null) return;
 
             var nextBraket = brakets.OrderByDescending(b => b.Sequence).FirstOrDefault(b => b.Sequence < curBraket.Sequence);
-
             if (nextBraket == null) return;
 
             var matchIndex = curBraket.Matches
+                .OrderBy(m => m.Id)
                 .ToList()
                 .FindIndex(m => m.Id == match.Id);
 
-            var nextMatch = nextBraket.Matches.ElementAt(matchIndex / 2);
+            if (matchIndex < 0) return;
 
-            var emptySlot = nextMatch.Participants
-                .FirstOrDefault(p => p == null);
+            var targetMatchIndex = matchIndex / 2;
+            var orderedNextMatches = nextBraket.Matches.OrderBy(m => m.Id).ToList();
+            if (targetMatchIndex >= orderedNextMatches.Count) return;
 
-            if (emptySlot == null)
+            var nextMatch = orderedNextMatches[targetMatchIndex];
+
+            // Prevent adding duplicate winner
+            if (nextMatch.Participants.Any(p => p.TournamentPlayerId == winner.TournamentPlayerId))
+            {
+                return;
+            }
+
+            if (nextMatch.Participants.Count < 2)
             {
                 nextMatch.Participants.Add(new MatchParticipant
                 {
@@ -759,9 +1077,9 @@ namespace DTC.Api.Services
                     Score = 0,
                     IsWinner = false
                 });
-            }
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
         }
 
         private sealed record MatchCandidate(Group Group, IReadOnlyList<int> PlayerIds, bool IsBye);

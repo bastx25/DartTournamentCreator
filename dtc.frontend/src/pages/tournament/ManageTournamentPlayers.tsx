@@ -87,7 +87,9 @@ export function ManageTournamentPlayers() {
           </div>
 
           <div className="border-b border-gray-200 px-6 py-5 sm:px-8">
-            <h2 className="text-lg font-semibold text-gray-900">Spieler</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {tournament ? `${tournament.name} · Spieler` : "Spieler"}
+            </h2>
             <p className="mt-1 text-sm text-gray-500">
               Lege fest, welche Spieler an der Gruppenphase teilnehmen.
             </p>

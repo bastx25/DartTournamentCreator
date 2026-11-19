@@ -1,5 +1,6 @@
 import z from "zod";
 import { TournamentMode } from "../../enums/TournamentMode";
+import { KnockoutDrawMode } from "../../enums/KnockoutDrawMode";
 
 export const tournamentConfigDtoSchema = z.object({
   id: z.number().int(),
@@ -11,6 +12,7 @@ export const tournamentConfigDtoSchema = z.object({
   groupCount: z.number().int(),
   playersPerGroup: z.number().int().nullable(),
   qualifiersPerGroup: z.number().int(),
+  knockoutDrawMode: z.nativeEnum(KnockoutDrawMode).optional(),
 });
 
 export type TournamentConfigDto = z.infer<typeof tournamentConfigDtoSchema>;

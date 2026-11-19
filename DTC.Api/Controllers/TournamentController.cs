@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.MatchMaker;
+using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Dtos.Tournament;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
@@ -90,6 +90,24 @@ namespace DTC.Api.Controllers
                 await _configRepo.UpdateConfig(id, dto);
                 await _matchMakerService.GenerateGroupsAsync(id, dto);
                 return Ok(new { Message = "Gruppenphase wurde generiert." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("{id:int}/manual-groups")]
+        public async Task<IActionResult> SaveManualGroups([FromRoute] int id, [FromBody] ManualGroupSetupDto dto)
+        {
+            try
+            {
+                await _matchMakerService.SaveManualGroupsAsync(id, dto);
+                return Ok(new { Message = "Manuelle Gruppen und Matches wurden erfolgreich generiert." });
             }
             catch (KeyNotFoundException ex)
             {

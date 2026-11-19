@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DTC.Api.Models
@@ -16,5 +16,6 @@ namespace DTC.Api.Models
         public int GroupCount { get; set; } = 1;
         public int? PlayersPerGroup { get; set; }
         public int QualifiersPerGroup { get; set; } = 1;
+        public KnockoutDrawMode KnockoutDrawMode { get; set; } = KnockoutDrawMode.Random;
     }
 }

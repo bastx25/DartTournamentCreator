@@ -1,4 +1,4 @@
-﻿using DTC.Api.Data;
+using DTC.Api.Data;
 using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
@@ -45,6 +45,8 @@ namespace DTC.Api.Repositories
                         .Where(p => playerIds.Contains(p.Id))
                         .ToListAsync();
 
+                    var effectiveStartTime = options.StartTime ?? DateTimeOffset.UtcNow;
+
                     foreach (var player in newPlayers)
                     {
                         var tournamentPlayer = new TournamentPlayer
@@ -55,8 +57,8 @@ namespace DTC.Api.Repositories
                             {
                                 new Availability
                                 {
-                                    Start = options.StartTime.Value,
-                                    End = options.StartTime.Value.AddHours(24)
+                                    Start = effectiveStartTime,
+                                    End = effectiveStartTime.AddHours(24)
                                 }
                             }   
                         };

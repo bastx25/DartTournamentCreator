@@ -1,4 +1,4 @@
-﻿using DTC.Api.Data;
+using DTC.Api.Data;
 using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Dtos.Tournament;
 using DTC.Api.Interfaces;
@@ -56,10 +56,11 @@ namespace DTC.Api.Repositories
             }
 
             config.GroupCount = dto.GroupCount;
-            config.PlayersPerGroup = dto.PlayersPerGroup;
+            config.PlayersPerGroup = dto.PlayersPerGroup ?? config.PlayersPerGroup;
             config.QualifiersPerGroup = dto.QualifiersPerGroup;
-            config.MatchDurationMinutes = dto.MatchDurationMinutes.Value;
-            config.BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes.Value;
+            config.MatchDurationMinutes = dto.MatchDurationMinutes ?? config.MatchDurationMinutes;
+            config.BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes ?? config.BreakBetweenMatchesMinutes;
+            config.KnockoutDrawMode = dto.KnockoutDrawMode;
 
             await _context.SaveChangesAsync();
         }

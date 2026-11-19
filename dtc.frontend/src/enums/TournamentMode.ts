@@ -1,4 +1,5 @@
 export enum TournamentMode {
-  GroupStage,
-  GrouStageandKnockout,
+  GroupStage = 0,
+  GrouStageandKnockout = 1,
+  GroupStageAndKnockout = 1,
 }

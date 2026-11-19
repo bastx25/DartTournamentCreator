@@ -1,3 +1,4 @@
+using DTC.Api.Enums;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -53,6 +54,9 @@ namespace DTC.Api.Data
                 // TournamentId muss bei einer 1:1-Beziehung eindeutig sein
                 entity.HasIndex(c => c.TournamentId)
                     .IsUnique();
+
+                entity.Property(c => c.KnockoutDrawMode)
+                    .HasDefaultValue(KnockoutDrawMode.Random);
             });
 
             // =========================================================

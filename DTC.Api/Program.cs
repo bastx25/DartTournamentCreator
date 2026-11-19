@@ -36,6 +36,23 @@ builder.Services.AddScoped<IBoardService, BoardService>();
 
 var app = builder.Build();
 
+// Automatically apply pending database migrations if database is available
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DartDbContext>();
+        if (db.Database.IsRelational())
+        {
+            db.Database.Migrate();
+        }
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Datenbank-Migration konnte beim Start nicht ausgeführt werden.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

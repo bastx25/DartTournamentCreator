@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace DTC.Api.Dtos.TournamentConfig
@@ -27,5 +27,7 @@ namespace DTC.Api.Dtos.TournamentConfig
 
         [Range(1, int.MaxValue, ErrorMessage = "Die Anzahl der Qualifikanten pro Gruppe muss mindestens 1 betragen.")]
         public int QualifiersPerGroup { get; set; } = 1;
+
+        public KnockoutDrawMode KnockoutDrawMode { get; set; } = KnockoutDrawMode.Random;
     }
 }

@@ -6,6 +6,7 @@ import type { GroupDto } from "../dtos/group/GroupDto";
 import type { BraketDto } from "../dtos/brakets/BraketDto";
 import type { TournamentConfigDto } from "../dtos/tournamentConfig/TournamentConfigDto";
 import type { TournamentPlayerDto } from "../dtos/tournamentPlayer/TournamentPlayerDto";
+import type { ManualGroupSetupDto } from "../dtos/matchMaker/ManualGroupDto";
 
 export async function createTournament(
   data: CreateTournamentDto,
@@ -102,4 +103,15 @@ export async function getTConfigsByTournamentId(
   );
 
   return response.data ?? [];
+}
+
+export async function saveManualGroups(
+  id: number,
+  data: ManualGroupSetupDto,
+): Promise<void> {
+  await axios.post(`/api/tournaments/${id}/manual-groups`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }

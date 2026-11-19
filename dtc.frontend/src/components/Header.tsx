@@ -5,7 +5,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="border-border bg-backgbraket text-text border-b backdrop-blur">
+    <header className="border-border bg-background text-text border-b backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <nav className="border-border bg-backgbraket border-t px-4 py-3 md:hidden">
+        <nav className="border-border bg-background border-t px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
             <Link
               to="/dashboard"

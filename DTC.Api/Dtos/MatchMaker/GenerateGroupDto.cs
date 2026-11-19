@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using DTC.Api.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace DTC.Api.Dtos.MatchMaker
 {
@@ -23,5 +24,7 @@ namespace DTC.Api.Dtos.MatchMaker
         public int? BreakBetweenMatchesMinutes { get; set; }
 
         public List<int>? PlayerIds { get; set; }
+
+        public KnockoutDrawMode KnockoutDrawMode { get; set; } = KnockoutDrawMode.Random;
     }
 }

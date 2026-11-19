@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useActiveTournaments } from "../../hooks/useActiveTournaments";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
@@ -26,12 +26,17 @@ export function DashboardPage() {
   >(null);
 
   const [tournament, setTournament] = useState<TournamentDto | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
   const effectiveTournamentId =
     selectedTournamentId !== null &&
     tournaments.some((tournament) => tournament.id === selectedTournamentId)
       ? selectedTournamentId
       : (tournaments[0]?.id ?? null);
+
+  useEffect(() => {
+    setSelectedFilter("all");
+  }, [effectiveTournamentId]);
 
   useEffect(() => {
     if (effectiveTournamentId === null) {
@@ -90,6 +95,33 @@ export function DashboardPage() {
     loadBrakets();
   }, [tournament]);
 
+  const visibleGroups = useMemo(() => {
+    if (selectedFilter === "all" || selectedFilter === "group-all") {
+      return groups;
+    }
+    if (selectedFilter.startsWith("group-")) {
+      const groupId = Number(selectedFilter.replace("group-", ""));
+      return groups.filter((g) => g.id === groupId);
+    }
+    return [];
+  }, [groups, selectedFilter]);
+
+  const visibleBrakets = useMemo(() => {
+    if (selectedFilter === "all" || selectedFilter === "knockout-all") {
+      return brakets;
+    }
+    if (selectedFilter.startsWith("braket-")) {
+      const braketId = Number(selectedFilter.replace("braket-", ""));
+      return brakets.filter((b) => b.id === braketId);
+    }
+    return [];
+  }, [brakets, selectedFilter]);
+
+  const showGroupPlaceholder =
+    selectedFilter === "all" && groups.length === 0;
+  const showBraketPlaceholder =
+    selectedFilter === "all" && brakets.length === 0;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <HeaderEmpty />
@@ -100,6 +132,10 @@ export function DashboardPage() {
           setSelectedTournamentId={setSelectedTournamentId}
           tournamentsLoading={tournamentsLoading}
           tournaments={tournaments}
+          selectedFilter={selectedFilter}
+          onFilterChange={setSelectedFilter}
+          groups={groups}
+          brakets={brakets}
         />
         {dashboardError && (
           <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
@@ -132,7 +168,22 @@ export function DashboardPage() {
               activeBraketCount={activeBraketCount}
             />
 
-            {groups.length === 0 && (
+            {/* Filter Empty State */}
+            {selectedFilter !== "all" &&
+              visibleGroups.length === 0 &&
+              visibleBrakets.length === 0 && (
+                <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-6">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Keine Matches für den ausgewählten Filter
+                  </h2>
+                  <p className="mt-2 text-sm text-gray-500">
+                    In diesem Bereich sind noch keine Matches oder Gruppen
+                    vorhanden.
+                  </p>
+                </section>
+              )}
+
+            {showGroupPlaceholder && (
               <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Gruppen vorhanden
@@ -143,15 +194,15 @@ export function DashboardPage() {
               </section>
             )}
 
-            {groups.length > 0 && (
+            {visibleGroups.length > 0 && (
               <div className="space-y-6">
-                {groups.map((group) => {
+                {visibleGroups.map((group) => {
                   return <DashboardGroup key={group.id} group={group} />;
                 })}
               </div>
             )}
 
-            {brakets.length === 0 && (
+            {showBraketPlaceholder && (
               <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm mt-8">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Noch keine Runden vorhanden
@@ -163,9 +214,9 @@ export function DashboardPage() {
               </section>
             )}
 
-            {brakets.length > 0 && (
+            {visibleBrakets.length > 0 && (
               <div className="space-y-6 mt-8">
-                {brakets.map((braket) => {
+                {visibleBrakets.map((braket) => {
                   return <DashboardBraket key={braket.id} braket={braket} />;
                 })}
               </div>

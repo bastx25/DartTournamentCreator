@@ -24,10 +24,16 @@ function formatStartDate(startDate: string) {
 }
 
 export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
-  const matchCount = tournament.brakets?.reduce(
-    (count, braket) => count + braket.matches.length,
-    0,
-  );
+  const matchCount =
+    tournament.brakets?.reduce(
+      (count, braket) =>
+        count +
+        ((braket as unknown as { matches?: unknown[] }).matches?.length ?? 0),
+      0,
+    ) ?? 0;
+
+  const modeText =
+    tournament.mode !== undefined ? modeLabels[tournament.mode] ?? "—" : "—";
 
   return (
     <div className="grid gap-4 px-4 py-4 transition-colors hover:bg-gray-50 sm:px-6 lg:grid-cols-[minmax(220px,1.5fr)_170px_180px_130px_110px_80px] lg:items-center lg:gap-0">
@@ -52,14 +58,18 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
 
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 lg:hidden">
           <span>{formatStartDate(tournament.startDate)}</span>
-          <span>{modeLabels[tournament.mode]}</span>
-          <span>
-            {tournament.brakets?.length}{" "}
-            {tournament.brakets?.length === 1 ? "Runde" : "Runden"}
-          </span>
-          <span>
-            {matchCount} {matchCount === 1 ? "Match" : "Matches"}
-          </span>
+          {tournament.mode !== undefined && <span>{modeText}</span>}
+          {tournament.brakets && (
+            <>
+              <span>
+                {tournament.brakets.length}{" "}
+                {tournament.brakets.length === 1 ? "Runde" : "Runden"}
+              </span>
+              <span>
+                {matchCount} {matchCount === 1 ? "Match" : "Matches"}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -67,9 +77,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
         {formatStartDate(tournament.startDate)}
       </div>
 
-      <div className="hidden text-sm text-gray-600 lg:block">
-        {modeLabels[tournament.mode]}
-      </div>
+      <div className="hidden text-sm text-gray-600 lg:block">{modeText}</div>
 
       <div className="hidden lg:block">
         <span
@@ -80,7 +88,7 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
       </div>
 
       <div className="hidden text-sm text-gray-600 lg:block">
-        {tournament.brakets?.length} / {matchCount}
+        {tournament.brakets ? `${tournament.brakets.length} / ${matchCount}` : "—"}
       </div>
 
       <div className="flex justify-end">

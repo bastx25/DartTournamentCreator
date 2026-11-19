@@ -88,7 +88,7 @@ namespace DTC.Api.Controllers
             //TODO: Set Braket on Running
             var match = await _context.Matches
                 .Include(m => m.Braket)
-                 .ThenInclude(r => r.Tournament)
+                 .ThenInclude(r => r!.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
                         .ThenInclude(tp => tp.Player)
@@ -130,7 +130,7 @@ namespace DTC.Api.Controllers
         {
             var match = await _context.Matches
                 .Include(m => m.Braket)
-                .ThenInclude(r => r.Tournament)
+                .ThenInclude(r => r!.Tournament)
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.TournamentPlayer)
                         .ThenInclude(tp => tp.Player)

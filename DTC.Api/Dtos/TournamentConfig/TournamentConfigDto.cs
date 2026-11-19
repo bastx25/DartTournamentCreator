@@ -1,4 +1,4 @@
-﻿using DTC.Api.Enums;
+using DTC.Api.Enums;
 
 namespace DTC.Api.Dtos.TournamentConfig
 {
@@ -21,5 +21,7 @@ namespace DTC.Api.Dtos.TournamentConfig
         public int? PlayersPerGroup { get; set; }
 
         public int QualifiersPerGroup { get; set; }
+
+        public KnockoutDrawMode KnockoutDrawMode { get; set; } = KnockoutDrawMode.Random;
     }
 }

@@ -7,20 +7,32 @@ import type { MatchDto } from "../../dtos/match/MatchDto";
 
 interface DashboardMatchProps {
   match: MatchDto;
-  index: number;
+  index?: number;
 }
 
-export function DashboardMatch({ match, index }: DashboardMatchProps) {
+export function DashboardMatch({ match }: DashboardMatchProps) {
   const firstParticipant = match.participants?.[0];
   const secondParticipant = match.participants?.[1];
 
   const [board, setBoard] = useState<BoardDto | null>(null);
 
   const playerName = (matchParticipantIndex: number): string => {
-    const player =
-      match.participants?.[matchParticipantIndex]?.tournamentPlayer?.player;
+    const participant = match.participants?.[matchParticipantIndex];
+    const player = participant?.tournamentPlayer?.player;
 
-    return player?.displayName ?? "TBD";
+    if (player?.displayName) {
+      return player.displayName;
+    }
+
+    if (
+      !participant &&
+      match.status === MatchStatus.Completed &&
+      match.participants?.length === 1
+    ) {
+      return "Freilos";
+    }
+
+    return "TBD";
   };
 
   useEffect(() => {

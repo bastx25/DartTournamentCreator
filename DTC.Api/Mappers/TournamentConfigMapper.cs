@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.TournamentConfig;
+using DTC.Api.Dtos.TournamentConfig;
 using DTC.Api.Models;
 
 namespace DTC.Api.Mappers
@@ -21,7 +21,8 @@ namespace DTC.Api.Mappers
                 BreakBetweenMatchesMinutes = config.BreakBetweenMatchesMinutes,
                 GroupCount = config.GroupCount,
                 PlayersPerGroup = config.PlayersPerGroup,
-                QualifiersPerGroup = config.QualifiersPerGroup
+                QualifiersPerGroup = config.QualifiersPerGroup,
+                KnockoutDrawMode = config.KnockoutDrawMode
             };
         }
 
@@ -42,7 +43,8 @@ namespace DTC.Api.Mappers
                 BreakBetweenMatchesMinutes = dto.BreakBetweenMatchesMinutes,
                 GroupCount = dto.GroupCount,
                 PlayersPerGroup = dto.PlayersPerGroup,
-                QualifiersPerGroup = dto.QualifiersPerGroup
+                QualifiersPerGroup = dto.QualifiersPerGroup,
+                KnockoutDrawMode = dto.KnockoutDrawMode
             };
         }
 
@@ -62,6 +64,7 @@ namespace DTC.Api.Mappers
             config.GroupCount = dto.GroupCount;
             config.PlayersPerGroup = dto.PlayersPerGroup;
             config.QualifiersPerGroup = dto.QualifiersPerGroup;
+            config.KnockoutDrawMode = dto.KnockoutDrawMode;
         }
     }
 }
