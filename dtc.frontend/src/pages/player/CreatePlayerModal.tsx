@@ -28,8 +28,8 @@ export function CreatePlayerModal({
 
     const formData: CreatePlayerDto = {
       firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      nickname: nickname.trim(),
+      lastName: lastName.trim() || null,
+      nickname: nickname.trim() || null,
     };
 
     const result = createPlayerDtoSchema.safeParse(formData);
@@ -93,15 +93,14 @@ export function CreatePlayerModal({
             </div>
 
             <h3
-              id="update-player-title"
+              id="create-player-title"
               className="mt-4 text-lg font-semibold text-gray-900"
             >
-              Spieler bearbeiten
+              Neuen Spieler erstellen
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Ändere die Daten des Spielers und speichere anschließend die
-              Änderungen.
+              Gib die Daten des Spielers ein. Nur der Vorname ist erforderlich.
             </p>
 
             {/* Form fields */}
@@ -111,7 +110,7 @@ export function CreatePlayerModal({
                   htmlFor="firstName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Vorname
+                  Vorname <span className="text-red-500">*</span>
                 </label>
 
                 <input
@@ -125,7 +124,7 @@ export function CreatePlayerModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Vorname"
+                  placeholder="z. B. Max"
                 />
 
                 {errors.firstName && (
@@ -140,7 +139,7 @@ export function CreatePlayerModal({
                   htmlFor="lastName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Nachname
+                  Nachname <span className="text-xs text-gray-400 font-normal">(optional)</span>
                 </label>
 
                 <input
@@ -154,7 +153,7 @@ export function CreatePlayerModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Nachname"
+                  placeholder="z. B. Mustermann"
                 />
 
                 {errors.lastName && (
@@ -169,7 +168,7 @@ export function CreatePlayerModal({
                   htmlFor="nickname"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Spitzname
+                  Spitzname <span className="text-xs text-gray-400 font-normal">(optional)</span>
                 </label>
 
                 <input
@@ -183,7 +182,7 @@ export function CreatePlayerModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Spitzname"
+                  placeholder="z. B. The Power"
                 />
 
                 {errors.nickname && (
@@ -234,7 +233,7 @@ export function CreatePlayerModal({
                 </svg>
               )}
 
-              {adding ? "Speichern..." : "Änderungen speichern"}
+              {adding ? "Erstelle..." : "Spieler erstellen"}
             </button>
           </div>
         </form>

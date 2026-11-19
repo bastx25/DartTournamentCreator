@@ -33,7 +33,7 @@ export function PlayerRow({
             selected ? "text-blue-600" : "text-gray-900"
           }`}
         >
-          {player.displayName}
+          {player.displayName || [player.firstName, player.lastName].filter(Boolean).join(" ")}
         </span>
       </div>
 

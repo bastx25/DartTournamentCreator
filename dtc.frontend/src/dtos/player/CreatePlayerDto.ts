@@ -1,9 +1,23 @@
 import z from "zod";
 
 export const createPlayerDtoSchema = z.object({
-  firstName: z.string().min(1).max(50),
-  lastName: z.string().min(1).max(50),
-  nickname: z.string().max(50).nullable(),
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "Der Vorname ist ein Pflichtfeld.")
+    .max(50, "Der Vorname darf maximal 50 Zeichen lang sein."),
+  lastName: z
+    .string()
+    .trim()
+    .max(50, "Der Nachname darf maximal 50 Zeichen lang sein.")
+    .nullable()
+    .optional(),
+  nickname: z
+    .string()
+    .trim()
+    .max(50, "Der Spitzname darf maximal 50 Zeichen lang sein.")
+    .nullable()
+    .optional(),
 });
 
 export type CreatePlayerDto = z.infer<typeof createPlayerDtoSchema>;

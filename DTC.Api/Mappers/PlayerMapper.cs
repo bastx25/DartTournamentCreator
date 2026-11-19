@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Player;
+using DTC.Api.Dtos.Player;
 using DTC.Api.Models;
 
 namespace DTC.Api.Mappers
@@ -29,8 +29,8 @@ namespace DTC.Api.Mappers
             {
                 // Id wird von der Datenbank generiert.
                 FirstName = dto.FirstName.Trim(),
-                LastName = dto.LastName.Trim(),
-                Nickname = dto.Nickname?.Trim()
+                LastName = string.IsNullOrWhiteSpace(dto.LastName) ? null : dto.LastName.Trim(),
+                Nickname = string.IsNullOrWhiteSpace(dto.Nickname) ? null : dto.Nickname.Trim()
             };
         }
 
@@ -43,8 +43,8 @@ namespace DTC.Api.Mappers
             Player player)
         {
             player.FirstName = dto.FirstName.Trim();
-            player.LastName = dto.LastName.Trim();
-            player.Nickname = dto.Nickname?.Trim();
+            player.LastName = string.IsNullOrWhiteSpace(dto.LastName) ? null : dto.LastName.Trim();
+            player.Nickname = string.IsNullOrWhiteSpace(dto.Nickname) ? null : dto.Nickname.Trim();
         }
     }
 }

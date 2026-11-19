@@ -32,8 +32,8 @@ export function UpdatePlayerModal({
 
     const formData: UpdatePlayerDto = {
       firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      nickname: nickname.trim(),
+      lastName: lastName.trim() || null,
+      nickname: nickname.trim() || null,
     };
 
     const result = updatePlayerDtoSchema.safeParse(formData);
@@ -58,6 +58,8 @@ export function UpdatePlayerModal({
     const updatedPlayer: PlayerDto = {
       ...player,
       ...result.data,
+      lastName: result.data.lastName ?? null,
+      nickname: result.data.nickname ?? null,
     };
 
     onConfirm(updatedPlayer);
@@ -109,8 +111,7 @@ export function UpdatePlayerModal({
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Ändere die Daten des Spielers und speichere anschließend die
-              Änderungen.
+              Ändere die Daten des Spielers. Nur der Vorname ist erforderlich.
             </p>
 
             {/* Form fields */}
@@ -120,7 +121,7 @@ export function UpdatePlayerModal({
                   htmlFor="firstName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Vorname
+                  Vorname <span className="text-red-500">*</span>
                 </label>
 
                 <input
@@ -149,7 +150,7 @@ export function UpdatePlayerModal({
                   htmlFor="lastName"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Nachname
+                  Nachname <span className="text-xs text-gray-400 font-normal">(optional)</span>
                 </label>
 
                 <input
@@ -178,7 +179,7 @@ export function UpdatePlayerModal({
                   htmlFor="nickname"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Spitzname
+                  Spitzname <span className="text-xs text-gray-400 font-normal">(optional)</span>
                 </label>
 
                 <input

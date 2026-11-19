@@ -77,7 +77,7 @@ namespace DTC.Api.Repositories
         {
             return await _context.Players
                 .Where(p => p.UserId == userId)
-                .OrderBy(p => p.LastName)
+                .OrderBy(p => p.LastName ?? p.FirstName)
                 .ThenBy(p => p.FirstName)
                 .ToListAsync();
         }

@@ -24,11 +24,11 @@ export function PlayerDetails({ player }: PlayerDetailsProps) {
           </div>
 
           <div className="space-y-4">
-            <Detail label="First Name" value={player.firstName} />
-            <Detail label="Last Name" value={player.lastName} />
+            <Detail label="Vorname" value={player.firstName} />
+            <Detail label="Nachname" value={player.lastName || "—"} />
 
             {player.nickname && (
-              <Detail label="Nickname" value={player.nickname} />
+              <Detail label="Spitzname" value={player.nickname} />
             )}
           </div>
         </>
@@ -39,7 +39,7 @@ export function PlayerDetails({ player }: PlayerDetailsProps) {
   );
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
+function Detail({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
       <span className="block text-xs font-medium uppercase tracking-wide text-gray-400">
@@ -47,7 +47,7 @@ function Detail({ label, value }: { label: string; value: string }) {
       </span>
 
       <strong className="mt-1 block text-sm font-medium text-gray-900">
-        {value}
+        {value || "—"}
       </strong>
     </div>
   );
