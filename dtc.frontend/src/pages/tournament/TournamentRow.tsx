@@ -13,7 +13,7 @@ interface TournamentRowProps {
 
 const modeLabels: Record<TournamentMode, string> = {
   [TournamentMode.GroupStage]: "Gruppenphase",
-  [TournamentMode.GrouStageandKnockout]: "Gruppenphase & K.-o.",
+  [TournamentMode.GroupStageandKnockout]: "Gruppenphase & K.-o.",
 };
 
 function formatStartDate(startDate: string) {

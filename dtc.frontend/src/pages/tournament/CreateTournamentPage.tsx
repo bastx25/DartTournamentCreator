@@ -15,7 +15,7 @@ const modeOptions = [
     description: "Das Turnier wird in Gruppen ausgespielt.",
   },
   {
-    value: TournamentMode.GrouStageandKnockout,
+    value: TournamentMode.GroupStageandKnockout,
     label: "Gruppenphase & K.-o.-Phase",
     description: "Auf die Gruppenphase folgt eine K.-o.-Runde.",
   },

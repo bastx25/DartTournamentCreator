@@ -272,7 +272,7 @@ export function ManageTournamentPage() {
 
     // if (
     //   !isPowerOfTwo(qualifiersPerGroup * groupCount) &&
-    //   selectedTConfig?.mode == TournamentMode.GrouStageandKnockout
+    //   selectedTConfig?.mode == TournamentMode.GroupStageandKnockout
     // ) {
     //   setError(
     //     "Es kann keine Ko-Phase genertiert werden, da die Gruppen oder Weiterkommenden Spieler keine 2er Potenz ergeben",
@@ -945,7 +945,7 @@ export function ManageTournamentPage() {
 
                 {knockoutPrepared &&
                   selectedTConfig?.mode ===
-                    TournamentMode.GrouStageandKnockout && (
+                    TournamentMode.GroupStageandKnockout && (
                     <button
                       type="button"
                       disabled={generating || knockoutGenerated}
