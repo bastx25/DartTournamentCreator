@@ -1,5 +1,4 @@
-﻿using DTC.Api.Data;
-using DTC.Api.Dtos.Player;
+using DTC.Api.Data;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,35 +18,49 @@ namespace DTC.Api.Repositories
         {
             await _context.Players.AddAsync(player);
             await _context.SaveChangesAsync();
-
             return player;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
             var playerModel = await _context.Players.FindAsync(id);
-
             if (playerModel == null) return false;
 
             _context.Players.Remove(playerModel);
             try
             {
                 await _context.SaveChangesAsync();
-            }catch
+            }
+            catch
             {
                 return false;
             }
-            
 
             return true;
         }
+
+        public async Task<bool> DeleteAsync(int id, string userId)
+        {
+            var playerModel = await _context.Players
+                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+            if (playerModel == null) return false;
+
+            _context.Players.Remove(playerModel);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<Player> UpdateAsync(Player player)
         {
-            // Die Entity ist bereits vom DbContext gecached/getrackt,
-            // Change Tracking erkennt geänderte Properties automatisch.
-
             await _context.SaveChangesAsync();
-
             return player;
         }
 
@@ -56,10 +69,24 @@ namespace DTC.Api.Repositories
             return await _context.Players.ToListAsync();
         }
 
+        public async Task<List<Player>> GetByUserIdAsync(string userId)
+        {
+            return await _context.Players
+                .Where(p => p.UserId == userId)
+                .OrderBy(p => p.LastName)
+                .ThenBy(p => p.FirstName)
+                .ToListAsync();
+        }
+
         public async Task<Player?> GetByIdAsync(int id)
         {
             return await _context.Players.FindAsync(id);
         }
 
+        public async Task<Player?> GetByIdAndUserIdAsync(int id, string userId)
+        {
+            return await _context.Players
+                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+        }
     }
 }

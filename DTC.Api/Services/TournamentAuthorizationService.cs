@@ -64,5 +64,58 @@ namespace DTC.Api.Services
             return await _context.TournamentPlayers
                 .AnyAsync(tp => tp.Id == tournamentPlayerId && tp.Tournament.UserId == userId);
         }
+
+        public async Task<bool> HasPlayerAccessAsync(int playerId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+
+            return await _context.Players
+                .AnyAsync(p => p.Id == playerId && p.UserId == userId);
+        }
+
+        public async Task<bool> HasAllPlayersAccessAsync(IEnumerable<int> playerIds, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+
+            var idList = playerIds?.Distinct().ToList() ?? new List<int>();
+            if (idList.Count == 0) return true;
+
+            var matchingCount = await _context.Players
+                .CountAsync(p => idList.Contains(p.Id) && p.UserId == userId);
+
+            return matchingCount == idList.Count;
+        }
+
+        public async Task<bool> HasLocationAccessAsync(int locationId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+
+            return await _context.Locations
+                .AnyAsync(l => l.Id == locationId && l.UserId == userId);
+        }
+
+        public async Task<bool> HasBoardAccessAsync(int boardId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+
+            return await _context.Boards
+                .AnyAsync(b => b.Id == boardId && b.UserId == userId);
+        }
+
+        public async Task<int> GetActiveBoardsCountAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return 0;
+
+            return await _context.Boards
+                .CountAsync(b => b.IsActive && b.UserId == userId);
+        }
+
+        public async Task<int> GetLocationsCountAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return 0;
+
+            return await _context.Locations
+                .CountAsync(l => l.UserId == userId);
+        }
     }
 }

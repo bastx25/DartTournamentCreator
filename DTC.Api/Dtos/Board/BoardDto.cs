@@ -1,5 +1,3 @@
-﻿using DTC.Api.Dtos.Location;
-
 namespace DTC.Api.Dtos.Board
 {
     public class BoardDto
@@ -7,8 +5,6 @@ namespace DTC.Api.Dtos.Board
         public int Id { get; set; }
 
         public int LocationId { get; set; }
-
-        public int Number { get; set; }
 
         public string? Label { get; set; }
 

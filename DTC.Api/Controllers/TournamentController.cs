@@ -127,6 +127,30 @@ namespace DTC.Api.Controllers
                 return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
             }
 
+            var boardCount = await _authService.GetActiveBoardsCountAsync(userId);
+            var locationCount = await _authService.GetLocationsCountAsync(userId);
+            if (boardCount == 0 && locationCount == 0)
+            {
+                return BadRequest(new { message = "Es sind weder Austragungsorte noch Dartboards vorhanden. Bitte lege zuerst mindestens einen Austragungsort und mindestens ein Dartboard an." });
+            }
+            if (boardCount == 0)
+            {
+                return BadRequest(new { message = "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst." });
+            }
+            if (locationCount == 0)
+            {
+                return BadRequest(new { message = "Es sind noch keine Austragungsorte vorhanden. Bitte lege zuerst mindestens einen Austragungsort an." });
+            }
+
+            if (dto.PlayerIds != null && dto.PlayerIds.Any())
+            {
+                var hasPlayersAccess = await _authService.HasAllPlayersAccessAsync(dto.PlayerIds, userId);
+                if (!hasPlayersAccess)
+                {
+                    return BadRequest(new { message = "Ein oder mehrere ausgewählte Spieler gehören nicht zu deinem Benutzerkonto." });
+                }
+            }
+
             try
             {
                 await _configRepo.UpdateConfig(id, dto);
@@ -153,6 +177,31 @@ namespace DTC.Api.Controllers
                 return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
             }
 
+            var boardCount = await _authService.GetActiveBoardsCountAsync(userId);
+            var locationCount = await _authService.GetLocationsCountAsync(userId);
+            if (boardCount == 0 && locationCount == 0)
+            {
+                return BadRequest(new { message = "Es sind weder Austragungsorte noch Dartboards vorhanden. Bitte lege zuerst mindestens einen Austragungsort und mindestens ein Dartboard an." });
+            }
+            if (boardCount == 0)
+            {
+                return BadRequest(new { message = "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst." });
+            }
+            if (locationCount == 0)
+            {
+                return BadRequest(new { message = "Es sind noch keine Austragungsorte vorhanden. Bitte lege zuerst mindestens einen Austragungsort an." });
+            }
+
+            var allPlayerIds = dto.Groups?.SelectMany(g => g.PlayerIds).ToList() ?? new List<int>();
+            if (allPlayerIds.Any())
+            {
+                var hasPlayersAccess = await _authService.HasAllPlayersAccessAsync(allPlayerIds, userId);
+                if (!hasPlayersAccess)
+                {
+                    return BadRequest(new { message = "Ein oder mehrere ausgewählte Spieler gehören nicht zu deinem Benutzerkonto." });
+                }
+            }
+
             try
             {
                 await _matchMakerService.SaveManualGroupsAsync(id, dto);
@@ -176,6 +225,12 @@ namespace DTC.Api.Controllers
             if (!hasAccess)
             {
                 return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
+            var boardCount = await _authService.GetActiveBoardsCountAsync(userId);
+            if (boardCount == 0)
+            {
+                return BadRequest(new { message = "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst." });
             }
 
             try

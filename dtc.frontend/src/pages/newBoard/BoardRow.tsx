@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { BoardDto } from "../../dtos/board/BoardDto";
 
 interface BoardRowProps {
@@ -17,41 +18,37 @@ export function BoardRow({
   onUpdate,
   getBoardLocation,
 }: BoardRowProps) {
+  const displayName = board.label || `Board #${board.id}`;
+
   return (
     <div
       onClick={() => onSelect(board)}
-      className={`group grid min-h-11 cursor-pointer grid-cols-[1fr_180px_180px_80px] items-center px-4 transition-colors portrait:max-sm:grid-cols-[1fr_80px] ${
+      className={`group grid min-h-12 cursor-pointer grid-cols-[1.5fr_1.5fr_100px_140px] items-center px-4 transition-colors portrait:max-sm:grid-cols-[1fr_80px] ${
         selected ? "bg-blue-50" : "bg-white hover:bg-gray-50"
       }`}
     >
-      {/* Board */}
-      <div className="flex min-w-0 items-center gap-2 portrait:max-sm:hidden">
+      {/* Board Label */}
+      <div className="flex min-w-0 items-center gap-2">
         {selected && (
           <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
         )}
 
-        <span
-          className={`truncate text-sm font-medium ${
-            selected ? "text-blue-600" : "text-gray-900"
-          }`}
-        >
-          {board.number}
-        </span>
-      </div>
-
-      {/* Label */}
-      <div className="min-w-0">
-        {board.label ? (
-          <span className="truncate text-sm text-gray-500">{board.label}</span>
-        ) : (
-          <span className="text-sm text-gray-300">—</span>
-        )}
+        <div className="min-w-0">
+          <span
+            className={`truncate block text-sm font-semibold ${
+              selected ? "text-blue-600" : "text-gray-900"
+            }`}
+          >
+            {displayName}
+          </span>
+          <span className="text-xs text-gray-400">ID: #{board.id}</span>
+        </div>
       </div>
 
       {/* Location */}
-      <div className="min-w-0 shrink-0 portrait:max-sm:hidden">
+      <div className="min-w-0 portrait:max-sm:hidden">
         {board.locationId ? (
-          <span className="truncate text-sm text-gray-500">
+          <span className="truncate block text-sm text-gray-600">
             {getBoardLocation(board.locationId)}
           </span>
         ) : (
@@ -59,18 +56,40 @@ export function BoardRow({
         )}
       </div>
 
+      {/* Status */}
+      <div className="portrait:max-sm:hidden">
+        <span
+          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+            board.isActive
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-gray-100 text-gray-500 border border-gray-200"
+          }`}
+        >
+          {board.isActive ? "Aktiv" : "Inaktiv"}
+        </span>
+      </div>
+
       {/* Actions */}
       <div className="flex shrink-0 items-center justify-end gap-1">
+        <Link
+          to={`/boards/${board.id}/qr`}
+          onClick={(e) => e.stopPropagation()}
+          className="rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 transition"
+          title="QR-Code anzeigen"
+        >
+          QR
+        </Link>
+
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onUpdate(board);
           }}
-          className="rounded-md px-1.5 py-1 text-blue-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
-          title="Edit board"
+          className="rounded-md px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 transition"
+          title="Board bearbeiten"
         >
-          Edit
+          Bearbeiten
         </button>
 
         <button
@@ -79,10 +98,10 @@ export function BoardRow({
             e.stopPropagation();
             onDelete(board);
           }}
-          className="rounded-md px-1.5 py-1 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
-          title="Delete board"
+          className="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition"
+          title="Board löschen"
         >
-          Delete
+          Löschen
         </button>
       </div>
     </div>

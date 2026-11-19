@@ -2,7 +2,7 @@ import type { BoardDto } from "../../dtos/board/BoardDto";
 
 interface BoardDetailsProps {
   board: BoardDto | null;
-  getBoardLocation: (boardId: number) => string;
+  getBoardLocation: (locationId: number) => string;
 }
 
 export function BoardDetails({ board, getBoardLocation }: BoardDetailsProps) {
@@ -16,22 +16,22 @@ export function BoardDetails({ board, getBoardLocation }: BoardDetailsProps) {
             </p>
 
             <h2 className="text-xl font-semibold text-gray-900">
-              Board {board.label}
+              {board.label || `Board #${board.id}`}
             </h2>
           </div>
 
           <div className="space-y-4">
-            <Detail label="Nummer" value={board.number.toString() ?? ""} />
-            <Detail label="Label" value={board.label ?? ""} />
+            <Detail label="ID" value={`#${board.id}`} />
+            <Detail label="Bezeichnung" value={board.label || "—"} />
             <Detail
-              label="Addresse"
+              label="Austragungsort"
               value={getBoardLocation(board.locationId)}
             />
-            <Detail label="Ist Aktiv" value={board.isActive ? "Ja" : "Nein"} />
+            <Detail label="Status" value={board.isActive ? "Aktiv" : "Inaktiv"} />
           </div>
         </>
       ) : (
-        <p className="text-sm text-gray-500">Wähle eine Board aus.</p>
+        <p className="text-sm text-gray-500">Wähle ein Board aus.</p>
       )}
     </aside>
   );

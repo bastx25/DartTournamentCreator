@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import Header from "../../components/Header";
 import { getPlayers } from "../../services/playerService";
+import { getBoards } from "../../services/boardService";
+import { getLocations } from "../../services/locationService";
+import type { BoardDto } from "../../dtos/board/BoardDto";
+import type { LocationDto } from "../../dtos/location/LocationDto";
 
 import {
   deleteTournament,
@@ -49,6 +53,8 @@ export function ManageTournamentPage() {
     useState<TournamentDto | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [players, setPlayers] = useState<PlayerDto[]>([]);
+  const [boards, setBoards] = useState<BoardDto[]>([]);
+  const [locations, setLocations] = useState<LocationDto[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [groupCount, setGroupCount] = useState(2);
   const groupSize = 5;
@@ -75,6 +81,9 @@ export function ManageTournamentPage() {
   const unassignedPlayers = players.filter(
     (p) => selectedPlayerIds.includes(p.id) && !assignedPlayerIds.includes(p.id),
   );
+
+  const hasBoards = boards.length > 0;
+  const hasLocations = locations.length > 0;
 
   const handleAddManualGroup = () => {
     const nextIndex = manualGroups.length;
@@ -131,6 +140,23 @@ export function ManageTournamentPage() {
   };
 
   const handleSaveManual = async () => {
+    if (!hasBoards || !hasLocations) {
+      if (!hasBoards && !hasLocations) {
+        setError(
+          "Es sind weder Austragungsorte noch Dartboards vorhanden. Bitte lege zuerst mindestens einen Austragungsort und mindestens ein Dartboard an.",
+        );
+      } else if (!hasBoards) {
+        setError(
+          "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst.",
+        );
+      } else {
+        setError(
+          "Es sind noch keine Austragungsorte vorhanden. Bitte lege zuerst mindestens einen Austragungsort an.",
+        );
+      }
+      return;
+    }
+
     if (manualGroups.length === 0) {
       setError("Erstelle bitte mindestens eine Gruppe.");
       return;
@@ -186,14 +212,19 @@ export function ManageTournamentPage() {
         setLoading(true);
         setError(null);
 
-        const [tournamentData, playerData, tPlayerData] = await Promise.all([
-          getTournament(tournamentId),
-          getPlayers(),
-          getTPlayers(tournamentId),
-        ]);
+        const [tournamentData, playerData, tPlayerData, boardData, locationData] =
+          await Promise.all([
+            getTournament(tournamentId),
+            getPlayers(),
+            getTPlayers(tournamentId),
+            getBoards(),
+            getLocations(),
+          ]);
 
         setTournament(tournamentData);
         setPlayers(playerData);
+        setBoards(boardData);
+        setLocations(locationData);
 
         setSelectedPlayerIds(
           tPlayerData.map((p: TournamentPlayerDto) => p.playerId),
@@ -265,6 +296,23 @@ export function ManageTournamentPage() {
   };
 
   const handleGenerate = async () => {
+    if (!hasBoards || !hasLocations) {
+      if (!hasBoards && !hasLocations) {
+        setError(
+          "Es sind weder Austragungsorte noch Dartboards vorhanden. Bitte lege zuerst mindestens einen Austragungsort und mindestens ein Dartboard an.",
+        );
+      } else if (!hasBoards) {
+        setError(
+          "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst.",
+        );
+      } else {
+        setError(
+          "Es sind noch keine Austragungsorte vorhanden. Bitte lege zuerst mindestens einen Austragungsort an.",
+        );
+      }
+      return;
+    }
+
     if (selectedPlayers === 0 || groupCount < 1) {
       setError("Prüfe Spieleranzahl oder Gruppenzahl.");
       return;
@@ -318,6 +366,13 @@ export function ManageTournamentPage() {
   //   .some((braket) => braket.matches.length > 0) ?? false;
 
   const handleGenerateKnockout = async () => {
+    if (!hasBoards) {
+      setError(
+        "Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst.",
+      );
+      return;
+    }
+
     try {
       setGenerating(true);
       setError(null);
@@ -447,6 +502,85 @@ export function ManageTournamentPage() {
             >
               {error ?? success}
             </p>
+          </div>
+        )}
+
+        {/* Missing Prerequisites Warnings (Fall A, B, C) */}
+        {!hasBoards && !hasLocations && (
+          <div className="mb-6 rounded-xl border border-red-300 bg-red-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1 space-y-3">
+                <h3 className="text-base font-bold text-red-900">
+                  Erforderliche Voraussetzungen fehlen
+                </h3>
+                <p className="text-sm text-red-800">
+                  Es sind noch keine Austragungsorte und keine Dartboards vorhanden. Bitte lege zuerst mindestens einen Austragungsort und mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <Link
+                    to="/locations"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-800 transition"
+                  >
+                    🏢 Austragungsort anlegen →
+                  </Link>
+                  <Link
+                    to="/boards"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-800 transition"
+                  >
+                    🎯 Dartboard anlegen →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!hasBoards && hasLocations && (
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-amber-900">
+                  Keine Dartboards vorhanden
+                </h3>
+                <p className="mt-1 text-sm text-amber-800">
+                  Es sind noch keine Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an, bevor du mit der Turnierverwaltung fortfährst.
+                </p>
+                <div className="mt-3">
+                  <Link
+                    to="/boards"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-800 transition"
+                  >
+                    🎯 Zur Dartboard-Verwaltung →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {hasBoards && !hasLocations && (
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-amber-900">
+                  Keine Austragungsorte vorhanden
+                </h3>
+                <p className="mt-1 text-sm text-amber-800">
+                  Es sind noch keine Austragungsorte vorhanden. Bitte lege zuerst mindestens einen Austragungsort an.
+                </p>
+                <div className="mt-3">
+                  <Link
+                    to="/locations"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-800 transition"
+                  >
+                    🏢 Zur Location-Verwaltung →
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -850,7 +984,7 @@ export function ManageTournamentPage() {
 
                     <button
                       type="button"
-                      disabled={generating || selectedPlayers < 2}
+                      disabled={generating || selectedPlayers < 2 || !hasBoards || !hasLocations}
                       onClick={() => void handleGenerate()}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                     >
@@ -898,7 +1032,9 @@ export function ManageTournamentPage() {
                       disabled={
                         generating ||
                         manualGroups.length === 0 ||
-                        manualGroups.some((g) => g.playerIds.length < 2)
+                        manualGroups.some((g) => g.playerIds.length < 2) ||
+                        !hasBoards ||
+                        !hasLocations
                       }
                       onClick={() => void handleSaveManual()}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
@@ -988,7 +1124,7 @@ export function ManageTournamentPage() {
                     TournamentMode.GroupStageandKnockout && (
                     <button
                       type="button"
-                      disabled={generating || knockoutGenerated}
+                      disabled={generating || knockoutGenerated || !hasBoards}
                       onClick={() => void handleGenerateKnockout()}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >

@@ -6,13 +6,16 @@ namespace DTC.Api.Models
     public class Board
     {
         public int Id { get; set; }
+
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser User { get; set; } = null!;
+
         public int LocationId { get; set; } // Foreign Key (Required)
         public Location Location { get; set; } = null!;
-        public int Number { get; set; }     // Board-Nummer (z.B. 1, 2, 3)
-        public string? Label { get; set; }  // Optional: "Board A", "Show-Board"
+
+        public string? Label { get; set; }  // "Board links", "Board A", etc.
         public bool IsActive { get; set; } = true;
 
-        
         public ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 }

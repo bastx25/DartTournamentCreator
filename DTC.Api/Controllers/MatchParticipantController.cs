@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DTC.Api.Dtos.MatchParticipant;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
@@ -10,23 +11,38 @@ namespace DTC.Api.Controllers
     [Authorize]
     [Route("api/matchparticipants")]
     [ApiController]
-
     public class MatchParticipantController : ControllerBase
     {
         private readonly IMatchParticipantRepository _participantRepo;
         private readonly IMatchMakerService _matchMakerService;
+        private readonly ITournamentAuthorizationService _authService;
 
         public MatchParticipantController(
             IMatchParticipantRepository participantRepo,
-            IMatchMakerService matchMakerService)
+            IMatchMakerService matchMakerService,
+            ITournamentAuthorizationService authService)
         {
             _participantRepo = participantRepo;
             _matchMakerService = matchMakerService;
+            _authService = authService;
+        }
+
+        private string GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Benutzer ist nicht authentifiziert.");
         }
 
         [HttpGet("match/{matchId:int}")]
         public async Task<ActionResult<IEnumerable<MatchParticipantDto>>> GetByMatchId([FromRoute] int matchId)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasMatchAccessAsync(matchId, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Match nicht gefunden oder Zugriff verweigert." });
+            }
+
             var participants = await _participantRepo.GetByMatchIdAsync(matchId);
             var dtos = participants.Select(p => p.ToMatchParticipantDto());
             return Ok(dtos);
@@ -35,10 +51,17 @@ namespace DTC.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<MatchParticipantDto>> GetById([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
             var participant = await _participantRepo.GetByIdAsync(id);
             if (participant == null)
             {
                 return NotFound();
+            }
+
+            var hasAccess = await _authService.HasMatchAccessAsync(participant.MatchId, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Teilnehmer nicht gefunden oder Zugriff verweigert." });
             }
 
             return Ok(participant.ToMatchParticipantDto());
@@ -47,6 +70,13 @@ namespace DTC.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<MatchParticipantDto>> Create([FromBody] CreateMatchParticipantDto dto)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasMatchAccessAsync(dto.MatchId, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Match nicht gefunden oder Zugriff verweigert." });
+            }
+
             var entity = dto.ToEntityFromCreate();
             var createdParticipant = await _participantRepo.CreateAsync(entity);
 
@@ -60,10 +90,17 @@ namespace DTC.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateMatchParticipantDto dto)
         {
+            var userId = GetCurrentUserId();
             var existingParticipant = await _participantRepo.GetByIdAsync(id);
             if (existingParticipant == null)
             {
                 return NotFound();
+            }
+
+            var hasAccess = await _authService.HasMatchAccessAsync(existingParticipant.MatchId, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Match nicht gefunden oder Zugriff verweigert." });
             }
 
             dto.UpdateMatchParticipantEntity(existingParticipant);
@@ -77,6 +114,19 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var existing = await _participantRepo.GetByIdAsync(id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            var hasAccess = await _authService.HasMatchAccessAsync(existing.MatchId, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Match nicht gefunden oder Zugriff verweigert." });
+            }
+
             var success = await _participantRepo.DeleteAsync(id);
             if (!success)
             {

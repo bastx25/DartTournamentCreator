@@ -150,6 +150,21 @@ using (var scope = app.Services.CreateScope())
             }
             db.SaveChanges();
         }
+
+        // Migrate any legacy players, locations or boards lacking UserId
+        var legacyPlayers = db.Players.Where(p => string.IsNullOrEmpty(p.UserId)).ToList();
+        foreach (var p in legacyPlayers) p.UserId = defaultUser.Id;
+
+        var legacyLocations = db.Locations.Where(l => string.IsNullOrEmpty(l.UserId)).ToList();
+        foreach (var l in legacyLocations) l.UserId = defaultUser.Id;
+
+        var legacyBoards = db.Boards.Where(b => string.IsNullOrEmpty(b.UserId)).ToList();
+        foreach (var b in legacyBoards) b.UserId = defaultUser.Id;
+
+        if (legacyPlayers.Any() || legacyLocations.Any() || legacyBoards.Any())
+        {
+            db.SaveChanges();
+        }
     }
     catch (Exception ex)
     {

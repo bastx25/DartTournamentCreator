@@ -41,8 +41,10 @@ namespace DTC.Api.Repositories
 
                     playerIds ??= new List<int>();
 
+                    var tournament = await _context.Tournaments.FindAsync(tournamentId);
+
                     var newPlayers = await _context.Players
-                        .Where(p => playerIds.Contains(p.Id))
+                        .Where(p => playerIds.Contains(p.Id) && (tournament == null || p.UserId == tournament.UserId))
                         .ToListAsync();
 
                     var effectiveStartTime = options.StartTime ?? DateTimeOffset.UtcNow;

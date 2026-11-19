@@ -80,7 +80,6 @@ export function useBoards() {
 
       const updatedBoard = await updateBoard(board.id, {
         locationId: board.locationId,
-        number: board.number,
         label: board.label,
         isActive: board.isActive,
       });
@@ -113,7 +112,6 @@ export function useBoards() {
 
       const newBoard = await createBoard({
         locationId: board.locationId,
-        number: board.number,
         label: board.label,
         isActive: board.isActive,
       });

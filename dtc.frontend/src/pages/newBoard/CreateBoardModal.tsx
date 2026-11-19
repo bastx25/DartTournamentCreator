@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import {
   createBoardDtoSchema,
   type CreateBoardDto,
@@ -18,10 +19,11 @@ export function CreateBoardModal({
   onConfirm,
   locations,
 }: CreateBoardModalProps) {
-  const [number, setNumber] = useState(0);
   const [label, setLabel] = useState("");
-  const [isActive, setIsActive] = useState<boolean>(false);
-  const [locationId, setLocationId] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(true);
+  const [locationId, setLocationId] = useState<number>(
+    locations.length === 1 ? locations[0].id : 0,
+  );
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreateBoardDto, string>>
@@ -32,8 +34,7 @@ export function CreateBoardModal({
 
     const formData: CreateBoardDto = {
       locationId,
-      number,
-      label,
+      label: label.trim() || null,
       isActive,
     };
 
@@ -55,9 +56,10 @@ export function CreateBoardModal({
     }
 
     setErrors({});
-
     onConfirm(result.data);
   };
+
+  const hasNoLocations = locations.length === 0;
 
   return (
     <div
@@ -105,142 +107,130 @@ export function CreateBoardModal({
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Wähle eine Location aus und gib anschließend die Daten des Boards
-              ein.
+              Wähle einen Austragungsort aus und gib eine Bezeichnung für das Board ein.
             </p>
 
-            {/* Form fields */}
-            <div className="mt-6 space-y-4">
-              {/* Location */}
-              <div>
-                <label
-                  htmlFor="location"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
+            {hasNoLocations ? (
+              <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-medium text-amber-800">
+                  Es sind noch keine Austragungsorte vorhanden.
+                </p>
+                <p className="mt-1 text-xs text-amber-700">
+                  Bitte lege zuerst mindestens einen Austragungsort an, bevor du ein Dartboard erstellst.
+                </p>
+                <Link
+                  to="/locations"
+                  className="mt-3 inline-block rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-amber-700"
                 >
-                  Location
-                </label>
-
-                <select
-                  id="location"
-                  value={locationId}
-                  onChange={(e) => setLocationId(Number(e.target.value))}
-                  disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.locationId
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                  }`}
-                >
-                  <option value={0}>Location auswählen...</option>
-
-                  {locations.map((location) => (
-                    <option key={location.id} value={location.id}>
-                      {location.name}, {location.address}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.locationId && (
-                  <p className="mt-1.5 text-sm text-red-600">
-                    {errors.locationId}
-                  </p>
-                )}
+                  Zur Location-Verwaltung →
+                </Link>
               </div>
-
-              {/* Number */}
-              <div>
-                <label
-                  htmlFor="number"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                  Nummer
-                </label>
-
-                <input
-                  id="number"
-                  type="number"
-                  value={number}
-                  onChange={(e) => setNumber(Number(e.target.value))}
-                  disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.number
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                  }`}
-                  placeholder="z. B. 1"
-                />
-
-                {errors.number && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.number}</p>
-                )}
-              </div>
-
-              {/* Label */}
-              <div>
-                <label
-                  htmlFor="label"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                  Label
-                </label>
-
-                <input
-                  id="label"
-                  type="text"
-                  value={label}
-                  onChange={(e) => setLabel(e.target.value)}
-                  disabled={adding}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.label
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                  }`}
-                  placeholder="Label"
-                />
-
-                {errors.label && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.label}</p>
-                )}
-              </div>
-
-              {/* Is Active */}
-              <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5">
+            ) : (
+              /* Form fields */
+              <div className="mt-6 space-y-4">
+                {/* Location */}
                 <div>
                   <label
-                    htmlFor="isActive"
-                    className="text-sm font-medium text-gray-700"
+                    htmlFor="location"
+                    className="mb-1.5 block text-sm font-medium text-gray-700"
                   >
-                    Aktiv
+                    Austragungsort (Location) *
                   </label>
 
-                  <p className="text-xs text-gray-500">
-                    Soll das Board aktiv sein?
-                  </p>
+                  <select
+                    id="location"
+                    value={locationId}
+                    onChange={(e) => setLocationId(Number(e.target.value))}
+                    disabled={adding}
+                    className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                      errors.locationId
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                    }`}
+                  >
+                    <option value={0}>Austragungsort auswählen...</option>
+
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name} {loc.address ? `(${loc.address})` : ""}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.locationId && (
+                    <p className="mt-1.5 text-sm text-red-600">
+                      {errors.locationId}
+                    </p>
+                  )}
                 </div>
 
-                <button
-                  type="button"
-                  id="isActive"
-                  disabled={adding}
-                  onClick={() => setIsActive((current) => !current)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                    isActive ? "bg-blue-600" : "bg-gray-300"
-                  }`}
-                  role="switch"
-                  aria-checked={isActive}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 translate-y-0.5 rounded-full bg-white shadow-sm transition-transform ${
-                      isActive ? "translate-x-5" : "translate-x-0.5"
-                    }`}
-                  />
-                </button>
-              </div>
+                {/* Label */}
+                <div>
+                  <label
+                    htmlFor="label"
+                    className="mb-1.5 block text-sm font-medium text-gray-700"
+                  >
+                    Bezeichnung (Label)
+                  </label>
 
-              {errors.isActive && (
-                <p className="mt-1.5 text-sm text-red-600">{errors.isActive}</p>
-              )}
-            </div>
+                  <input
+                    id="label"
+                    type="text"
+                    value={label}
+                    onChange={(e) => setLabel(e.target.value)}
+                    disabled={adding}
+                    className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                      errors.label
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                    }`}
+                    placeholder="z. B. Board links, Board 1"
+                  />
+
+                  {errors.label && (
+                    <p className="mt-1.5 text-sm text-red-600">{errors.label}</p>
+                  )}
+                </div>
+
+                {/* Is Active */}
+                <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5">
+                  <div>
+                    <label
+                      htmlFor="isActive"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Aktiv
+                    </label>
+
+                    <p className="text-xs text-gray-500">
+                      Soll das Board für Spiele aktiv verfügbar sein?
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    id="isActive"
+                    disabled={adding}
+                    onClick={() => setIsActive((current) => !current)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                      isActive ? "bg-blue-600" : "bg-gray-300"
+                    }`}
+                    role="switch"
+                    aria-checked={isActive}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 translate-y-0.5 rounded-full bg-white shadow-sm transition-transform ${
+                        isActive ? "translate-x-5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {errors.isActive && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.isActive}</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -254,36 +244,38 @@ export function CreateBoardModal({
               Abbrechen
             </button>
 
-            <button
-              type="submit"
-              disabled={adding}
-              className="inline-flex min-w-32 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {adding && (
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
-              )}
+            {!hasNoLocations && (
+              <button
+                type="submit"
+                disabled={adding}
+                className="inline-flex min-w-32 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {adding && (
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                )}
 
-              {adding ? "Speichern..." : "Board erstellen"}
-            </button>
+                {adding ? "Speichern..." : "Board erstellen"}
+              </button>
+            )}
           </div>
         </form>
       </div>

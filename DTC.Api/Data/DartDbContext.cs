@@ -25,6 +25,12 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(p => p.Id);
 
+                entity.HasIndex(p => p.UserId);
+
+                entity.HasOne(p => p.User)
+                    .WithMany(u => u.Players)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
 
@@ -115,6 +121,13 @@ namespace DTC.Api.Data
             modelBuilder.Entity<Location>(entity =>
             {
                 entity.HasKey(l => l.Id);
+
+                entity.HasIndex(l => l.UserId);
+
+                entity.HasOne(l => l.User)
+                    .WithMany(u => u.Locations)
+                    .HasForeignKey(l => l.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
 
@@ -126,19 +139,17 @@ namespace DTC.Api.Data
             {
                 entity.HasKey(b => b.Id);
 
+                entity.HasIndex(b => b.UserId);
+
+                entity.HasOne(b => b.User)
+                    .WithMany(u => u.Boards)
+                    .HasForeignKey(b => b.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(b => b.Location)
                     .WithMany(l => l.Boards)
                     .HasForeignKey(b => b.LocationId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                // Board-Nummer muss innerhalb einer Location eindeutig sein
-                entity.HasIndex(b => new
-                {
-                    b.LocationId,
-                    b.Number
-                })
-                .IsUnique();
-
             });
 
 

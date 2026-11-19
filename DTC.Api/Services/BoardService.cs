@@ -1,4 +1,4 @@
-﻿using DTC.Api.Data;
+using DTC.Api.Data;
 using DTC.Api.Enums;
 using DTC.Api.Models;
 using Microsoft.AspNetCore.Components.Web;
@@ -16,12 +16,13 @@ namespace DTC.Api.Services
         }
 
         public async Task SetBoards(
-    List<Group> groups,
-    DateTimeOffset startTime,
-    int matchDuration,
-    int breakMinutes)
+            List<Group> groups,
+            DateTimeOffset startTime,
+            int matchDuration,
+            int breakMinutes,
+            string? userId = null)
         {
-            var boards = await GetActiveBoards();
+            var boards = await GetActiveBoards(userId);
 
             var matches = GetMatchesFromGroups(groups)
                 .Where(m => m.Status != MatchStatus.Completed)
@@ -29,7 +30,7 @@ namespace DTC.Api.Services
                 .ToList();
 
             if (!boards.Any())
-                throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
+                throw new InvalidOperationException("Es sind noch keine aktiven Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an.");
 
             // Alle TournamentPlayer laden, die in den zu planenden Matches vorkommen.
             var tournamentPlayerIds = matches
@@ -247,21 +248,27 @@ namespace DTC.Api.Services
         }
 
 
-        public async Task<List<Board>> GetActiveBoards()
+        public async Task<List<Board>> GetActiveBoards(string? userId = null)
         {
-            return await _context.Boards.Where(b => b.IsActive).OrderBy(x => x.Id).ToListAsync();
+            var query = _context.Boards.Where(b => b.IsActive);
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                query = query.Where(b => b.UserId == userId);
+            }
+            return await query.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task SetBoards(
-    List<Braket> brakets,
-    DateTimeOffset startTime,
-    int matchDuration,
-    int breakMinutes)
+            List<Braket> brakets,
+            DateTimeOffset startTime,
+            int matchDuration,
+            int breakMinutes,
+            string? userId = null)
         {
-            var boards = await GetActiveBoards();
+            var boards = await GetActiveBoards(userId);
 
             if (!boards.Any())
-                throw new InvalidOperationException("Keine aktiven Boards verfügbar.");
+                throw new InvalidOperationException("Es sind noch keine aktiven Dartboards vorhanden. Bitte lege zuerst mindestens ein Dartboard an.");
 
             // Brackets nach Sequence sortieren, um die Runden chronologisch abzuarbeiten
             var orderedBrakets = brakets.OrderByDescending(b => b.Sequence).ToList();

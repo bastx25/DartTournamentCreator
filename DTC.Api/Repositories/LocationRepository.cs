@@ -1,4 +1,4 @@
-﻿using DTC.Api.Data;
+using DTC.Api.Data;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +21,27 @@ namespace DTC.Api.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Location>> GetByUserIdAsync(string userId)
+        {
+            return await _context.Locations
+                .Include(l => l.Boards)
+                .Where(l => l.UserId == userId)
+                .OrderBy(l => l.Name)
+                .ToListAsync();
+        }
+
         public async Task<Location?> GetByIdAsync(int id)
         {
             return await _context.Locations
                 .Include(l => l.Boards)
                 .FirstOrDefaultAsync(l => l.Id == id);
+        }
+
+        public async Task<Location?> GetByIdAndUserIdAsync(int id, string userId)
+        {
+            return await _context.Locations
+                .Include(l => l.Boards)
+                .FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
         }
 
         public async Task<Location> CreateAsync(Location location)
@@ -44,6 +60,17 @@ namespace DTC.Api.Repositories
         public async Task<bool> DeleteAsync(int id)
         {
             var location = await _context.Locations.FindAsync(id);
+            if (location == null) return false;
+
+            _context.Locations.Remove(location);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(int id, string userId)
+        {
+            var location = await _context.Locations
+                .FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
             if (location == null) return false;
 
             _context.Locations.Remove(location);

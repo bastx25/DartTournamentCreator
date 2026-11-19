@@ -174,7 +174,7 @@ export function BoardAccessPage() {
     );
   }
 
-  const boardName = board?.label || `Board ${board?.number ?? parsedBoardId}`;
+  const boardName = board?.label || `Board #${parsedBoardId}`;
 
   return (
     <>

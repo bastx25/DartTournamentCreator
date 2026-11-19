@@ -13,7 +13,7 @@ export function DeleteBoardModal({
   onCancel,
   onConfirm,
 }: DeleteBoardModalProps) {
-  const boardName = board.label ? board.label : `Board ${board.number}`;
+  const boardName = board.label ? board.label : `Board #${board.id}`;
 
   return (
     <div

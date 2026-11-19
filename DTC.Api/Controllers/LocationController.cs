@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DTC.Api.Dtos.Location;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
@@ -18,18 +19,29 @@ namespace DTC.Api.Controllers
             _locationRepo = locationRepo;
         }
 
+        private string GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Benutzer ist nicht authentifiziert.");
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LocationDto>>> GetAll()
         {
-            var locations = await _locationRepo.GetAllAsync();
+            var userId = GetCurrentUserId();
+            var locations = await _locationRepo.GetByUserIdAsync(userId);
             return Ok(locations.Select(l => l.ToLocationDto()));
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<LocationDto>> GetById([FromRoute] int id)
         {
-            var location = await _locationRepo.GetByIdAsync(id);
-            if (location == null) return NotFound();
+            var userId = GetCurrentUserId();
+            var location = await _locationRepo.GetByIdAndUserIdAsync(id, userId);
+            if (location == null)
+            {
+                return NotFound(new { message = "Austragungsort nicht gefunden oder Zugriff verweigert." });
+            }
 
             return Ok(location.ToLocationDto());
         }
@@ -37,7 +49,10 @@ namespace DTC.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<LocationDto>> Create([FromBody] CreateLocationDto dto)
         {
+            var userId = GetCurrentUserId();
             var entity = dto.ToEntityFromCreate();
+            entity.UserId = userId;
+
             var created = await _locationRepo.CreateAsync(entity);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToLocationDto());
@@ -46,8 +61,12 @@ namespace DTC.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateLocationDto dto)
         {
-            var existing = await _locationRepo.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            var userId = GetCurrentUserId();
+            var existing = await _locationRepo.GetByIdAndUserIdAsync(id, userId);
+            if (existing == null)
+            {
+                return NotFound(new { message = "Austragungsort nicht gefunden oder Zugriff verweigert." });
+            }
 
             dto.UpdateLocationEntity(existing);
             var location = await _locationRepo.UpdateAsync(existing);
@@ -58,8 +77,12 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var success = await _locationRepo.DeleteAsync(id);
-            if (!success) return NotFound();
+            var userId = GetCurrentUserId();
+            var success = await _locationRepo.DeleteAsync(id, userId);
+            if (!success)
+            {
+                return NotFound(new { message = "Austragungsort nicht gefunden oder Zugriff verweigert." });
+            }
 
             return NoContent();
         }

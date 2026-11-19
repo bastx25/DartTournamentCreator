@@ -1,9 +1,8 @@
 import z from "zod";
 
 export const updateBoardDtoSchema = z.object({
-  locationId: z.number(),
-  number: z.number().int().min(1),
-  label: z.string().max(100).nullable(),
+  locationId: z.number().min(1, "Bitte einen Standort auswählen."),
+  label: z.string().max(100).nullable().optional(),
   isActive: z.boolean(),
 });
 

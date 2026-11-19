@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { LocationDto } from "../../dtos/location/LocationDto";
 import {
@@ -23,9 +22,8 @@ export function UpdateBoardModal({
   locations,
 }: UpdateBoardModalProps) {
   const [locationId, setLocationId] = useState<number>(board.locationId ?? 0);
-  const [number, setNumber] = useState<number>(board.number ?? 0);
   const [label, setLabel] = useState(board.label ?? "");
-  const [isActive, setIsActive] = useState<boolean>(board.isActive ?? false);
+  const [isActive, setIsActive] = useState<boolean>(board.isActive ?? true);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof UpdateBoardDto, string>>
@@ -36,8 +34,7 @@ export function UpdateBoardModal({
 
     const formData: UpdateBoardDto = {
       locationId,
-      number,
-      label: label.trim(),
+      label: label.trim() || null,
       isActive,
     };
 
@@ -126,7 +123,7 @@ export function UpdateBoardModal({
                   htmlFor="location"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Location
+                  Austragungsort (Location) *
                 </label>
 
                 <select
@@ -140,11 +137,11 @@ export function UpdateBoardModal({
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
                 >
-                  <option value={0}>Location auswählen...</option>
+                  <option value={0}>Austragungsort auswählen...</option>
 
-                  {locations.map((location) => (
-                    <option key={location.id} value={location.id}>
-                      {location.name}, {location.address}
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name} {loc.address ? `(${loc.address})` : ""}
                     </option>
                   ))}
                 </select>
@@ -156,41 +153,13 @@ export function UpdateBoardModal({
                 )}
               </div>
 
-              {/* Number */}
-              <div>
-                <label
-                  htmlFor="number"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                  Nummer
-                </label>
-
-                <input
-                  id="number"
-                  type="number"
-                  value={number}
-                  onChange={(e) => setNumber(Number(e.target.value))}
-                  disabled={updating}
-                  className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
-                    errors.number
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                  }`}
-                  placeholder="z. B. 1"
-                />
-
-                {errors.number && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.number}</p>
-                )}
-              </div>
-
               {/* Label */}
               <div>
                 <label
                   htmlFor="label"
                   className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  Label
+                  Bezeichnung (Label)
                 </label>
 
                 <input
@@ -204,7 +173,7 @@ export function UpdateBoardModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Label"
+                  placeholder="z. B. Board links, Board 1"
                 />
 
                 {errors.label && (

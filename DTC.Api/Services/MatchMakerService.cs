@@ -136,7 +136,7 @@ namespace DTC.Api.Services
 
 
             await ScheduleGroupMatches(groups);
-            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes);
+            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes, tournament.UserId);
 
             await _context.Groups.AddRangeAsync(groups);
             await _context.SaveChangesAsync();
@@ -229,7 +229,7 @@ namespace DTC.Api.Services
             ValidateSchedule(startTime, matchDuration, breakMinutes);
 
             await ScheduleGroupMatches(groups);
-            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes);
+            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes, tournament.UserId);
 
             if (tournament.Config != null)
             {
@@ -269,8 +269,7 @@ namespace DTC.Api.Services
                     PlannedStart = null,
                     PlannedEnd = null,
                     ActualEnd = null,
-                    //TODO: Get available Board
-                    BoardId = 1,
+                    BoardId = null,
                 };
 
                 foreach (var tournamentPlayerId in candidate.PlayerIds)
@@ -388,7 +387,7 @@ namespace DTC.Api.Services
                     {
                         BraketId = firstBraket.Id,
                         Braket = firstBraket,
-                        BoardId = 1,
+                        BoardId = null,
                         Status = MatchStatus.Scheduled,
                         Participants = new List<MatchParticipant>
                         {
@@ -416,7 +415,7 @@ namespace DTC.Api.Services
                     {
                         BraketId = firstBraket.Id,
                         Braket = firstBraket,
-                        BoardId = 1,
+                        BoardId = null,
                         Status = MatchStatus.Completed,
                         Participants = new List<MatchParticipant>
                         {
@@ -446,18 +445,20 @@ namespace DTC.Api.Services
                     {
                         BraketId = braket.Id,
                         Braket = braket,
-                        BoardId = 1,
+                        BoardId = null,
                         Status = MatchStatus.Scheduled
                     });
                 }
                 braket.Matches = matches;
             }
 
+            var tournament = await _context.Tournaments.FindAsync(tournamentId);
             await _boardService.SetBoards(
                 brakets,
                 options.StartTime ?? DateTimeOffset.UtcNow,
                 options.MatchDurationMinutes ?? 30,
-                options.BreakBetweenMatchesMinutes ?? 5);
+                options.BreakBetweenMatchesMinutes ?? 5,
+                tournament?.UserId);
 
             await _context.Brakets.AddRangeAsync(brakets);
             await _context.SaveChangesAsync();
@@ -700,7 +701,8 @@ namespace DTC.Api.Services
                 
             await ScheduleGroupMatches(groups);
 
-            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes);
+            var tournament = await _context.Tournaments.FindAsync(tournamentId);
+            await _boardService.SetBoards(groups, startTime, matchDuration, breakMinutes, tournament?.UserId);
 
             return groups.First();
         }

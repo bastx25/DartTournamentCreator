@@ -3,8 +3,7 @@ import z from "zod";
 export const boardDtoSchema = z.object({
   id: z.number(),
   locationId: z.number(),
-  number: z.number(),
-  label: z.string().nullable(),
+  label: z.string().nullable().optional(),
   isActive: z.boolean(),
 });
 

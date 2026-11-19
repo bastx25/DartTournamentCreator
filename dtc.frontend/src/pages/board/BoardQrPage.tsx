@@ -33,7 +33,7 @@ export function BoardQrPage() {
     }
   }, [parsedBoardId]);
 
-  const boardName = board?.label || `${board?.number ?? parsedBoardId}`;
+  const boardName = board?.label || `Board #${parsedBoardId}`;
 
   return (
     <>
