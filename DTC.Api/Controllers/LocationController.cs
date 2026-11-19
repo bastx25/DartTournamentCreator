@@ -1,10 +1,12 @@
 ﻿using DTC.Api.Dtos.Location;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
+    [Authorize]
     [Route("api/locations")]
     [ApiController]
     public class LocationController : ControllerBase

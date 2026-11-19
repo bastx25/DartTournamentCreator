@@ -15,9 +15,11 @@ namespace DTC.Api.Mappers
             {
                 Id = tournament.Id,
                 Name = tournament.Name,
+                Code = tournament.Code,
                 Description = tournament.Description,
                 Status = tournament.Status,
-                StartDate = tournament.StartDate
+                StartDate = tournament.StartDate,
+                UserId = tournament.UserId
             };
         }
 

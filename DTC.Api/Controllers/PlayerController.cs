@@ -4,8 +4,10 @@ using DTC.Api.Dtos.Player;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using DTC.Api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [Route("api/players")]
 [ApiController]
 public class PlayerController : ControllerBase

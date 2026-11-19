@@ -23,6 +23,24 @@ namespace DTC.Api.Repositories
             return await _context.Tournaments.ToListAsync();
         }
 
+        public async Task<IEnumerable<Tournament>> GetByUserIdAsync(string userId)
+        {
+            return await _context.Tournaments
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.StartDate)
+                .ToListAsync();
+        }
+
+        public async Task<Tournament?> GetByCodeAsync(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code)) return null;
+
+            var normalized = code.Trim().ToUpperInvariant();
+            return await _context.Tournaments
+                .Include(t => t.Config)
+                .FirstOrDefaultAsync(t => t.Code == normalized);
+        }
+
 
         public async Task<Tournament?> GetByIdAsync(int id)
         {

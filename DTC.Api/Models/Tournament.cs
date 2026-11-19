@@ -8,10 +8,14 @@ namespace DTC.Api.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
         public string? Description { get; set; }
         public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
         public DateTimeOffset StartDate { get; set; }
         public TournamentConfig Config { get; set; } = null!;
+
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
 
         public ICollection<TournamentPlayer> TournamentPlayers { get; set; }
             = new List<TournamentPlayer>();

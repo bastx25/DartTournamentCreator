@@ -1,9 +1,11 @@
 ﻿using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
+    [AllowAnonymous]
     [Route("api/groups")]
     [ApiController]
     public class GroupController : ControllerBase

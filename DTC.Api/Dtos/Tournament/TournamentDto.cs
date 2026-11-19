@@ -11,10 +11,14 @@ namespace DTC.Api.Dtos.Tournament
 
         public string Name { get; set; } = string.Empty;
 
+        public string Code { get; set; } = string.Empty;
+
         public string? Description { get; set; }
 
         public TournamentStatus Status { get; set; }
 
         public DateTimeOffset StartDate { get; set; }
+
+        public string? UserId { get; set; }
     }
 }

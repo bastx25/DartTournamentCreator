@@ -1,12 +1,13 @@
 using DTC.Api.Enums;
 using DTC.Api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using System.Reflection.Metadata.Ecma335;
 
 namespace DTC.Api.Data
 {
-    public class DartDbContext : DbContext
+    public class DartDbContext : IdentityDbContext<ApplicationUser>
     {
         public DartDbContext(DbContextOptions<DartDbContext> dbContextOptions) : base(dbContextOptions)
         {
@@ -34,6 +35,20 @@ namespace DTC.Api.Data
             modelBuilder.Entity<Tournament>(entity =>
             {
                 entity.HasKey(t => t.Id);
+
+                entity.Property(t => t.Code)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.HasIndex(t => t.Code)
+                    .IsUnique();
+
+                entity.HasIndex(t => t.UserId);
+
+                entity.HasOne(t => t.User)
+                    .WithMany(u => u.Tournaments)
+                    .HasForeignKey(t => t.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(t => t.Config)
                     .WithOne(c => c.Tournament)
@@ -282,6 +297,25 @@ namespace DTC.Api.Data
 
             });
 
+            // =========================================================
+            // RefreshToken
+            // =========================================================
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+
+                entity.Property(r => r.Token)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.HasIndex(r => r.Token);
+
+                entity.HasOne(r => r.User)
+                    .WithMany(u => u.RefreshTokens)
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
         }
 
@@ -297,5 +331,6 @@ namespace DTC.Api.Data
         public DbSet<Tournament> Tournaments { get; set; } = null!;
         public DbSet<TournamentConfig> TournamentConfigs { get; set; } = null!;
         public DbSet<TournamentPlayer> TournamentPlayers { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     }
 }

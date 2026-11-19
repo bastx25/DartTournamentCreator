@@ -81,7 +81,7 @@ export function CreateTournamentPage() {
     const tournament = await handleAdd(result.data);
 
     if (tournament) {
-      navigate("/tournaments");
+      navigate(`/tournaments/${tournament.id}/manage`);
     }
   };
 

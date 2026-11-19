@@ -391,6 +391,46 @@ export function ManageTournamentPage() {
                 {tournament.description ? ` · ${tournament.description}` : ""}
               </p>
             )}
+            {tournament?.code && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-900">
+                  <span className="text-xs font-medium text-blue-700">Turnier-Code:</span>
+                  <span className="font-mono font-bold">{tournament.code}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (tournament.code) {
+                        navigator.clipboard.writeText(tournament.code);
+                      }
+                    }}
+                    className="ml-1 text-xs text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Code kopieren
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (tournament.code) {
+                      const shareUrl = `${window.location.origin}/dashboard?code=${tournament.code}`;
+                      navigator.clipboard.writeText(shareUrl);
+                    }
+                  }}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition shadow-sm"
+                >
+                  🔗 Öffentlichen Dashboard-Link kopieren
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard?code=${tournament.code}`)}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition shadow-sm"
+                >
+                  📊 Im Dashboard öffnen
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

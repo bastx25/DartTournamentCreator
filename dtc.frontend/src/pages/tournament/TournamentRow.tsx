@@ -43,6 +43,23 @@ export function TournamentRow({ tournament, onManage }: TournamentRowProps) {
             {tournament.name}
           </span>
 
+          {tournament.code && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (tournament.code) {
+                  navigator.clipboard.writeText(tournament.code);
+                }
+              }}
+              title="Turnier-Code kopieren"
+              className="inline-flex cursor-pointer items-center gap-1 rounded bg-blue-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-blue-700 hover:bg-blue-100 transition"
+            >
+              {tournament.code}
+              <span className="text-[10px] text-blue-500">📋</span>
+            </button>
+          )}
+
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium lg:hidden ${tournamentStatusClasses[tournament.status]}`}
           >

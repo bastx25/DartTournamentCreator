@@ -4,6 +4,7 @@ using DTC.Api.Enums;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using DTC.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DTC.Api.Controllers
 {
     // Public endpoints used by the QR code on a dart board.
+    [AllowAnonymous]
     [Route("api/board-access")]
     [ApiController]
     public class BoardAccessController : ControllerBase

@@ -1,10 +1,12 @@
 ﻿using DTC.Api.Dtos.Board;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
+    [Authorize]
     [Route("api/boards")]
     [ApiController]
     public class BoardController : ControllerBase

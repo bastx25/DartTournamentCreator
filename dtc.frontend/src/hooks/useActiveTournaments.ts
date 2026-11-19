@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTournaments } from "../services/tournamentService";
+import { getActivePublicTournaments } from "../services/publicTournamentService";
 import type { TournamentDto } from "../dtos/tournament/TournamentDto";
 
 export function useActiveTournaments() {
@@ -13,7 +13,7 @@ export function useActiveTournaments() {
         setLoading(true);
         setError(null);
 
-        const data = await getTournaments({ activeOnly: true, pageSize: 100 });
+        const data = await getActivePublicTournaments();
         setTournaments(data);
       } catch (err) {
         console.error("Fehler beim Laden der aktiven Turniere:", err);

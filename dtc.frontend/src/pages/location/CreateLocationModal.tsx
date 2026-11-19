@@ -123,7 +123,7 @@ export function CreateLocationModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Vorname"
+                  placeholder="Turnsaal"
                 />
 
                 {errors.name && (
@@ -150,7 +150,7 @@ export function CreateLocationModal({
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
                   }`}
-                  placeholder="Nachname"
+                  placeholder="Am Sportplatz 1, 12345 Musterstadt"
                 />
 
                 {errors.address && (

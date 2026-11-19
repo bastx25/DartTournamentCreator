@@ -1,12 +1,15 @@
+using System.Security.Claims;
 using DTC.Api.Dtos.MatchMaker;
 using DTC.Api.Dtos.Tournament;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using DTC.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
+    [Authorize]
     [Route("api/tournaments")]
     [ApiController]
     public class TournamentController : ControllerBase
@@ -17,6 +20,8 @@ namespace DTC.Api.Controllers
         private readonly IBraketRepository _braketRepo;
         private readonly ITournamentConfigRepository _configRepo;
         private readonly ITournamentPlayerRepository _tplayerRepo;
+        private readonly ITournamentAuthorizationService _authService;
+        private readonly ITournamentCodeGenerator _codeGenerator;
 
         public TournamentController(
             ITournamentRepository tournamentRepo,
@@ -24,7 +29,9 @@ namespace DTC.Api.Controllers
             IBraketRepository braketRepository,
             ITournamentConfigRepository tournamentConfigRepository,
             ITournamentPlayerRepository tplayerRepository,
-            IMatchMakerService matchMakerService)
+            IMatchMakerService matchMakerService,
+            ITournamentAuthorizationService authService,
+            ITournamentCodeGenerator codeGenerator)
         {
             _tournamentRepo = tournamentRepo;
             _matchMakerService = matchMakerService;
@@ -32,20 +39,33 @@ namespace DTC.Api.Controllers
             _braketRepo = braketRepository;
             _configRepo = tournamentConfigRepository;
             _tplayerRepo = tplayerRepository;
+            _authService = authService;
+            _codeGenerator = codeGenerator;
+        }
+
+        private string GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Benutzer ist nicht authentifiziert.");
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TournamentDto>>> GetAll()
         {
-            var tournaments = await _tournamentRepo.GetAllAsync();
+            var userId = GetCurrentUserId();
+            var tournaments = await _tournamentRepo.GetByUserIdAsync(userId);
             return Ok(tournaments.Select(t => t.ToTournamentDto()));
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<TournamentDto>> GetById([FromRoute] int id)
         {
-            var tournament = await _tournamentRepo.GetByIdAsync(id);
-            if (tournament == null) return NotFound();
+            var userId = GetCurrentUserId();
+            var tournament = await _authService.GetAuthorizedTournamentAsync(id, userId);
+            if (tournament == null)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
 
             return Ok(tournament.ToTournamentDto());
         }
@@ -53,9 +73,13 @@ namespace DTC.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TournamentDto>> Create([FromBody] CreateTournamentDto dto)
         {
+            var userId = GetCurrentUserId();
             var entity = dto.ToEntityFromCreate();
-            var created = await _tournamentRepo.CreateAsync(entity);
 
+            entity.UserId = userId;
+            entity.Code = await _codeGenerator.GenerateUniqueTournamentCodeAsync();
+
+            var created = await _tournamentRepo.CreateAsync(entity);
             await _configRepo.CreateNewTConfig(tournamentId: created.Id, dto);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToTournamentDto());
@@ -64,8 +88,12 @@ namespace DTC.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTournamentDto dto)
         {
-            var existing = await _tournamentRepo.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            var userId = GetCurrentUserId();
+            var existing = await _authService.GetAuthorizedTournamentAsync(id, userId);
+            if (existing == null)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
 
             dto.UpdateTournamentEntity(existing);
             await _tournamentRepo.UpdateAsync(existing);
@@ -76,6 +104,13 @@ namespace DTC.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             var success = await _tournamentRepo.DeleteAsync(id);
             if (!success) return NotFound();
 
@@ -85,6 +120,13 @@ namespace DTC.Api.Controllers
         [HttpPost("{id:int}/generate-groups")]
         public async Task<IActionResult> GenerateGroups([FromRoute] int id, [FromBody] GenerateGroupsDto dto)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 await _configRepo.UpdateConfig(id, dto);
@@ -104,6 +146,13 @@ namespace DTC.Api.Controllers
         [HttpPost("{id:int}/manual-groups")]
         public async Task<IActionResult> SaveManualGroups([FromRoute] int id, [FromBody] ManualGroupSetupDto dto)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 await _matchMakerService.SaveManualGroupsAsync(id, dto);
@@ -122,6 +171,13 @@ namespace DTC.Api.Controllers
         [HttpPost("{id:int}/generate-knockout")]
         public async Task<IActionResult> GenerateKnockout([FromRoute] int id, [FromBody] GenerateGroupsDto dto)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 await _configRepo.UpdateConfig(id, dto);
@@ -141,12 +197,19 @@ namespace DTC.Api.Controllers
         [HttpGet("{id:int}/groups")]
         public async Task<IActionResult> GetGroups([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 var groups = await _groupRepo.GetGroupsAsync(id);
                 return Ok(groups.Select(g => g.ToGroupDto()));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -155,6 +218,13 @@ namespace DTC.Api.Controllers
         [HttpGet("{id:int}/brakets")]
         public async Task<IActionResult> GetBrakets([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 var brakets = await _braketRepo.GetBraketsAsync(id);
@@ -169,6 +239,13 @@ namespace DTC.Api.Controllers
         [HttpGet("{id:int}/configs")]
         public async Task<IActionResult> GetConfigs([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 var configs = await _configRepo.GetConfigsAsync(tournamentid: id);
@@ -183,6 +260,13 @@ namespace DTC.Api.Controllers
         [HttpGet("{id:int}/players")]
         public async Task<IActionResult> GetTournamentPlayers([FromRoute] int id)
         {
+            var userId = GetCurrentUserId();
+            var hasAccess = await _authService.HasTournamentAccessAsync(id, userId);
+            if (!hasAccess)
+            {
+                return NotFound(new { message = "Turnier nicht gefunden oder Zugriff verweigert." });
+            }
+
             try
             {
                 var players = await _tplayerRepo.GetPlayersAsync(tournamentid: id);

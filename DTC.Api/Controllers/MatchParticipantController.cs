@@ -2,10 +2,12 @@
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using DTC.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DTC.Api.Controllers
 {
+    [Authorize]
     [Route("api/matchparticipants")]
     [ApiController]
 
