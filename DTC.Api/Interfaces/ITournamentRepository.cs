@@ -1,4 +1,4 @@
-﻿using DTC.Api.Models;
+using DTC.Api.Models;
 
 namespace DTC.Api.Interfaces
 {

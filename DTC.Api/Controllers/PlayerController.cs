@@ -1,4 +1,4 @@
-﻿namespace DTC.Api.Controllers;
+namespace DTC.Api.Controllers;
 
 using DTC.Api.Dtos.Player;
 using DTC.Api.Interfaces;

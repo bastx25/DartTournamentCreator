@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using DTC.Api.Dtos.Braket;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;

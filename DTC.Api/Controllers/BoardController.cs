@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Board;
+using DTC.Api.Dtos.Board;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using Microsoft.AspNetCore.Authorization;

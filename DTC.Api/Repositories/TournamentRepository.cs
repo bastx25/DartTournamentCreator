@@ -1,4 +1,4 @@
-﻿using DTC.Api.Data;
+using DTC.Api.Data;
 using DTC.Api.Interfaces;
 using DTC.Api.Models;
 using Microsoft.EntityFrameworkCore;

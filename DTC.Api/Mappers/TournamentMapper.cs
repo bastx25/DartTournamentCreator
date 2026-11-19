@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Tournament;
+using DTC.Api.Dtos.Tournament;
 using DTC.Api.Models;
 
 namespace DTC.Api.Mappers

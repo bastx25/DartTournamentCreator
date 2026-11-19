@@ -1,4 +1,4 @@
-﻿using DTC.Api.Dtos.Match;
+using DTC.Api.Dtos.Match;
 using DTC.Api.Interfaces;
 using DTC.Api.Mappers;
 using DTC.Api.Services;
