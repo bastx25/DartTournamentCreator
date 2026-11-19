@@ -108,9 +108,9 @@ namespace DTC.Api.Controllers
             }
 
             dto.UpdateBoardEntity(existing);
-            await _boardRepo.UpdateAsync(existing);
+            var updated = await _boardRepo.UpdateAsync(existing);
 
-            return NoContent();
+            return Ok(updated.ToBoardDto());
         }
 
         [HttpDelete("{id:int}")]

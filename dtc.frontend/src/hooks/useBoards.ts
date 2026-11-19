@@ -84,22 +84,32 @@ export function useBoards() {
         isActive: board.isActive,
       });
 
+      const effectiveBoard: BoardDto =
+        updatedBoard && typeof updatedBoard === "object" && updatedBoard.id
+          ? updatedBoard
+          : {
+              ...board,
+              locationId: board.locationId,
+              label: board.label,
+              isActive: board.isActive,
+            };
+
       setBoards((currentBoards) =>
         currentBoards.map((currentBoard) =>
-          currentBoard.id === updatedBoard.id ? updatedBoard : currentBoard,
+          currentBoard.id === effectiveBoard.id ? effectiveBoard : currentBoard,
         ),
       );
 
       setSelectedBoard((currentSelectedBoard) =>
-        currentSelectedBoard?.id === updatedBoard.id
-          ? updatedBoard
+        currentSelectedBoard?.id === effectiveBoard.id
+          ? effectiveBoard
           : currentSelectedBoard,
       );
 
       setBoardToUpdate(null);
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Boards:", error);
-      setError("Die Boards konnten nicht aktualisiert werden.");
+      setError("Das Board konnte nicht aktualisiert werden.");
     } finally {
       setUpdating(false);
     }
@@ -119,11 +129,11 @@ export function useBoards() {
       setBoards((currentBoards) => [...currentBoards, newBoard]);
 
       setSelectedBoard(newBoard);
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren des Boards:", error);
-      setError("Die Boards konnte nicht hinzugefügt werden.");
-    } finally {
       setAddBoard(false);
+    } catch (error) {
+      console.error("Fehler beim Hinzufügen des Boards:", error);
+      setError("Das Board konnte nicht hinzugefügt werden.");
+    } finally {
       setAdding(false);
     }
   };

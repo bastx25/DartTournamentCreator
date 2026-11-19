@@ -41,7 +41,7 @@ export function BoardRow({
           >
             {displayName}
           </span>
-          <span className="text-xs text-gray-400">ID: #{board.id}</span>
+          {/* <span className="text-xs text-gray-400">ID: #{board.id}</span> */}
         </div>
       </div>
 

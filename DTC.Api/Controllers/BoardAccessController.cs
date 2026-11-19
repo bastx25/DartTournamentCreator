@@ -26,6 +26,27 @@ namespace DTC.Api.Controllers
             _matchMakerService = matchMakerService;
         }
 
+        [HttpGet("boards")]
+        [HttpGet("/api/public/boards")]
+        public async Task<ActionResult<IEnumerable<PublicBoardDto>>> GetAllPublicBoards()
+        {
+            var boards = await _context.Boards
+                .AsNoTracking()
+                .Include(b => b.Location)
+                .OrderBy(b => b.Id)
+                .Select(b => new PublicBoardDto
+                {
+                    Id = b.Id,
+                    Label = b.Label,
+                    LocationId = b.LocationId,
+                    LocationName = b.Location != null ? b.Location.Name : null,
+                    IsActive = b.IsActive
+                })
+                .ToListAsync();
+
+            return Ok(boards);
+        }
+
         [HttpGet("boards/{boardId:int}")]
         public async Task<ActionResult<BoardDto>> GetBoard([FromRoute] int boardId)
         {

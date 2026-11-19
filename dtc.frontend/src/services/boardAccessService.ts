@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { BoardDto } from "../dtos/board/BoardDto";
+import type { PublicBoardDto } from "../dtos/board/PublicBoardDto";
 import type { MatchStatus } from "../enums/MatchStatus";
 import type { MatchParticipantDto } from "../dtos/matchParticipant/MatchParticipantDto";
 
@@ -19,6 +20,13 @@ export interface FinishBoardMatchDto {
     participantId: number;
     score: number;
   }>;
+}
+
+export async function getPublicBoards(): Promise<PublicBoardDto[]> {
+  const response = await axios.get<PublicBoardDto[]>(
+    `/api/board-access/boards`,
+  );
+  return response.data;
 }
 
 export async function getBoardForAccess(boardId: number): Promise<BoardDto> {

@@ -21,13 +21,16 @@ export function BoardDetails({ board, getBoardLocation }: BoardDetailsProps) {
           </div>
 
           <div className="space-y-4">
-            <Detail label="ID" value={`#${board.id}`} />
-            <Detail label="Bezeichnung" value={board.label || "—"} />
+            {/* <Detail label="ID" value={`#${board.id}`} /> */}
+            {/* <Detail label="Bezeichnung" value={board.label || "—"} /> */}
             <Detail
               label="Austragungsort"
               value={getBoardLocation(board.locationId)}
             />
-            <Detail label="Status" value={board.isActive ? "Aktiv" : "Inaktiv"} />
+            <Detail
+              label="Status"
+              value={board.isActive ? "Aktiv" : "Inaktiv"}
+            />
           </div>
         </>
       ) : (
