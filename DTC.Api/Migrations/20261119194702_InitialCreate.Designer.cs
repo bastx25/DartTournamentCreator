@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DTC.Api.Migrations
 {
     [DbContext(typeof(DartDbContext))]
-    [Migration("20261119182901_init")]
-    partial class init
+    [Migration("20261119194702_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,13 +140,15 @@ namespace DTC.Api.Migrations
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId", "Number")
-                        .IsUnique();
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Boards");
                 });
@@ -256,7 +258,13 @@ namespace DTC.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Locations");
                 });
@@ -353,7 +361,13 @@ namespace DTC.Api.Migrations
                     b.Property<string>("Nickname")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Players");
                 });
@@ -662,10 +676,18 @@ namespace DTC.Api.Migrations
                     b.HasOne("DTC.Api.Models.Location", "Location")
                         .WithMany("Boards")
                         .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DTC.Api.Models.ApplicationUser", "User")
+                        .WithMany("Boards")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Location");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.Braket", b =>
@@ -709,12 +731,23 @@ namespace DTC.Api.Migrations
                     b.Navigation("TournamentPlayer");
                 });
 
+            modelBuilder.Entity("DTC.Api.Models.Location", b =>
+                {
+                    b.HasOne("DTC.Api.Models.ApplicationUser", "User")
+                        .WithMany("Locations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DTC.Api.Models.Match", b =>
                 {
                     b.HasOne("DTC.Api.Models.Board", "Board")
                         .WithMany("Matches")
                         .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DTC.Api.Models.Braket", "Braket")
                         .WithMany("Matches")
@@ -750,6 +783,17 @@ namespace DTC.Api.Migrations
                     b.Navigation("Match");
 
                     b.Navigation("TournamentPlayer");
+                });
+
+            modelBuilder.Entity("DTC.Api.Models.Player", b =>
+                {
+                    b.HasOne("DTC.Api.Models.ApplicationUser", "User")
+                        .WithMany("Players")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DTC.Api.Models.RefreshToken", b =>
@@ -856,6 +900,12 @@ namespace DTC.Api.Migrations
 
             modelBuilder.Entity("DTC.Api.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Boards");
+
+                    b.Navigation("Locations");
+
+                    b.Navigation("Players");
+
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("Tournaments");

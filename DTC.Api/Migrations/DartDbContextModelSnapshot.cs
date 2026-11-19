@@ -673,7 +673,7 @@ namespace DTC.Api.Migrations
                     b.HasOne("DTC.Api.Models.Location", "Location")
                         .WithMany("Boards")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DTC.Api.Models.ApplicationUser", "User")
@@ -744,7 +744,7 @@ namespace DTC.Api.Migrations
                     b.HasOne("DTC.Api.Models.Board", "Board")
                         .WithMany("Matches")
                         .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DTC.Api.Models.Braket", "Braket")
                         .WithMany("Matches")

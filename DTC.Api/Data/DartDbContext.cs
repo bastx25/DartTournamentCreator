@@ -77,7 +77,8 @@ namespace DTC.Api.Data
                     .IsUnique();
 
                 entity.Property(c => c.KnockoutDrawMode)
-                    .HasDefaultValue(KnockoutDrawMode.Random);
+                    .HasDefaultValue(KnockoutDrawMode.Random)
+                    .HasSentinel(KnockoutDrawMode.Random);
             });
 
             // =========================================================
@@ -146,10 +147,12 @@ namespace DTC.Api.Data
                     .HasForeignKey(b => b.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
+                // Restrict / NoAction verhindert Multiple Cascade Paths von AspNetUsers -> Location -> Board
+                // Das Kaskadieren bei Benutzerlöschung erfolgt direkt über AspNetUsers -> Board.
                 entity.HasOne(b => b.Location)
                     .WithMany(l => l.Boards)
                     .HasForeignKey(b => b.LocationId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
 
@@ -256,12 +259,14 @@ namespace DTC.Api.Data
                     .OnDelete(DeleteBehavior.Restrict);
 
                 // Board -> Matches
-                // Ein Match kann ohne Board angelegt werden.
-                // Wird ein Board entfernt, bleibt das Match erhalten.
+                // Restrict / NoAction auf DB-Ebene verhindert Multiple Cascade Paths:
+                // AspNetUsers -> Tournaments -> Brakets -> Matches (CASCADE)
+                // AspNetUsers -> Boards -> Matches (SET NULL würde Multiple Cascade Paths auslösen)
+                // Das Aufheben der Board-Zuweisung bei Board-Löschung wird in BoardRepository/Service gesteuert.
                 entity.HasOne(m => m.Board)
                     .WithMany(b => b.Matches)
                     .HasForeignKey(m => m.BoardId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.Restrict);
 
 
             });

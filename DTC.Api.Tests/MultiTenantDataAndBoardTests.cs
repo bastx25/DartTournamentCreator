@@ -27,7 +27,7 @@ namespace DTC.Api.Tests
         public async Task Scenario1_UserA_SeesOnlyOwnTournaments()
         {
             using var context = CreateInMemoryContext("MultiTenantTournaments_" + Guid.NewGuid());
-            var repo = new TournamentRepository(context);
+            var repo = new TournamentRepository(context, null!, null!);
 
             context.Tournaments.AddRange(
                 new Tournament { Id = 1, Name = "User A Tourney", UserId = "user-A", Code = "DART-AAAA01", StartDate = DateTimeOffset.UtcNow },
@@ -35,11 +35,11 @@ namespace DTC.Api.Tests
             );
             await context.SaveChangesAsync();
 
-            var tournamentsA = await repo.GetByUserIdAsync("user-A");
+            var tournamentsA = (await repo.GetByUserIdAsync("user-A")).ToList();
             Assert.Single(tournamentsA);
             Assert.Equal("User A Tourney", tournamentsA[0].Name);
 
-            var tournamentsB = await repo.GetByUserIdAsync("user-B");
+            var tournamentsB = (await repo.GetByUserIdAsync("user-B")).ToList();
             Assert.Single(tournamentsB);
             Assert.Equal("User B Tourney", tournamentsB[0].Name);
         }

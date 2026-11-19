@@ -59,6 +59,14 @@ namespace DTC.Api.Repositories
             var board = await _context.Boards.FindAsync(id);
             if (board == null) return false;
 
+            var matches = await _context.Matches
+                .Where(m => m.BoardId == id)
+                .ToListAsync();
+            foreach (var match in matches)
+            {
+                match.BoardId = null;
+            }
+
             _context.Boards.Remove(board);
             await _context.SaveChangesAsync();
             return true;
@@ -69,6 +77,14 @@ namespace DTC.Api.Repositories
             var board = await _context.Boards
                 .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
             if (board == null) return false;
+
+            var matches = await _context.Matches
+                .Where(m => m.BoardId == id)
+                .ToListAsync();
+            foreach (var match in matches)
+            {
+                match.BoardId = null;
+            }
 
             _context.Boards.Remove(board);
             await _context.SaveChangesAsync();

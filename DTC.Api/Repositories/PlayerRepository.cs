@@ -26,17 +26,19 @@ namespace DTC.Api.Repositories
             var playerModel = await _context.Players.FindAsync(id);
             if (playerModel == null) return false;
 
-            _context.Players.Remove(playerModel);
+            var isInUse = await _context.TournamentPlayers.AnyAsync(tp => tp.PlayerId == id);
+            if (isInUse) return false;
+
             try
             {
+                _context.Players.Remove(playerModel);
                 await _context.SaveChangesAsync();
+                return true;
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id, string userId)
@@ -45,17 +47,19 @@ namespace DTC.Api.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
             if (playerModel == null) return false;
 
-            _context.Players.Remove(playerModel);
+            var isInUse = await _context.TournamentPlayers.AnyAsync(tp => tp.PlayerId == id);
+            if (isInUse) return false;
+
             try
             {
+                _context.Players.Remove(playerModel);
                 await _context.SaveChangesAsync();
+                return true;
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
         public async Task<Player> UpdateAsync(Player player)

@@ -68,6 +68,14 @@ namespace DTC.Api.Repositories
             await _groupRepo.DeleteAllTournamentGroups(id);
             await _braketRepo.DeleteAllTournamentBraketsAsync(id);
 
+            var tournamentPlayers = await _context.TournamentPlayers
+                .Where(tp => tp.TournamentId == id)
+                .ToListAsync();
+            if (tournamentPlayers.Any())
+            {
+                _context.TournamentPlayers.RemoveRange(tournamentPlayers);
+            }
+
             _context.Tournaments.Remove(tournament);
             await _context.SaveChangesAsync();
             return true;

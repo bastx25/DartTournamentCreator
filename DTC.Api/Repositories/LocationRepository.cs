@@ -59,8 +59,23 @@ namespace DTC.Api.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var location = await _context.Locations.FindAsync(id);
+            var location = await _context.Locations
+                .Include(l => l.Boards)
+                .FirstOrDefaultAsync(l => l.Id == id);
             if (location == null) return false;
+
+            if (location.Boards.Any())
+            {
+                var boardIds = location.Boards.Select(b => b.Id).ToList();
+                var matches = await _context.Matches
+                    .Where(m => m.BoardId != null && boardIds.Contains(m.BoardId.Value))
+                    .ToListAsync();
+                foreach (var match in matches)
+                {
+                    match.BoardId = null;
+                }
+                _context.Boards.RemoveRange(location.Boards);
+            }
 
             _context.Locations.Remove(location);
             await _context.SaveChangesAsync();
@@ -70,8 +85,22 @@ namespace DTC.Api.Repositories
         public async Task<bool> DeleteAsync(int id, string userId)
         {
             var location = await _context.Locations
+                .Include(l => l.Boards)
                 .FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
             if (location == null) return false;
+
+            if (location.Boards.Any())
+            {
+                var boardIds = location.Boards.Select(b => b.Id).ToList();
+                var matches = await _context.Matches
+                    .Where(m => m.BoardId != null && boardIds.Contains(m.BoardId.Value))
+                    .ToListAsync();
+                foreach (var match in matches)
+                {
+                    match.BoardId = null;
+                }
+                _context.Boards.RemoveRange(location.Boards);
+            }
 
             _context.Locations.Remove(location);
             await _context.SaveChangesAsync();
