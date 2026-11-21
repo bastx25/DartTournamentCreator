@@ -5,7 +5,7 @@ import { DashboardHeader, type SavedTournamentItem } from "./DashboardHeader";
 import { DashboardTournamentDetails } from "./DashboardTournamentDetails";
 import { DashboardBraket } from "./DashboardBraket";
 import { DashboardGroup } from "./DashboardGroup";
-import { DashboardBoards } from "./DashboardBoards";
+// import { DashboardBoards } from "./DashboardBoards";
 import type { GroupDto } from "../../dtos/group/GroupDto";
 import type { BraketDto } from "../../dtos/brakets/BraketDto";
 import { getPublicTournamentByCode } from "../../services/publicTournamentService";
