@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MatchStatus, matchStatusLabel } from "../../enums/MatchStatus";
-import { getBoard } from "../../services/boardService";
+import { getBoardForAccess as getBoard } from "../../services/boardAccessService";
 import { formatTime } from "../../utils/formatTime";
 import type { BoardDto } from "../../dtos/board/BoardDto";
 import type { MatchDto } from "../../dtos/match/MatchDto";
