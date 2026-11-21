@@ -350,7 +350,7 @@ export function DashboardPage() {
         )}
 
         {/* Public Boards Section */}
-        <DashboardBoards />
+        {/* <DashboardBoards /> */}
       </main>
     </div>
   );
